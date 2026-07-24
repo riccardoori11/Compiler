@@ -1,4 +1,7 @@
 #include "lexxer.hpp"
+#include "parser.hpp"
+#include <ios>
+#include <unistd.h>
 
 std::string Convert_type_to_str(Token t){
 
@@ -34,7 +37,7 @@ std::string Convert_type_to_str(Token t){
 		
 }
 
-auto printToken(ricc::lexxer lex){
+auto printToken(lexxer lex){
 
 		while(true){
 
@@ -50,9 +53,22 @@ auto printToken(ricc::lexxer lex){
 
 int main(){
 
-		ricc::lexxer a{"return 1 == 2"};
+		lexxer a{"int x = 5;"};
+		Parser p{std::move(a)};
 		
-		printToken(a);
+		auto program = p.ParseProgram();
+
+		std::cout << program->statements.size() << std::endl;
+
+		auto *decalaration = dynamic_cast<VariableDeclaration*>(program->statements[0].get());
+
+		std::cout << decalaration->token.text << std::endl;
+		std::cout << decalaration->name->value << std::endl;
+		
+		auto *integer = dynamic_cast<Integer*>(decalaration->value.get());
+
+		std::cout << integer->value << std::endl;
+
 
 		return 0;
 }

@@ -3,6 +3,8 @@
 #include <iostream>
 #include "token.hpp"
 #include <unordered_map>
+#pragma once
+
 
 
 		class lexxer{

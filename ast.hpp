@@ -24,7 +24,7 @@ public:
 class Expression: public Node{
 
 public:
-
+		
 		~Expression() override = default;
 };
 
@@ -65,11 +65,11 @@ class Identifier: public Expression{
 
 class VariableDeclaration: public Statement{
 
+		
 		public:
-				Token token;
-				
-				std::unique_ptr<Identifier> name;
-				std::unique_ptr<Expression> value;
+		Token token;
+		std::unique_ptr<Identifier> name;
+		std::unique_ptr<Expression> value;		
 
 
 		VariableDeclaration(Token token):token(std::move(token)){
@@ -86,5 +86,19 @@ class VariableDeclaration: public Statement{
 };
 
 
+class Integer: public Expression{
+
+		public:
+				Token token;
+				int value;
+
+				Integer(Token token,int value):token(token),value(value){};
+
+				std::string TokenLiteral() const override{
+
+						return token.text;
+				}
+
+};
 
 

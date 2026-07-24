@@ -10,6 +10,7 @@ add_executable(
 
 		lexer
 		main.cpp
+
 )
 
 

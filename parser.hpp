@@ -1,10 +1,11 @@
 #include "lexxer.hpp"
 #include "ast.hpp"
 #include "token.hpp"
+#include <algorithm>
 #include <memory>
 #include <utility>
 
-namespace ricc{
+
 class Parser{
 
 private:
@@ -28,7 +29,23 @@ private:
 				return next_tok.tokentype == type;
 		}
 
-		std::unique_ptr<Expression> ParseExpression(){}
+		std::unique_ptr<Expression> parseInteger(){
+
+				int value = std::stoi(curr_tok.text);
+				return std::make_unique<Integer>(curr_tok,value);
+		}
+		
+		std::unique_ptr<Expression> ParseExpression(){
+
+				switch (curr_tok.tokentype){
+				
+						case TokenType::INTEGER:
+								return parseInteger();
+						default:
+								return nullptr;
+				}
+		}
+
 
 		std::unique_ptr<VariableDeclaration> parseVariableDeclaration(){
 
@@ -50,6 +67,10 @@ private:
 
 				declaration->value = ParseExpression();
 
+				
+				nextToken();
+				return declaration;
+
 
 		}
 		std::unique_ptr<Statement> parseStatement(){
@@ -58,6 +79,8 @@ private:
 
 						case TokenType::INT:
 								return parseVariableDeclaration();
+						default:
+								return nullptr;
 				}
 		}
 
@@ -72,7 +95,7 @@ public:
 
 				auto program = std::make_unique<Program>();
 
-				while (current_type_is(TokenType::ENDOFFILE)){
+				while (!current_type_is(TokenType::ENDOFFILE)){
 
 						auto statement = parseStatement(); 
 						if (statement){
@@ -89,4 +112,4 @@ public:
 
 };
 
-}
+
