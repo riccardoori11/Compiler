@@ -1,7 +1,6 @@
 #include "lexxer.hpp"
 #include "ast.hpp"
 #include "token.hpp"
-#include <algorithm>
 #include <memory>
 #include <utility>
 
@@ -60,7 +59,15 @@ private:
 
 				if (!next_type_is(TokenType::EQUAL)){
 
-						return nullptr;
+						if (next_type_is(TokenType::SEMICOLON)){
+
+								declaration->value = 0;
+						}
+						else{
+
+								return nullptr;
+						}
+						
 				}
 				nextToken();
 				nextToken();
@@ -78,6 +85,8 @@ private:
 				switch (curr_tok.tokentype){
 
 						case TokenType::INT:
+								return parseVariableDeclaration();
+						case TokenType::DOUBLE:
 								return parseVariableDeclaration();
 						default:
 								return nullptr;
