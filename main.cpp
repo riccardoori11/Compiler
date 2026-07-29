@@ -54,24 +54,25 @@ auto printToken(lexxer lex){
 auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 
-		auto dec = dynamic_cast<VariableDeclaration*>(p->statements[0].get());
+		for (std::size_t i{}; i < p->statements.size(); ++i){
+		auto dec = dynamic_cast<VariableDeclaration*>(p->statements[i].get());
 
 		auto name = dec->name->TokenLiteral();
 
 		auto value = dec->value->TokenLiteral();
 
 		std::cout <<"Type: "<< dec->TokenLiteral() <<  "\nName: " << name << "\nValue: " << value << std::endl;
+		}
 }
+
 
 int main(){
 
-		lexxer a{"int x = 5;"};
-		Parser p{std::move(a)};
-		
+		lexxer a{"int x = 5; return 5;"};
+		Parser p = Parser(a);
 		auto program = p.ParseProgram();
-
-		printVariableDeclaration(std::move(program));
 		
+		std::cout << program->statements.size() << std::endl;
 
 		return 0;
 }

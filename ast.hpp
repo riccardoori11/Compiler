@@ -102,3 +102,18 @@ class Integer: public Expression{
 };
 
 
+class Return: public Statement{
+
+		public:
+				Token token;
+				std::unique_ptr<Expression> Returnvalue;
+
+				Return(Token token):token(std::move(token)){}
+
+				std::string TokenLiteral() const override{
+
+						return token.text;
+				}
+
+};
+

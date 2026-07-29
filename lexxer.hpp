@@ -5,9 +5,7 @@
 #include <unordered_map>
 #pragma once
 
-
-
-		class lexxer{
+class lexxer{
 
 private:
 		std::string input = "";
@@ -17,6 +15,7 @@ private:
 				{"int", TokenType::INT},
 				{"bool", TokenType::BOOL},
 				{"double", TokenType::DOUBLE},
+				{"return", TokenType::RETURN}
 
 		};
 		
@@ -71,35 +70,41 @@ private:
 		}
 public:
 
-constexpr lexxer() = default;
+lexxer() = default;
 
-constexpr lexxer(std::string input):input(std::move(input)){}
+lexxer(std::string input):input(std::move(input)){}
 
 // following rule of five
 // copy constructor
-constexpr lexxer(const lexxer& other):input(other.input){}
+lexxer(const lexxer& other):input(other.input){
+
+}
 
 
 // copy assignment
-constexpr lexxer& operator= (const lexxer& other){
+lexxer& operator= (const lexxer& other){
 
 		if (this != &other){
 				input = other.input;
 				pos = other.pos;
 		}
+
 		
 		return *this;
 
 }
 
 // move constructor
-constexpr lexxer(lexxer&& other):input(std::exchange(input,other.input)){}
+lexxer(lexxer&& other):input(std::exchange(input,other.input)){
+		
+}
 
 // move assignment
-constexpr lexxer& operator= (lexxer&& other){
+lexxer& operator= (lexxer&& other){
 
 		std::swap(input,other.input);
 		return *this;
+
 }
 
 Token nextToken(){

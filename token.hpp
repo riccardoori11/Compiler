@@ -15,7 +15,8 @@ enum class TokenType{
 		INT,
 		BOOL,
 		DOUBLE,
-		COMPARE
+		COMPARE,
+		RETURN
 };
 
 

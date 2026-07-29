@@ -80,6 +80,23 @@ private:
 
 
 		}
+
+		std::unique_ptr<Return> parseReturn(){
+
+				std::cout << "Entered return" << std::endl;
+				auto declaration = std::make_unique<Return>(curr_tok);
+				if (next_type_is(TokenType::SEMICOLON)){
+
+						return nullptr;
+				}
+				nextToken();
+
+				declaration->Returnvalue = ParseExpression();
+
+				nextToken();
+				return declaration;
+				
+		}
 		std::unique_ptr<Statement> parseStatement(){
 
 				switch (curr_tok.tokentype){
@@ -88,6 +105,10 @@ private:
 								return parseVariableDeclaration();
 						case TokenType::DOUBLE:
 								return parseVariableDeclaration();
+						case TokenType::BOOL:
+								return parseVariableDeclaration();
+						case TokenType::RETURN:
+								return parseReturn();
 						default:
 								return nullptr;
 				}
