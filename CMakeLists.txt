@@ -10,7 +10,14 @@ add_executable(
 
 		lexer
 		main.cpp
-
 )
 
 
+target_compile_options(lexer PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+
+    $<$<CONFIG:Debug>:-g>
+    $<$<CONFIG:Debug>:-O0>
+)

@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <memory>
 #include "token.hpp"
 #include <string>
@@ -116,4 +115,48 @@ class Return: public Statement{
 				}
 
 };
+
+/* a+ b + c for example, you start with a + b, (parse that) then check precedence for +c*/
+class InfixExpression: public Expression{
+
+public:
+
+		Token token;
+		TokenType op;
+		std::unique_ptr<Expression> left;
+		std::unique_ptr<Expression> right;
+
+		InfixExpression(Token token,std::unique_ptr<Expression> left,std::unique_ptr<Expression> right):
+				token(token),left(std::move(left)),right(std::move(right)),op(token.tokentype)
+		{
+		}
+
+		std::string TokenLiteral() const override{
+
+						return token.text;
+				}
+
+};
+
+
+class PrefixExpression: public Expression{
+
+public:
+
+		Token token;
+		TokenType op;
+		std::unique_ptr<Expression> right;
+
+		PrefixExpression(Token token):token(std::move(token)),op(token.tokentype)
+		{
+		};
+
+		std::string TokenLiteral() const{
+
+				return token.text;
+		}
+
+};
+
+
 

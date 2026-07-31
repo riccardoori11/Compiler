@@ -5,6 +5,15 @@
 #include <utility>
 
 
+enum Precedence{
+
+		LOWEST,
+		COMPARE,
+		LESSGREATER,
+		SUM,
+		PRODUCT,
+
+};
 class Parser{
 
 private:
@@ -16,6 +25,39 @@ private:
 
 				curr_tok = std::move(next_tok);
 				next_tok = l.nextToken();
+		}
+
+		Precedence getCurrentPrecedence(){
+
+				return getPrecedence(curr_tok.tokentype); 
+		}
+		Precedence getPeekPrecedence(){
+
+				return getPrecedence(next_tok.tokentype); 
+		}
+
+
+		Precedence getPrecedence(TokenType type){
+
+				switch(type){
+						case TokenType::COMPARE:
+								return Precedence::COMPARE;
+						case TokenType::LESS:
+								return Precedence::LESSGREATER;
+						case TokenType::GREATER:
+								return Precedence::LESSGREATER;
+						case TokenType::MULTIPLICATION:
+								return Precedence::PRODUCT;
+						case TokenType::PLUS:
+								return Precedence::SUM;
+						case TokenType::MINUS:
+								return Precedence::SUM;
+						case TokenType::DIVISION:
+								return Precedence::PRODUCT;
+						default:
+								return LOWEST;
+						
+				}
 		}
 
 		bool current_type_is(TokenType type){
@@ -33,16 +75,55 @@ private:
 				int value = std::stoi(curr_tok.text);
 				return std::make_unique<Integer>(curr_tok,value);
 		}
+
+		std::unique_ptr<Expression> parseIdentifier(){
+
+				std::string value = curr_tok.text;
+
+				return std::make_unique<Identifier>(curr_tok,value);
+		}
 		
-		std::unique_ptr<Expression> ParseExpression(){
+		std::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
+
+				std::unique_ptr<Expression> left;
 
 				switch (curr_tok.tokentype){
 				
 						case TokenType::INTEGER:
-								return parseInteger();
+								left = parseInteger();
+								break;
+						case TokenType::IDENTIFIER:
+								left = parseIdentifier();
+								break;
 						default:
 								return nullptr;
 				}
+
+				/*Keep extending the left*/
+
+		while(!next_type_is(TokenType::SEMICOLON) && precedence < getPeekPrecedence()){
+				switch (next_tok.tokentype){
+						case TokenType::COMPARE:
+						case TokenType::GREATER:
+						case::TokenType::MULTIPLICATION:
+						case::TokenType::LESS:
+						case::TokenType::DIVISION:
+						case::TokenType::PLUS:
+						case::TokenType::MINUS:
+
+						nextToken();
+						left = parseInfix(std::move(left));
+						if (!left){
+
+								return nullptr;
+						}
+						break;
+						default:
+								return left;
+
+				}
+		}
+		return left;
 		}
 
 
@@ -80,6 +161,27 @@ private:
 
 
 		}
+
+		std::unique_ptr<Expression> parseInfix(std::unique_ptr<Expression> left){
+
+				Token op = curr_tok;
+
+				Precedence p = getCurrentPrecedence();
+
+				nextToken();
+
+				auto right = ParseExpression(p);
+
+				if (!right){
+
+						return nullptr;
+				}
+				return std::make_unique<InfixExpression>(std::move(op),std::move(left),std::move(right));
+		}
+/*std::unique_ptr<Expression> parsePrefix(std::unique_ptr<Expression> left){
+
+		}*/
+		
 
 		std::unique_ptr<Return> parseReturn(){
 

@@ -16,7 +16,10 @@ enum class TokenType{
 		BOOL,
 		DOUBLE,
 		COMPARE,
-		RETURN
+		RETURN,
+		LESS,
+		GREATER,
+		DIVISION,
 };
 
 

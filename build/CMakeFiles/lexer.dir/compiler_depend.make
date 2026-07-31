@@ -93,7 +93,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/bits/wctype-wchar.h \
   /usr/include/bits/wordsize.h \
   /usr/include/bits/xopen_lim.h \
-  /usr/include/c++/15/algorithm \
+  /usr/include/c++/15/array \
   /usr/include/c++/15/backward/auto_ptr.h \
   /usr/include/c++/15/backward/binders.h \
   /usr/include/c++/15/bit \
@@ -111,6 +111,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/basic_string.tcc \
   /usr/include/c++/15/bits/char_traits.h \
   /usr/include/c++/15/bits/charconv.h \
+  /usr/include/c++/15/bits/codecvt.h \
   /usr/include/c++/15/bits/concept_check.h \
   /usr/include/c++/15/bits/cpp_type_traits.h \
   /usr/include/c++/15/bits/cxxabi_forced.h \
@@ -120,6 +121,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/exception.h \
   /usr/include/c++/15/bits/exception_defines.h \
   /usr/include/c++/15/bits/exception_ptr.h \
+  /usr/include/c++/15/bits/formatfwd.h \
   /usr/include/c++/15/bits/functexcept.h \
   /usr/include/c++/15/bits/functional_hash.h \
   /usr/include/c++/15/bits/hash_bytes.h \
@@ -131,12 +133,16 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/iterator_concepts.h \
   /usr/include/c++/15/bits/locale_classes.h \
   /usr/include/c++/15/bits/locale_classes.tcc \
+  /usr/include/c++/15/bits/locale_conv.h \
   /usr/include/c++/15/bits/locale_facets.h \
   /usr/include/c++/15/bits/locale_facets.tcc \
+  /usr/include/c++/15/bits/locale_facets_nonio.h \
+  /usr/include/c++/15/bits/locale_facets_nonio.tcc \
   /usr/include/c++/15/bits/localefwd.h \
   /usr/include/c++/15/bits/max_size_type.h \
   /usr/include/c++/15/bits/memory_resource.h \
   /usr/include/c++/15/bits/memoryfwd.h \
+  /usr/include/c++/15/bits/monostate.h \
   /usr/include/c++/15/bits/move.h \
   /usr/include/c++/15/bits/nested_exception.h \
   /usr/include/c++/15/bits/new_allocator.h \
@@ -148,7 +154,6 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/predefined_ops.h \
   /usr/include/c++/15/bits/ptr_traits.h \
   /usr/include/c++/15/bits/range_access.h \
-  /usr/include/c++/15/bits/ranges_algo.h \
   /usr/include/c++/15/bits/ranges_algobase.h \
   /usr/include/c++/15/bits/ranges_base.h \
   /usr/include/c++/15/bits/ranges_cmp.h \
@@ -180,6 +185,8 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/streambuf_iterator.h \
   /usr/include/c++/15/bits/string_view.tcc \
   /usr/include/c++/15/bits/stringfwd.h \
+  /usr/include/c++/15/bits/unicode-data.h \
+  /usr/include/c++/15/bits/unicode.h \
   /usr/include/c++/15/bits/uniform_int_dist.h \
   /usr/include/c++/15/bits/unique_ptr.h \
   /usr/include/c++/15/bits/unordered_map.h \
@@ -190,6 +197,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/version.h \
   /usr/include/c++/15/cctype \
   /usr/include/c++/15/cerrno \
+  /usr/include/c++/15/charconv \
   /usr/include/c++/15/climits \
   /usr/include/c++/15/clocale \
   /usr/include/c++/15/compare \
@@ -198,6 +206,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/cstdint \
   /usr/include/c++/15/cstdio \
   /usr/include/c++/15/cstdlib \
+  /usr/include/c++/15/ctime \
   /usr/include/c++/15/cwchar \
   /usr/include/c++/15/cwctype \
   /usr/include/c++/15/debug/assertions.h \
@@ -210,19 +219,23 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/ext/numeric_traits.h \
   /usr/include/c++/15/ext/string_conversions.h \
   /usr/include/c++/15/ext/type_traits.h \
+  /usr/include/c++/15/format \
   /usr/include/c++/15/initializer_list \
   /usr/include/c++/15/ios \
   /usr/include/c++/15/iosfwd \
   /usr/include/c++/15/iostream \
   /usr/include/c++/15/istream \
+  /usr/include/c++/15/limits \
+  /usr/include/c++/15/locale \
   /usr/include/c++/15/memory \
   /usr/include/c++/15/new \
   /usr/include/c++/15/numbers \
+  /usr/include/c++/15/optional \
   /usr/include/c++/15/ostream \
   /usr/include/c++/15/pstl/execution_defs.h \
-  /usr/include/c++/15/pstl/glue_algorithm_defs.h \
   /usr/include/c++/15/pstl/glue_memory_defs.h \
   /usr/include/c++/15/pstl/pstl_config.h \
+  /usr/include/c++/15/span \
   /usr/include/c++/15/stdexcept \
   /usr/include/c++/15/streambuf \
   /usr/include/c++/15/string \
@@ -244,7 +257,9 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/x86_64-redhat-linux/bits/error_constants.h \
   /usr/include/c++/15/x86_64-redhat-linux/bits/gthr-default.h \
   /usr/include/c++/15/x86_64-redhat-linux/bits/gthr.h \
+  /usr/include/c++/15/x86_64-redhat-linux/bits/messages_members.h \
   /usr/include/c++/15/x86_64-redhat-linux/bits/os_defines.h \
+  /usr/include/c++/15/x86_64-redhat-linux/bits/time_members.h \
   /usr/include/ctype.h \
   /usr/include/endian.h \
   /usr/include/errno.h \
@@ -252,6 +267,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/features.h \
   /usr/include/gnu/stubs-64.h \
   /usr/include/gnu/stubs.h \
+  /usr/include/libintl.h \
   /usr/include/limits.h \
   /usr/include/linux/close_range.h \
   /usr/include/linux/errno.h \
@@ -334,8 +350,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/sys/types.h:
 
-/usr/include/sys/syscall.h:
-
 /usr/include/sys/select.h:
 
 /usr/include/stdlib.h:
@@ -352,7 +366,37 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/linux/types.h:
 
+/usr/include/linux/limits.h:
+
+/usr/include/linux/close_range.h:
+
+/usr/include/limits.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-64.h:
+
+/usr/include/features-time64.h:
+
+/usr/include/stdint.h:
+
+/usr/include/endian.h:
+
+/usr/lib64/libc.so:
+
+/usr/include/ctype.h:
+
+/usr/include/c++/15/x86_64-redhat-linux/bits/time_members.h:
+
+/lib64/libm.so.6:
+
+/usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h:
+
+/usr/include/c++/15/bits/hash_bytes.h:
+
 /usr/include/c++/15/bits/locale_classes.tcc:
+
+/usr/include/c++/15/bits/formatfwd.h:
 
 /usr/include/c++/15/initializer_list:
 
@@ -390,6 +434,10 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/utility:
 
+/usr/include/c++/15/array:
+
+/usr/include/c++/15/tuple:
+
 /usr/include/bits/xopen_lim.h:
 
 /usr/lib64/crti.o:
@@ -397,16 +445,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/stdio.h:
 
 /usr/include/bits/wordsize.h:
-
-/lib64/libm.so.6:
-
-/usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h:
-
-/usr/include/c++/15/bits/hash_bytes.h:
-
-/usr/include/c++/15/algorithm:
-
-/usr/include/c++/15/bits/range_access.h:
 
 /usr/include/c++/15/bits/cpp_type_traits.h:
 
@@ -430,11 +468,9 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/bits/waitflags.h:
 
+/usr/include/c++/15/bits/locale_conv.h:
+
 /usr/include/c++/15/bits/locale_facets.tcc:
-
-/usr/lib64/libc.so:
-
-/usr/include/ctype.h:
 
 /usr/include/bits/types/struct_sched_param.h:
 
@@ -446,15 +482,9 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/basic_ios.h:
 
-/usr/include/linux/limits.h:
-
 /usr/include/bits/types/sigset_t.h:
 
 /usr/include/bits/types/mbstate_t.h:
-
-/usr/lib64/crtn.o:
-
-/usr/include/c++/15/bits/ios_base.h:
 
 /usr/include/bits/types/locale_t.h:
 
@@ -465,8 +495,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/c++/15/bits/locale_classes.h:
 
 /usr/include/c++/15/bits/charconv.h:
-
-/usr/include/c++/15/pstl/glue_algorithm_defs.h:
 
 /usr/include/bits/types/clock_t.h:
 
@@ -500,6 +528,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/cstdio:
 
+/usr/include/libintl.h:
+
 /usr/include/bits/endianness.h:
 
 /usr/include/bits/confname.h:
@@ -507,8 +537,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/c++/15/bits/stl_iterator_base_funcs.h:
 
 /usr/include/c++/15/ext/atomicity.h:
-
-/usr/include/limits.h:
 
 /usr/include/c++/15/bits/char_traits.h:
 
@@ -527,6 +555,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/asm/unistd_64.h:
 
 /usr/include/bits/long-double.h:
+
+/usr/include/asm/unistd.h:
 
 /usr/include/bits/posix2_lim.h:
 
@@ -548,6 +578,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/bits/syscall.h:
 
+/usr/include/c++/15/format:
+
 /usr/include/bits/types/__sigset_t.h:
 
 /usr/include/c++/15/bit:
@@ -559,6 +591,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/c++/15/bits/node_handle.h:
 
 /usr/include/c++/15/pstl/glue_memory_defs.h:
+
+/usr/include/c++/15/bits/monostate.h:
 
 /usr/include/asm/types.h:
 
@@ -584,8 +618,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /home/riccardo/compiler/token.hpp:
 
-/usr/include/gnu/stubs-64.h:
-
 /usr/include/asm-generic/errno.h:
 
 /usr/include/asm-generic/errno-base.h:
@@ -597,6 +629,12 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /home/riccardo/compiler/ast.hpp:
 
 /usr/include/bits/pthreadtypes.h:
+
+/usr/include/errno.h:
+
+/usr/include/c++/15/cstddef:
+
+/usr/include/bits/getopt_posix.h:
 
 /usr/include/bits/thread-shared-types.h:
 
@@ -618,17 +656,11 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/bits/pthreadtypes-arch.h:
 
-/usr/include/gnu/stubs.h:
-
 /usr/include/bits/types/cookie_io_functions_t.h:
 
 /usr/include/asm/errno.h:
 
 /usr/include/bits/stdint-uintn.h:
-
-/usr/include/sys/single_threaded.h:
-
-/usr/include/c++/15/bits/predefined_ops.h:
 
 /usr/include/bits/select.h:
 
@@ -636,9 +668,7 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/debug/assertions.h:
 
-/usr/include/c++/15/bits/istream.tcc:
-
-/usr/include/c++/15/bits/allocated_ptr.h:
+/usr/include/c++/15/bits/unicode.h:
 
 /usr/include/c++/15/iostream:
 
@@ -658,11 +688,7 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/utility.h:
 
-/usr/include/linux/close_range.h:
-
 /usr/include/bits/types/struct_timeval.h:
-
-/usr/include/c++/15/bits/ranges_cmp.h:
 
 /home/riccardo/compiler/lexxer.hpp:
 
@@ -690,6 +716,14 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/bits/types/FILE.h:
 
+/usr/lib64/crtn.o:
+
+/usr/include/c++/15/bits/ios_base.h:
+
+/usr/include/c++/15/bits/allocated_ptr.h:
+
+/usr/include/c++/15/bits/istream.tcc:
+
 /usr/include/bits/types/wint_t.h:
 
 /usr/include/c++/15/bits/locale_facets.h:
@@ -698,7 +732,21 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/cstdlib:
 
+/usr/include/c++/15/bits/locale_facets_nonio.h:
+
+/usr/include/c++/15/bits/ranges_cmp.h:
+
+/usr/include/c++/15/bits/unicode-data.h:
+
+/usr/include/c++/15/exception:
+
+/usr/include/c++/15/bits/locale_facets_nonio.tcc:
+
 /usr/include/c++/15/bits/max_size_type.h:
+
+/usr/include/linux/sched/types.h:
+
+/usr/include/c++/15/bits/nested_exception.h:
 
 /usr/include/asm/posix_types_64.h:
 
@@ -712,9 +760,7 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/postypes.h:
 
-/usr/include/asm/unistd.h:
-
-/usr/include/c++/15/bits/ranges_algo.h:
+/usr/include/c++/15/bits/range_access.h:
 
 /usr/include/c++/15/bits/ranges_uninitialized.h:
 
@@ -723,8 +769,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/bits/types/struct_FILE.h:
 
 /usr/include/c++/15/cctype:
-
-/usr/include/c++/15/tuple:
 
 /usr/include/c++/15/bits/shared_ptr.h:
 
@@ -798,6 +842,12 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/stl_tempbuf.h:
 
+/usr/include/c++/15/x86_64-redhat-linux/bits/os_defines.h:
+
+/usr/include/c++/15/bits/functexcept.h:
+
+/usr/include/c++/15/bits/stl_vector.h:
+
 /usr/include/c++/15/cwctype:
 
 /usr/include/bits/types/struct_tm.h:
@@ -806,9 +856,9 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/uniform_int_dist.h:
 
-/usr/include/features-time64.h:
-
 /usr/include/c++/15/bits/uses_allocator_args.h:
+
+/usr/include/c++/15/charconv:
 
 /usr/include/c++/15/climits:
 
@@ -816,11 +866,11 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/cstdint:
 
+/usr/include/c++/15/ctime:
+
 /usr/include/bits/getopt_core.h:
 
 /usr/include/c++/15/debug/debug.h:
-
-/usr/include/c++/15/exception:
 
 /home/riccardo/compiler/main.cpp:
 
@@ -842,19 +892,25 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/ext/string_conversions.h:
 
-/usr/include/c++/15/bits/functexcept.h:
-
-/usr/include/c++/15/bits/stl_vector.h:
-
-/usr/include/c++/15/x86_64-redhat-linux/bits/os_defines.h:
-
 /usr/include/c++/15/ios:
 
 /usr/include/c++/15/iosfwd:
 
+/usr/include/c++/15/limits:
+
+/usr/include/c++/15/locale:
+
+/usr/include/c++/15/string_view:
+
 /usr/include/linux/errno.h:
 
 /usr/include/c++/15/new:
+
+/usr/include/sys/single_threaded.h:
+
+/usr/include/c++/15/bits/predefined_ops.h:
+
+/usr/include/c++/15/optional:
 
 /usr/include/c++/15/bits/exception.h:
 
@@ -864,11 +920,13 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/pstl/pstl_config.h:
 
+/usr/include/sys/syscall.h:
+
+/usr/include/c++/15/span:
+
 /usr/include/c++/15/stdexcept:
 
 /usr/include/c++/15/string:
-
-/usr/include/c++/15/string_view:
 
 /usr/include/bits/endian.h:
 
@@ -880,20 +938,10 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/x86_64-redhat-linux/bits/c++config.h:
 
+/usr/include/c++/15/bits/codecvt.h:
+
 /usr/include/c++/15/x86_64-redhat-linux/bits/c++locale.h:
 
 /usr/include/c++/15/x86_64-redhat-linux/bits/cpu_defines.h:
 
-/usr/include/stdint.h:
-
-/usr/include/endian.h:
-
-/usr/include/c++/15/cstddef:
-
-/usr/include/bits/getopt_posix.h:
-
-/usr/include/errno.h:
-
-/usr/include/c++/15/bits/nested_exception.h:
-
-/usr/include/linux/sched/types.h:
+/usr/include/c++/15/x86_64-redhat-linux/bits/messages_members.h:

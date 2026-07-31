@@ -144,7 +144,11 @@ Token nextToken(){
 						case '*':
 								return {Token(TokenType::MULTIPLICATION, input.substr(start,1))};
 						case '/':
-								return {Token(TokenType::MULTIPLICATION, input.substr(start,1))};
+								return {Token(TokenType::DIVISION, input.substr(start,1))};
+						case '<':
+								return {Token(TokenType::LESS, input.substr(start,1))};
+						case '>':
+								return {Token(TokenType::GREATER, input.substr(start,1))};
 						default:
 								return {Token(TokenType::ILLEGAL, input.substr(start,1))};
 						

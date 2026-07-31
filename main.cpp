@@ -1,4 +1,5 @@
 #include "lexxer.hpp"
+#include <format>
 #include "parser.hpp"
 #include <ios>
 #include <unistd.h>
@@ -32,6 +33,8 @@ std::string Convert_type_to_str(Token t){
 						return "DOUBLE";
 				case TokenType::COMPARE:
 						return "COMPARE";
+				case TokenType::RETURN:
+						return "RETURN";
 		}
 		return "";
 		
@@ -51,6 +54,7 @@ auto printToken(lexxer lex){
 		}
 }
 
+// change this later
 auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 
@@ -68,14 +72,30 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 int main(){
 
-		lexxer a{"int x = 5; return 5;"};
-		Parser p = Parser(a);
-		auto program = p.ParseProgram();
+		lexxer a{"int x = 1 + 2 * 3"};
+
+		Parser parser(std::move(a));
 		
-		std::cout << program->statements.size() << std::endl;
+		auto program = parser.ParseProgram();
+
+		auto declaration = dynamic_cast<VariableDeclaration*>(program->statements[0].get());
+
+		auto name = declaration->name->TokenLiteral();
+
+		auto addition = dynamic_cast<InfixExpression*>(declaration->value.get());
+
+		auto one = dynamic_cast<Integer*>(addition->left.get());
+
+		auto multiplication = dynamic_cast<InfixExpression*>(addition->right.get());
+
+		auto two = dynamic_cast<Integer*>(multiplication->left.get());
+
+		auto three = dynamic_cast<Integer*>(multiplication->right.get());
+
+				std::cout << 
+				std::format("{} {} = {} {} {} {} {}", 
+				declaration->TokenLiteral(),name, one->TokenLiteral(), addition->TokenLiteral(), two->TokenLiteral(), multiplication->TokenLiteral(),three->TokenLiteral()) 
+				<< std::endl;
 
 		return 0;
 }
-
-
-
