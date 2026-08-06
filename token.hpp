@@ -1,4 +1,5 @@
-#include <iostream>
+#include <string>
+
 #pragma once
 
 enum class TokenType{
@@ -20,6 +21,9 @@ enum class TokenType{
 		LESS,
 		GREATER,
 		DIVISION,
+		NOT,
+		LPARENT,
+		RPARENT
 };
 
 

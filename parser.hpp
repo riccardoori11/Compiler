@@ -12,6 +12,7 @@ enum Precedence{
 		LESSGREATER,
 		SUM,
 		PRODUCT,
+		PREFIX,
 
 };
 class Parser{
@@ -82,6 +83,32 @@ private:
 
 				return std::make_unique<Identifier>(curr_tok,value);
 		}
+
+		std::unique_ptr<Expression> ParseGroupedExpression(){
+
+				
+				std::cout << "Eneterd" << std::endl;
+				std::cout << curr_tok.text << std::endl;
+				nextToken();
+
+				auto right = ParseExpression(Precedence::LOWEST);
+
+				if (!right){
+
+						std::cout << "Entered ParseGroupedExpression" << std::endl;
+						return nullptr;
+				}
+
+				if (!next_type_is(TokenType::RPARENT)){
+
+						return nullptr;
+				}
+
+				nextToken();
+				std::cout << curr_tok.text << std::endl;
+				return right;
+				
+		}
 		
 		std::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
 
@@ -95,6 +122,17 @@ private:
 						case TokenType::IDENTIFIER:
 								left = parseIdentifier();
 								break;
+						case TokenType::NOT:
+								left = parsePrefix();
+								break;
+						case TokenType::MINUS:
+								left = parsePrefix();
+								break;
+						case TokenType::LPARENT:
+								std::cout << "Enterinf Parsed Group Expression" << std::endl;
+								left = ParseGroupedExpression();
+								break;
+
 						default:
 								return nullptr;
 				}
@@ -105,11 +143,11 @@ private:
 				switch (next_tok.tokentype){
 						case TokenType::COMPARE:
 						case TokenType::GREATER:
-						case::TokenType::MULTIPLICATION:
-						case::TokenType::LESS:
-						case::TokenType::DIVISION:
-						case::TokenType::PLUS:
-						case::TokenType::MINUS:
+						case TokenType::MULTIPLICATION:
+						case TokenType::LESS:
+						case TokenType::DIVISION:
+						case TokenType::PLUS:
+						case TokenType::MINUS:
 
 						nextToken();
 						left = parseInfix(std::move(left));
@@ -162,6 +200,7 @@ private:
 
 		}
 
+
 		std::unique_ptr<Expression> parseInfix(std::unique_ptr<Expression> left){
 
 				Token op = curr_tok;
@@ -178,14 +217,21 @@ private:
 				}
 				return std::make_unique<InfixExpression>(std::move(op),std::move(left),std::move(right));
 		}
-/*std::unique_ptr<Expression> parsePrefix(std::unique_ptr<Expression> left){
 
-		}*/
+		std::unique_ptr<Expression> parsePrefix(){
+				Token op = curr_tok;
+				nextToken();
+				/*
+				 * So we dont treat - as sum
+				 * */
+				auto right = ParseExpression(Precedence::PREFIX);
+
+				return std::make_unique<PrefixExpression>(std::move(op),std::move(right));
+		}
 		
 
 		std::unique_ptr<Return> parseReturn(){
 
-				std::cout << "Entered return" << std::endl;
 				auto declaration = std::make_unique<Return>(curr_tok);
 				if (next_type_is(TokenType::SEMICOLON)){
 
@@ -219,7 +265,7 @@ private:
 public:
 
 
-		Parser(lexxer lexer):l(std::move(lexer)),curr_tok(std::move(l.nextToken())),next_tok(std::move(l.nextToken()))
+		Parser(lexxer lexer):l(std::move(lexer)),curr_tok(l.nextToken()),next_tok(l.nextToken())
 		{
 
 		}
@@ -241,6 +287,7 @@ public:
 				return program;
 
 		};
+
 
 };
 

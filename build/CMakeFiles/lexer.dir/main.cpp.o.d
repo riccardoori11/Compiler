@@ -166,7 +166,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
  /usr/include/c++/15/bits/stl_heap.h \
  /usr/include/c++/15/bits/uniform_int_dist.h \
  /usr/include/c++/15/bits/stl_tempbuf.h \
- /usr/include/c++/15/bits/unicode-data.h \
+ /usr/include/c++/15/bits/unicode-data.h /usr/include/assert.h \
  /home/riccardo/compiler/parser.hpp /home/riccardo/compiler/ast.hpp \
  /usr/include/c++/15/memory /usr/include/c++/15/bits/stl_uninitialized.h \
  /usr/include/c++/15/bits/stl_raw_storage_iter.h \

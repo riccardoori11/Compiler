@@ -1,8 +1,4 @@
-What is a compiler ?
-A compiler translates a program in a source language to a program in a target language.
+Following Writing an Interpreter in Go book by Thorsten Bell except in c++
 
-Difference between a compiler and an interpreter ?
-Interpret reads a program and then executes it directly.
-
-
-A lexxer (scanner) groups characters into units called tokens.
+Todo:
+public ParseExpression (prefix or infix) for debugging, rn only have parseProgram 

@@ -20,6 +20,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/asm/types.h \
   /usr/include/asm/unistd.h \
   /usr/include/asm/unistd_64.h \
+  /usr/include/assert.h \
   /usr/include/bits/atomic_wide_counter.h \
   /usr/include/bits/byteswap.h \
   /usr/include/bits/confname.h \
@@ -388,6 +389,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/x86_64-redhat-linux/bits/time_members.h:
 
+/usr/include/c++/15/x86_64-redhat-linux/bits/messages_members.h:
+
 /lib64/libm.so.6:
 
 /usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h:
@@ -502,6 +505,16 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/bits/types/__fpos64_t.h:
 
+/usr/include/bits/types/struct_itimerspec.h:
+
+/usr/include/c++/15/bits/hashtable.h:
+
+/usr/include/bits/types/time_t.h:
+
+/usr/include/linux/posix_types.h:
+
+/usr/include/bits/types/FILE.h:
+
 /usr/include/c++/15/x86_64-redhat-linux/bits/error_constants.h:
 
 /usr/include/bits/errno.h:
@@ -511,8 +524,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/bits/atomic_wide_counter.h:
 
 /usr/include/bits/posix_opt.h:
-
-/usr/include/c++/15/bits/invoke.h:
 
 /usr/include/bits/types/__mbstate_t.h:
 
@@ -549,6 +560,12 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/c++/15/x86_64-redhat-linux/bits/gthr-default.h:
 
 /usr/include/bits/stdlib-float.h:
+
+/usr/include/assert.h:
+
+/usr/include/c++/15/bits/ranges_util.h:
+
+/usr/include/c++/15/bits/stl_raw_storage_iter.h:
 
 /usr/include/bits/types/__fpos_t.h:
 
@@ -702,19 +719,11 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/x86_64-redhat-linux/bits/atomic_word.h:
 
-/usr/include/bits/types/time_t.h:
-
-/usr/include/bits/types/struct_itimerspec.h:
-
-/usr/include/c++/15/bits/hashtable.h:
-
 /usr/include/bits/types.h:
 
 /usr/include/c++/15/bits/streambuf_iterator.h:
 
-/usr/include/linux/posix_types.h:
-
-/usr/include/bits/types/FILE.h:
+/usr/include/c++/15/bits/invoke.h:
 
 /usr/lib64/crtn.o:
 
@@ -836,10 +845,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/stl_iterator_base_types.h:
 
-/usr/include/c++/15/bits/ranges_util.h:
-
-/usr/include/c++/15/bits/stl_raw_storage_iter.h:
-
 /usr/include/c++/15/bits/stl_tempbuf.h:
 
 /usr/include/c++/15/x86_64-redhat-linux/bits/os_defines.h:
@@ -943,5 +948,3 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/c++/15/x86_64-redhat-linux/bits/c++locale.h:
 
 /usr/include/c++/15/x86_64-redhat-linux/bits/cpu_defines.h:
-
-/usr/include/c++/15/x86_64-redhat-linux/bits/messages_members.h:

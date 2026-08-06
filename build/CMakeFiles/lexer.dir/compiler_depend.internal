@@ -21,6 +21,7 @@ CMakeFiles/lexer.dir/main.cpp.o
  /usr/include/asm/types.h
  /usr/include/asm/unistd.h
  /usr/include/asm/unistd_64.h
+ /usr/include/assert.h
  /usr/include/bits/atomic_wide_counter.h
  /usr/include/bits/byteswap.h
  /usr/include/bits/confname.h

@@ -1,6 +1,8 @@
 #include "lexxer.hpp"
 #include <format>
+#include <assert.h>
 #include "parser.hpp"
+#include "token.hpp"
 #include <ios>
 #include <unistd.h>
 
@@ -35,6 +37,18 @@ std::string Convert_type_to_str(Token t){
 						return "COMPARE";
 				case TokenType::RETURN:
 						return "RETURN";
+				case TokenType::LESS:
+						return "LESS";
+				case TokenType::DIVISION:
+						return "DIVISION";
+				case TokenType::GREATER:
+						return "GREATER";
+				case TokenType::NOT:
+						return "NOT";
+				case TokenType::LPARENT:
+						return "Left_PARENTHESES";
+				case TokenType::RPARENT:
+						return "Right_PARENTHESES";
 		}
 		return "";
 		
@@ -72,15 +86,43 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 int main(){
 
-		lexxer a{"int x = 1 + 2 * 3"};
+		lexxer a{"int x = (5+5)*2"};
 
 		Parser parser(std::move(a));
-		
+
 		auto program = parser.ParseProgram();
 
 		auto declaration = dynamic_cast<VariableDeclaration*>(program->statements[0].get());
 
 		auto name = declaration->name->TokenLiteral();
+		
+
+		auto multiplication = dynamic_cast<InfixExpression*>(declaration->value.get());
+		
+
+		auto five_plus_five = dynamic_cast<InfixExpression*>(multiplication->left.get());
+		
+		auto five = five_plus_five->left->TokenLiteral();
+		
+		auto second_five = five_plus_five->right->TokenLiteral();
+
+		assert(declaration->TokenLiteral() == "int");
+		assert(declaration->name->TokenLiteral() == "x");
+		assert(multiplication->TokenLiteral() == "*");
+		assert(five_plus_five->TokenLiteral() == "+");
+		assert(five_plus_five->left->TokenLiteral() == "5");
+		assert(five_plus_five->right->TokenLiteral() == "5");
+
+
+		lexxer b{"!(true == true)"};
+		
+		Parser parser2(std::move(b));
+
+
+
+	/*	
+
+		
 
 		auto addition = dynamic_cast<InfixExpression*>(declaration->value.get());
 
@@ -90,12 +132,14 @@ int main(){
 
 		auto two = dynamic_cast<Integer*>(multiplication->left.get());
 
-		auto three = dynamic_cast<Integer*>(multiplication->right.get());
+		auto negative = dynamic_cast<PrefixExpression*>(multiplication->right.get());
+		auto three = dynamic_cast<Integer*>(negative->right.get());
+
 
 				std::cout << 
-				std::format("{} {} = {} {} {} {} {}", 
-				declaration->TokenLiteral(),name, one->TokenLiteral(), addition->TokenLiteral(), two->TokenLiteral(), multiplication->TokenLiteral(),three->TokenLiteral()) 
+				std::format("{} {} = {} {} {} {} {}{}", 
+				declaration->TokenLiteral(),name, one->TokenLiteral(), addition->TokenLiteral(), two->TokenLiteral(), multiplication->TokenLiteral(),negative->TokenLiteral(),three->TokenLiteral()) 
 				<< std::endl;
-
+*/
 		return 0;
 }

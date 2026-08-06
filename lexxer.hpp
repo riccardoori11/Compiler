@@ -8,6 +8,7 @@
 class lexxer{
 
 private:
+
 		std::string input = "";
 		std::size_t pos{};
 
@@ -149,6 +150,12 @@ Token nextToken(){
 								return {Token(TokenType::LESS, input.substr(start,1))};
 						case '>':
 								return {Token(TokenType::GREATER, input.substr(start,1))};
+						case '!':
+								return {Token(TokenType::NOT, input.substr(start,1))};
+						case ')':
+								return {Token(TokenType::RPARENT, input.substr(start,1))};
+						case '(':
+								return {Token(TokenType::LPARENT, input.substr(start,1))};
 						default:
 								return {Token(TokenType::ILLEGAL, input.substr(start,1))};
 						

@@ -100,6 +100,20 @@ class Integer: public Expression{
 
 };
 
+class Boolean: public Expression{
+
+public:
+		Token token;
+		bool value;
+
+		Boolean(Token token,int value):token(token),value(value){};
+
+		std::string TokenLiteral()const override{
+
+				return token.text;
+		}
+
+};
 
 class Return: public Statement{
 
@@ -127,7 +141,7 @@ public:
 		std::unique_ptr<Expression> right;
 
 		InfixExpression(Token token,std::unique_ptr<Expression> left,std::unique_ptr<Expression> right):
-				token(token),left(std::move(left)),right(std::move(right)),op(token.tokentype)
+				token(token),op(token.tokentype),left(std::move(left)),right(std::move(right))
 		{
 		}
 
@@ -147,7 +161,7 @@ public:
 		TokenType op;
 		std::unique_ptr<Expression> right;
 
-		PrefixExpression(Token token):token(std::move(token)),op(token.tokentype)
+		PrefixExpression(Token token,std::unique_ptr<Expression> right):token(std::move(token)),op(token.tokentype),right(std::move(right))
 		{
 		};
 
@@ -157,6 +171,5 @@ public:
 		}
 
 };
-
 
 
