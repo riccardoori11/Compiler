@@ -161,6 +161,8 @@ Token nextToken(){
 								return {Token(TokenType::LBRAC, input.substr(start,1))};
 						case '}':
 								return {Token(TokenType::RBRAC, input.substr(start,1))};
+						case ',':
+								return {Token(TokenType::COMMA, input.substr(start,1))};
 						default:
 								return {Token(TokenType::ILLEGAL, input.substr(start,1))};
 						

@@ -27,7 +27,8 @@ enum class TokenType{
 		LBRAC,
 		RBRAC,
 		IF,
-		ELSE
+		ELSE,
+		COMMA
 };
 
 

@@ -1,9 +1,16 @@
 #include "lexxer.hpp"
+#include <assert.h>
 #include "ast.hpp"
 #include "token.hpp"
+#include <algorithm>
 #include <charconv>
+#include <execution>
 #include <memory>
+#include <optional>
+#include <stdexcept>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 
 enum Precedence{
@@ -22,6 +29,20 @@ private:
 		lexxer l;
 		Token curr_tok;
 		Token next_tok;
+
+
+		bool isValidVariableType(TokenType type){
+
+				switch (type){
+
+						case TokenType::INT:
+						case TokenType::DOUBLE:
+						case TokenType::BOOL:
+								return true;
+						default:
+								return false;
+				}
+		}
 
 		void nextToken(){
 
@@ -308,7 +329,6 @@ private:
 
 				declaration->Consequence = parseBlockStatement();
 				std::cout << "Finished parsing Consequence" << std::endl;
-				nextToken();
 				if (next_type_is(TokenType::ELSE)){
 						std::cout << "parsing else" << std::endl;
 						nextToken();
@@ -327,12 +347,107 @@ private:
 
 				return declaration;
 		}
+
+		/*Might be empty parameter*/
+		std::optional<std::vector<std::unique_ptr<FunctionParameters>>> parseFunctionParameters(){
+
+				std::vector<std::unique_ptr<FunctionParameters>> parameters;
+
+				if (next_type_is(TokenType::RPARENT)){
+
+						nextToken();
+						return std::vector<std::unique_ptr<FunctionParameters>>{};
+				}
+
+				while (true){
+
+						nextToken();
+
+						if (!isValidVariableType(curr_tok.tokentype)){
+
+								return std::nullopt;
+						}
+						auto bindType = curr_tok;
+
+						nextToken();
+
+						if (!current_type_is(TokenType::IDENTIFIER)){
+
+								return std::nullopt;
+						}
+
+						auto name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
+
+						parameters.push_back(std::make_unique<FunctionParameters>(std::move(bindType),std::move(name)));
+
+						if (next_type_is(TokenType::RPARENT)){
+
+								nextToken();
+								break;
+						}
+						/*Invalid call*/
+						if (!next_type_is(TokenType::COMMA)){
+								return std::nullopt;
+
+						}
+
+						nextToken();
+				}
+
+				return std::optional<std::vector<std::unique_ptr<FunctionParameters>>>(std::move(parameters));
+
+		}
+
+		std::unique_ptr<Statement> parseFunctionLit(){
+
+				auto declaration = std::make_unique<FunctionLiteral>(curr_tok);
+
+				nextToken();
+
+				if (!current_type_is(TokenType::IDENTIFIER)){
+
+						return nullptr;
+				}
+
+				if (!next_type_is(TokenType::LPARENT)){
+
+						return nullptr;
+				}
+				nextToken();
+				assert(curr_tok.tokentype == TokenType::LPARENT);
+
+				auto parameters = parseFunctionParameters();
+
+				if (!parameters){
+						throw std::runtime_error("Could not parse function parameters");
+				}
+
+				declaration->Parameters = std::move(*parameters);
+
+				if (!next_type_is(TokenType::LBRAC)){
+
+						throw std::runtime_error("Eror parsing beginning function body");
+				}
+
+				nextToken();
+				declaration->FunctionBody = parseBlockStatement();
+
+				nextToken();
+				return declaration;
+
+		}
 		std::unique_ptr<Statement> parseStatement(){
 
 				switch (curr_tok.tokentype){
 
 						case TokenType::INT:
-								return parseVariableDeclaration();
+								if (next_type_is(TokenType::IDENTIFIER)){
+
+										return parseVariableDeclaration();
+								}
+								else if(next_type_is(TokenType::LPARENT)){
+										return parseFunctionLit();
+								}
 						case TokenType::DOUBLE:
 								return parseVariableDeclaration();
 						case TokenType::BOOL:

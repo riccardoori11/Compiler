@@ -94,7 +94,9 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/bits/wctype-wchar.h \
   /usr/include/bits/wordsize.h \
   /usr/include/bits/xopen_lim.h \
+  /usr/include/c++/15/algorithm \
   /usr/include/c++/15/array \
+  /usr/include/c++/15/atomic \
   /usr/include/c++/15/backward/auto_ptr.h \
   /usr/include/c++/15/backward/binders.h \
   /usr/include/c++/15/bit \
@@ -155,6 +157,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/predefined_ops.h \
   /usr/include/c++/15/bits/ptr_traits.h \
   /usr/include/c++/15/bits/range_access.h \
+  /usr/include/c++/15/bits/ranges_algo.h \
   /usr/include/c++/15/bits/ranges_algobase.h \
   /usr/include/c++/15/bits/ranges_base.h \
   /usr/include/c++/15/bits/ranges_cmp.h \
@@ -166,6 +169,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/shared_ptr_atomic.h \
   /usr/include/c++/15/bits/shared_ptr_base.h \
   /usr/include/c++/15/bits/std_abs.h \
+  /usr/include/c++/15/bits/std_function.h \
   /usr/include/c++/15/bits/std_mutex.h \
   /usr/include/c++/15/bits/stl_algo.h \
   /usr/include/c++/15/bits/stl_algobase.h \
@@ -176,12 +180,14 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/bits/stl_iterator.h \
   /usr/include/c++/15/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/15/bits/stl_iterator_base_types.h \
+  /usr/include/c++/15/bits/stl_numeric.h \
   /usr/include/c++/15/bits/stl_pair.h \
   /usr/include/c++/15/bits/stl_raw_storage_iter.h \
   /usr/include/c++/15/bits/stl_relops.h \
   /usr/include/c++/15/bits/stl_tempbuf.h \
   /usr/include/c++/15/bits/stl_uninitialized.h \
   /usr/include/c++/15/bits/stl_vector.h \
+  /usr/include/c++/15/bits/stream_iterator.h \
   /usr/include/c++/15/bits/streambuf.tcc \
   /usr/include/c++/15/bits/streambuf_iterator.h \
   /usr/include/c++/15/bits/string_view.tcc \
@@ -213,6 +219,7 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/debug/assertions.h \
   /usr/include/c++/15/debug/debug.h \
   /usr/include/c++/15/exception \
+  /usr/include/c++/15/execution \
   /usr/include/c++/15/ext/aligned_buffer.h \
   /usr/include/c++/15/ext/alloc_traits.h \
   /usr/include/c++/15/ext/atomicity.h \
@@ -221,21 +228,42 @@ CMakeFiles/lexer.dir/main.cpp.o: /home/riccardo/compiler/main.cpp \
   /usr/include/c++/15/ext/string_conversions.h \
   /usr/include/c++/15/ext/type_traits.h \
   /usr/include/c++/15/format \
+  /usr/include/c++/15/functional \
   /usr/include/c++/15/initializer_list \
   /usr/include/c++/15/ios \
   /usr/include/c++/15/iosfwd \
   /usr/include/c++/15/iostream \
   /usr/include/c++/15/istream \
+  /usr/include/c++/15/iterator \
   /usr/include/c++/15/limits \
   /usr/include/c++/15/locale \
   /usr/include/c++/15/memory \
   /usr/include/c++/15/new \
   /usr/include/c++/15/numbers \
+  /usr/include/c++/15/numeric \
   /usr/include/c++/15/optional \
   /usr/include/c++/15/ostream \
+  /usr/include/c++/15/pstl/algorithm_fwd.h \
+  /usr/include/c++/15/pstl/algorithm_impl.h \
   /usr/include/c++/15/pstl/execution_defs.h \
+  /usr/include/c++/15/pstl/execution_impl.h \
+  /usr/include/c++/15/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/15/pstl/glue_algorithm_impl.h \
+  /usr/include/c++/15/pstl/glue_execution_defs.h \
   /usr/include/c++/15/pstl/glue_memory_defs.h \
+  /usr/include/c++/15/pstl/glue_memory_impl.h \
+  /usr/include/c++/15/pstl/glue_numeric_defs.h \
+  /usr/include/c++/15/pstl/glue_numeric_impl.h \
+  /usr/include/c++/15/pstl/memory_impl.h \
+  /usr/include/c++/15/pstl/numeric_fwd.h \
+  /usr/include/c++/15/pstl/numeric_impl.h \
+  /usr/include/c++/15/pstl/parallel_backend.h \
+  /usr/include/c++/15/pstl/parallel_backend_serial.h \
+  /usr/include/c++/15/pstl/parallel_backend_utils.h \
+  /usr/include/c++/15/pstl/parallel_impl.h \
   /usr/include/c++/15/pstl/pstl_config.h \
+  /usr/include/c++/15/pstl/unseq_backend_simd.h \
+  /usr/include/c++/15/pstl/utils.h \
   /usr/include/c++/15/span \
   /usr/include/c++/15/stdexcept \
   /usr/include/c++/15/streambuf \
@@ -367,8 +395,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/linux/types.h:
 
-/usr/include/linux/limits.h:
-
 /usr/include/linux/close_range.h:
 
 /usr/include/limits.h:
@@ -391,11 +417,51 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/x86_64-redhat-linux/bits/messages_members.h:
 
-/lib64/libm.so.6:
+/usr/include/c++/15/x86_64-redhat-linux/bits/gthr.h:
 
-/usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h:
+/usr/include/c++/15/x86_64-redhat-linux/bits/error_constants.h:
 
-/usr/include/c++/15/bits/hash_bytes.h:
+/usr/include/c++/15/x86_64-redhat-linux/bits/ctype_inline.h:
+
+/usr/include/c++/15/x86_64-redhat-linux/bits/cpu_defines.h:
+
+/usr/include/c++/15/x86_64-redhat-linux/bits/c++config.h:
+
+/usr/include/c++/15/x86_64-redhat-linux/bits/c++allocator.h:
+
+/usr/include/c++/15/x86_64-redhat-linux/bits/atomic_word.h:
+
+/usr/include/c++/15/vector:
+
+/usr/include/c++/15/utility:
+
+/usr/include/c++/15/unordered_map:
+
+/usr/include/c++/15/type_traits:
+
+/usr/include/c++/15/tuple:
+
+/usr/include/c++/15/string_view:
+
+/usr/include/c++/15/string:
+
+/usr/include/c++/15/streambuf:
+
+/usr/include/sys/syscall.h:
+
+/usr/include/c++/15/span:
+
+/usr/include/c++/15/pstl/utils.h:
+
+/usr/include/c++/15/pstl/unseq_backend_simd.h:
+
+/usr/include/c++/15/pstl/pstl_config.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/c++/15/pstl/parallel_backend_utils.h:
+
+/usr/include/c++/15/pstl/parallel_backend_serial.h:
 
 /usr/include/c++/15/bits/locale_classes.tcc:
 
@@ -404,6 +470,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/c++/15/initializer_list:
 
 /usr/include/asm/bitsperlong.h:
+
+/usr/include/c++/15/pstl/glue_numeric_impl.h:
 
 /usr/include/c++/15/bits/alloc_traits.h:
 
@@ -419,27 +487,19 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/memory_resource.h:
 
-/usr/include/c++/15/bits/atomic_base.h:
-
 /usr/include/c++/15/bits/algorithmfwd.h:
 
 /usr/include/c++/15/bits/basic_string.h:
-
-/usr/include/c++/15/streambuf:
 
 /usr/include/c++/15/bits/version.h:
 
 /usr/include/c++/15/backward/binders.h:
 
-/usr/include/c++/15/bits/new_allocator.h:
+/usr/include/c++/15/stdexcept:
 
-/usr/include/bits/cpu-set.h:
-
-/usr/include/c++/15/utility:
+/usr/include/c++/15/atomic:
 
 /usr/include/c++/15/array:
-
-/usr/include/c++/15/tuple:
 
 /usr/include/bits/xopen_lim.h:
 
@@ -448,6 +508,16 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/stdio.h:
 
 /usr/include/bits/wordsize.h:
+
+/lib64/libm.so.6:
+
+/usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h:
+
+/usr/include/c++/15/bits/hash_bytes.h:
+
+/usr/include/c++/15/algorithm:
+
+/usr/include/c++/15/bits/range_access.h:
 
 /usr/include/c++/15/bits/cpp_type_traits.h:
 
@@ -479,10 +549,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/cxxabi_init_exception.h:
 
-/usr/include/c++/15/bits/uses_allocator.h:
-
-/usr/include/bits/struct_rwlock.h:
-
 /usr/include/c++/15/bits/basic_ios.h:
 
 /usr/include/bits/types/sigset_t.h:
@@ -499,31 +565,27 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/charconv.h:
 
+/usr/include/c++/15/pstl/glue_algorithm_defs.h:
+
 /usr/include/bits/types/clock_t.h:
 
 /usr/include/bits/types/__locale_t.h:
 
 /usr/include/bits/types/__fpos64_t.h:
 
-/usr/include/bits/types/struct_itimerspec.h:
-
-/usr/include/c++/15/bits/hashtable.h:
-
-/usr/include/bits/types/time_t.h:
-
 /usr/include/linux/posix_types.h:
 
 /usr/include/bits/types/FILE.h:
 
-/usr/include/c++/15/x86_64-redhat-linux/bits/error_constants.h:
-
 /usr/include/bits/errno.h:
 
-/usr/include/bits/timex.h:
+/usr/include/c++/15/execution:
 
 /usr/include/bits/atomic_wide_counter.h:
 
 /usr/include/bits/posix_opt.h:
+
+/usr/include/c++/15/bits/stream_iterator.h:
 
 /usr/include/bits/types/__mbstate_t.h:
 
@@ -534,8 +596,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/bits/stdio_lim.h:
 
 /usr/include/c++/15/numbers:
-
-/usr/include/c++/15/x86_64-redhat-linux/bits/ctype_inline.h:
 
 /usr/include/c++/15/cstdio:
 
@@ -572,8 +632,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/asm/unistd_64.h:
 
 /usr/include/bits/long-double.h:
-
-/usr/include/asm/unistd.h:
 
 /usr/include/bits/posix2_lim.h:
 
@@ -623,10 +681,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/refwrap.h:
 
-/usr/include/c++/15/type_traits:
-
-/usr/include/c++/15/x86_64-redhat-linux/bits/gthr.h:
-
 /usr/include/bits/timesize.h:
 
 /usr/include/c++/15/bits/basic_string.tcc:
@@ -642,6 +696,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/asm-generic/bitsperlong.h:
 
 /usr/include/asm-generic/types.h:
+
+/usr/include/c++/15/pstl/glue_execution_defs.h:
 
 /home/riccardo/compiler/ast.hpp:
 
@@ -669,6 +725,10 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/basic_ios.tcc:
 
+/usr/include/c++/15/system_error:
+
+/usr/include/bits/endian.h:
+
 /usr/include/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/bits/pthreadtypes-arch.h:
@@ -684,8 +744,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/sys/cdefs.h:
 
 /usr/include/c++/15/debug/assertions.h:
-
-/usr/include/c++/15/bits/unicode.h:
 
 /usr/include/c++/15/iostream:
 
@@ -703,6 +761,12 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/bits/types/error_t.h:
 
+/usr/include/c++/15/typeinfo:
+
+/usr/include/bits/types/clockid_t.h:
+
+/usr/include/bits/stdint-intn.h:
+
 /usr/include/c++/15/bits/utility.h:
 
 /usr/include/bits/types/struct_timeval.h:
@@ -717,15 +781,31 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/bits/types/__FILE.h:
 
-/usr/include/c++/15/x86_64-redhat-linux/bits/atomic_word.h:
+/usr/include/bits/types/time_t.h:
+
+/usr/include/bits/types/struct_itimerspec.h:
+
+/usr/include/c++/15/bits/hashtable.h:
+
+/usr/include/c++/15/iterator:
 
 /usr/include/bits/types.h:
 
 /usr/include/c++/15/bits/streambuf_iterator.h:
 
+/usr/include/bits/cpu-set.h:
+
+/usr/include/c++/15/bits/new_allocator.h:
+
+/usr/include/bits/struct_rwlock.h:
+
+/usr/include/c++/15/bits/uses_allocator.h:
+
 /usr/include/c++/15/bits/invoke.h:
 
 /usr/lib64/crtn.o:
+
+/usr/include/c++/15/pstl/parallel_impl.h:
 
 /usr/include/c++/15/bits/ios_base.h:
 
@@ -769,7 +849,9 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/postypes.h:
 
-/usr/include/c++/15/bits/range_access.h:
+/usr/include/asm/unistd.h:
+
+/usr/include/c++/15/bits/ranges_algo.h:
 
 /usr/include/c++/15/bits/ranges_uninitialized.h:
 
@@ -793,11 +875,15 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/bits/std_abs.h:
 
-/usr/include/bits/types/clockid_t.h:
+/usr/include/c++/15/pstl/parallel_backend.h:
 
-/usr/include/bits/stdint-intn.h:
+/usr/include/c++/15/x86_64-redhat-linux/bits/c++locale.h:
 
-/usr/include/c++/15/typeinfo:
+/usr/include/c++/15/bits/codecvt.h:
+
+/usr/include/c++/15/bits/std_function.h:
+
+/usr/include/c++/15/concepts:
 
 /usr/include/c++/15/bits/stl_algo.h:
 
@@ -813,6 +899,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/clocale:
 
+/usr/include/c++/15/pstl/glue_numeric_defs.h:
+
 /usr/include/c++/15/bits/stl_pair.h:
 
 /usr/include/c++/15/bits/stl_bvector.h:
@@ -820,8 +908,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 /usr/include/c++/15/bits/stl_iterator.h:
 
 /usr/include/c++/15/memory:
-
-/usr/include/c++/15/vector:
 
 /usr/include/c++/15/bits/ranges_algobase.h:
 
@@ -867,8 +953,6 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/climits:
 
-/usr/include/c++/15/concepts:
-
 /usr/include/c++/15/cstdint:
 
 /usr/include/c++/15/ctime:
@@ -897,6 +981,8 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/ext/string_conversions.h:
 
+/usr/include/c++/15/functional:
+
 /usr/include/c++/15/ios:
 
 /usr/include/c++/15/iosfwd:
@@ -905,11 +991,11 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/locale:
 
-/usr/include/c++/15/string_view:
-
 /usr/include/linux/errno.h:
 
 /usr/include/c++/15/new:
+
+/usr/include/c++/15/numeric:
 
 /usr/include/sys/single_threaded.h:
 
@@ -921,30 +1007,28 @@ CMakeFiles/lexer.dir/main.cpp.o:
 
 /usr/include/c++/15/ostream:
 
+/usr/include/c++/15/bits/unicode.h:
+
+/usr/include/c++/15/pstl/algorithm_fwd.h:
+
+/usr/include/c++/15/pstl/algorithm_impl.h:
+
 /usr/include/c++/15/pstl/execution_defs.h:
 
-/usr/include/c++/15/pstl/pstl_config.h:
+/usr/include/c++/15/bits/stl_numeric.h:
 
-/usr/include/sys/syscall.h:
+/usr/include/c++/15/pstl/execution_impl.h:
 
-/usr/include/c++/15/span:
+/usr/include/c++/15/pstl/glue_algorithm_impl.h:
 
-/usr/include/c++/15/stdexcept:
+/usr/include/c++/15/pstl/glue_memory_impl.h:
 
-/usr/include/c++/15/string:
+/usr/include/bits/timex.h:
 
-/usr/include/bits/endian.h:
+/usr/include/c++/15/pstl/memory_impl.h:
 
-/usr/include/c++/15/system_error:
+/usr/include/c++/15/bits/atomic_base.h:
 
-/usr/include/c++/15/unordered_map:
+/usr/include/c++/15/pstl/numeric_fwd.h:
 
-/usr/include/c++/15/x86_64-redhat-linux/bits/c++allocator.h:
-
-/usr/include/c++/15/x86_64-redhat-linux/bits/c++config.h:
-
-/usr/include/c++/15/bits/codecvt.h:
-
-/usr/include/c++/15/x86_64-redhat-linux/bits/c++locale.h:
-
-/usr/include/c++/15/x86_64-redhat-linux/bits/cpu_defines.h:
+/usr/include/c++/15/pstl/numeric_impl.h:

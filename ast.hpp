@@ -210,3 +210,35 @@ public:
 
 };
 
+class FunctionParameters: public Node{
+		public:
+				Token binding_type;
+				std::unique_ptr<Identifier> name;
+
+		FunctionParameters(Token token,std::unique_ptr<Identifier> name):binding_type(std::move(token)),name(std::move(name)){};
+
+		std::string TokenLiteral() const override{
+
+				return binding_type.text;
+		};
+};
+
+class FunctionLiteral: public Statement{
+
+public:
+
+		Token token;
+		std::unique_ptr<Identifier> name;
+		std::vector<std::unique_ptr<FunctionParameters>> Parameters;
+		std::unique_ptr<BlockStatements> FunctionBody;
+
+		FunctionLiteral(Token token):token(std::move(token))
+		{
+		};
+
+		std::string TokenLiteral() const override {
+
+				return token.text;
+		}
+
+};

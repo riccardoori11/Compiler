@@ -94,7 +94,6 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 
 int main(){
-/*
 		lexxer a{"int x = (5+5)*2"};
 
 		Parser parser(std::move(a));
@@ -121,37 +120,55 @@ int main(){
 		assert(five_plus_five->TokenLiteral() == "+");
 		assert(five_plus_five->left->TokenLiteral() == "5");
 		assert(five_plus_five->right->TokenLiteral() == "5");
-*/
-		lexxer c{"if (x + y){int x = 2} else{int x = 3};"};
+
+		lexxer c{"if (x + y){int x = 2;} else{int x = 3;};"};
 
 		Parser parser1(std::move(c));
 		auto program1 = parser1.ParseProgram();
 
 		assert(program1->statements.size() == 1);
 
-		auto declaration = dynamic_cast<IfStatement*>(program1->statements[0].get());
-		std::cout << declaration->TokenLiteral() << std::endl;
-		assert(declaration->TokenLiteral() == "if");
+		auto declaration1 = dynamic_cast<IfStatement*>(program1->statements[0].get());
+		assert(declaration1->TokenLiteral() == "if");
 
-		auto condition = dynamic_cast<InfixExpression*>(declaration->condition.get());
+		auto condition = dynamic_cast<InfixExpression*>(declaration1->condition.get());
 
 		auto addition = condition->TokenLiteral();
-		std::cout << addition << std::endl;
+		assert(addition == "+");
 
 		auto first_var = condition->left->TokenLiteral();
-		std::cout << first_var << std::endl;
+		assert(first_var == "x");
 
 		auto second_var = condition->right->TokenLiteral();
-		std::cout << second_var << std::endl;
+		assert(second_var == "y");
 
-		assert(declaration->Consequence->Block_Statements.size() == 1);
-		auto consequence = dynamic_cast<VariableDeclaration*>(declaration->Consequence->Block_Statements[0].get());
+		assert(declaration1->Consequence->Block_Statements.size() == 1);
+		auto consequence = dynamic_cast<VariableDeclaration*>(declaration1->Consequence->Block_Statements[0].get());
 
 		assert(consequence->TokenLiteral() == "int");
 
 		assert(consequence->name->TokenLiteral() == "x");
 
 		assert(consequence->value->TokenLiteral() == "2");
+
+		auto alter = dynamic_cast<VariableDeclaration*>(declaration1->Alternative->Block_Statements[0].get());
+
+		assert(alter ->TokenLiteral() == "int");
+
+		auto alter_name = alter->name->TokenLiteral();
+		assert(alter_name == "x");
+
+		auto alter_value = alter->value->TokenLiteral();
+
+		assert(alter_value == "3");
+
+		lexxer func("int x(int y){return y + 1;}");
+		Parser parsefunc(std::move(func));
+		
+		auto program_func = parsefunc.ParseProgram();
+
+		assert(program_func->statements.size() == 1);
+
 
 
 	/*	
