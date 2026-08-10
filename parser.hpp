@@ -1,6 +1,7 @@
 #include "lexxer.hpp"
 #include "ast.hpp"
 #include "token.hpp"
+#include <charconv>
 #include <memory>
 #include <utility>
 
@@ -73,8 +74,11 @@ private:
 
 		std::unique_ptr<Expression> parseInteger(){
 
-				int value = std::stoi(curr_tok.text);
-				return std::make_unique<Integer>(curr_tok,value);
+				char* begin = curr_tok.text.data();
+				char* end = begin + curr_tok.text.size();
+				int value2{};
+				std::from_chars(begin,end,value2);
+				return std::make_unique<Integer_Liter>(curr_tok,value2);
 		}
 
 		std::unique_ptr<Expression> parseIdentifier(){
@@ -92,6 +96,7 @@ private:
 				nextToken();
 
 				auto right = ParseExpression(Precedence::LOWEST);
+				
 
 				if (!right){
 
@@ -112,6 +117,8 @@ private:
 		
 		std::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
 
+				std::cout << curr_tok.text << std::endl;
+
 				std::unique_ptr<Expression> left;
 
 				switch (curr_tok.tokentype){
@@ -120,6 +127,7 @@ private:
 								left = parseInteger();
 								break;
 						case TokenType::IDENTIFIER:
+								std::cout << "Entered Identifier" << std::endl;
 								left = parseIdentifier();
 								break;
 						case TokenType::NOT:
@@ -219,6 +227,7 @@ private:
 		}
 
 		std::unique_ptr<Expression> parsePrefix(){
+				std::cout << curr_tok.text << std::endl;
 				Token op = curr_tok;
 				nextToken();
 				/*
@@ -245,6 +254,79 @@ private:
 				return declaration;
 				
 		}
+
+		std::unique_ptr<BlockStatements> parseBlockStatement(){
+
+				std::cout << "Entering Block Statement" << std::endl;
+
+				auto block_statement = std::make_unique<BlockStatements>();
+
+				while (!current_type_is(TokenType::ENDOFFILE) && !current_type_is(TokenType::RBRAC)){
+
+						auto statement = parseStatement();
+
+						if (statement){
+
+								block_statement->Block_Statements.push_back(std::move(statement));
+						}
+						nextToken();
+				}
+
+				return block_statement;
+		}
+		std::unique_ptr<IfStatement> parseIfStatement(){
+
+				std::cout << "Parsing If Statement" << std::endl;
+				std::cout << curr_tok.text << std::endl;
+
+				auto declaration = std::make_unique<IfStatement>(curr_tok);
+
+				if (!next_type_is(TokenType::LPARENT)){
+
+						return nullptr;
+				}
+
+				nextToken();
+
+				declaration->condition = ParseExpression(LOWEST);
+
+				std::cout << "Finished parsing condition" << std::endl;
+/*
+				if (!next_type_is(TokenType::RPARENT)){
+						std::cout << "Hi" << std::endl;
+
+						return nullptr;
+				}
+*/
+				nextToken();
+
+				if (!current_type_is(TokenType::LBRAC)){
+
+						std::cout << "Nullpointer" << std::endl;
+						return nullptr;
+				}
+
+				declaration->Consequence = parseBlockStatement();
+				std::cout << "Finished parsing Consequence" << std::endl;
+				nextToken();
+				if (next_type_is(TokenType::ELSE)){
+						std::cout << "parsing else" << std::endl;
+						nextToken();
+
+						if (!next_type_is(TokenType::LBRAC)){
+						
+								return nullptr;
+						}
+						std::cout << "parsing Alternative" << std::endl;
+						declaration->Alternative = parseBlockStatement();
+						std::cout << "Finished parsing Alternative" << std::endl;
+				}
+
+				
+				nextToken();
+
+				return declaration;
+		}
 		std::unique_ptr<Statement> parseStatement(){
 
 				switch (curr_tok.tokentype){
@@ -257,6 +339,8 @@ private:
 								return parseVariableDeclaration();
 						case TokenType::RETURN:
 								return parseReturn();
+						case TokenType::IF:
+								return parseIfStatement();
 						default:
 								return nullptr;
 				}

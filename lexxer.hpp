@@ -16,8 +16,9 @@ private:
 				{"int", TokenType::INT},
 				{"bool", TokenType::BOOL},
 				{"double", TokenType::DOUBLE},
-				{"return", TokenType::RETURN}
-
+				{"return", TokenType::RETURN},
+				{"if", TokenType::IF},
+				{"else", TokenType::ELSE}
 		};
 		
 		
@@ -75,10 +76,9 @@ lexxer() = default;
 
 lexxer(std::string input):input(std::move(input)){}
 
-// following rule of five
-// copy constructor
-lexxer(const lexxer& other):input(other.input){
+/*
 
+lexxer(const lexxer& other):input(other.input),pos(other.pos){
 }
 
 
@@ -108,6 +108,7 @@ lexxer& operator= (lexxer&& other){
 
 }
 
+*/
 Token nextToken(){
 				
 		while(pos< input.size()){
@@ -156,6 +157,10 @@ Token nextToken(){
 								return {Token(TokenType::RPARENT, input.substr(start,1))};
 						case '(':
 								return {Token(TokenType::LPARENT, input.substr(start,1))};
+						case '{':
+								return {Token(TokenType::LBRAC, input.substr(start,1))};
+						case '}':
+								return {Token(TokenType::RBRAC, input.substr(start,1))};
 						default:
 								return {Token(TokenType::ILLEGAL, input.substr(start,1))};
 						

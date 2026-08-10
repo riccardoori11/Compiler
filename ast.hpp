@@ -85,13 +85,13 @@ class VariableDeclaration: public Statement{
 };
 
 
-class Integer: public Expression{
+class Integer_Liter: public Expression{
 
 		public:
 				Token token;
 				int value;
 
-				Integer(Token token,int value):token(token),value(value){};
+				Integer_Liter(Token token,int value):token(token),value(value){};
 
 				std::string TokenLiteral() const override{
 
@@ -136,12 +136,11 @@ class InfixExpression: public Expression{
 public:
 
 		Token token;
-		TokenType op;
 		std::unique_ptr<Expression> left;
 		std::unique_ptr<Expression> right;
 
 		InfixExpression(Token token,std::unique_ptr<Expression> left,std::unique_ptr<Expression> right):
-				token(token),op(token.tokentype),left(std::move(left)),right(std::move(right))
+				token(token),left(std::move(left)),right(std::move(right))
 		{
 		}
 
@@ -158,10 +157,9 @@ class PrefixExpression: public Expression{
 public:
 
 		Token token;
-		TokenType op;
 		std::unique_ptr<Expression> right;
 
-		PrefixExpression(Token token,std::unique_ptr<Expression> right):token(std::move(token)),op(token.tokentype),right(std::move(right))
+		PrefixExpression(Token token,std::unique_ptr<Expression> right):token(std::move(token)),right(std::move(right))
 		{
 		};
 
@@ -170,6 +168,45 @@ public:
 				return token.text;
 		}
 
+
+
 };
 
+class BlockStatements: public Statement{
+
+public:
+
+		std::vector<std::unique_ptr<Statement>> Block_Statements;
+
+
+		std::string TokenLiteral() const override{
+
+				if (Block_Statements.empty()){
+
+						return "empty";
+				}
+				return Block_Statements.front()->TokenLiteral();
+		}
+
+};
+
+
+class IfStatement: public Statement{
+
+public:
+
+		Token token;
+		std::unique_ptr<Expression> condition;
+		std::unique_ptr<BlockStatements> Consequence;
+		std::unique_ptr<BlockStatements> Alternative;
+
+
+		IfStatement(Token token): token(std::move(token)){};
+
+		std::string TokenLiteral() const override{
+
+				return token.text;
+		}
+
+};
 

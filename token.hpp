@@ -23,7 +23,11 @@ enum class TokenType{
 		DIVISION,
 		NOT,
 		LPARENT,
-		RPARENT
+		RPARENT,
+		LBRAC,
+		RBRAC,
+		IF,
+		ELSE
 };
 
 

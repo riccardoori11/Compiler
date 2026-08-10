@@ -5,6 +5,7 @@
 #include "token.hpp"
 #include <ios>
 #include <unistd.h>
+#include <utility>
 
 std::string Convert_type_to_str(Token t){
 
@@ -49,6 +50,14 @@ std::string Convert_type_to_str(Token t){
 						return "Left_PARENTHESES";
 				case TokenType::RPARENT:
 						return "Right_PARENTHESES";
+				case TokenType::IF:
+						return "if";
+				case TokenType::LBRAC:
+						return "{";
+				case TokenType::RBRAC:
+						return "}";
+				case TokenType::ELSE:
+						return "else";
 		}
 		return "";
 		
@@ -85,7 +94,7 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 
 int main(){
-
+/*
 		lexxer a{"int x = (5+5)*2"};
 
 		Parser parser(std::move(a));
@@ -112,12 +121,37 @@ int main(){
 		assert(five_plus_five->TokenLiteral() == "+");
 		assert(five_plus_five->left->TokenLiteral() == "5");
 		assert(five_plus_five->right->TokenLiteral() == "5");
+*/
+		lexxer c{"if (x + y){int x = 2} else{int x = 3};"};
 
+		Parser parser1(std::move(c));
+		auto program1 = parser1.ParseProgram();
 
-		lexxer b{"!(true == true)"};
-		
-		Parser parser2(std::move(b));
+		assert(program1->statements.size() == 1);
 
+		auto declaration = dynamic_cast<IfStatement*>(program1->statements[0].get());
+		std::cout << declaration->TokenLiteral() << std::endl;
+		assert(declaration->TokenLiteral() == "if");
+
+		auto condition = dynamic_cast<InfixExpression*>(declaration->condition.get());
+
+		auto addition = condition->TokenLiteral();
+		std::cout << addition << std::endl;
+
+		auto first_var = condition->left->TokenLiteral();
+		std::cout << first_var << std::endl;
+
+		auto second_var = condition->right->TokenLiteral();
+		std::cout << second_var << std::endl;
+
+		assert(declaration->Consequence->Block_Statements.size() == 1);
+		auto consequence = dynamic_cast<VariableDeclaration*>(declaration->Consequence->Block_Statements[0].get());
+
+		assert(consequence->TokenLiteral() == "int");
+
+		assert(consequence->name->TokenLiteral() == "x");
+
+		assert(consequence->value->TokenLiteral() == "2");
 
 
 	/*	
