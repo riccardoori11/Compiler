@@ -356,6 +356,7 @@ private:
 				if (next_type_is(TokenType::RPARENT)){
 
 						nextToken();
+						std::cout << "0 parameters" << std::endl;
 						return std::vector<std::unique_ptr<FunctionParameters>>{};
 				}
 
@@ -400,20 +401,18 @@ private:
 
 		std::unique_ptr<Statement> parseFunctionLit(){
 
+				std::cout << "Parsing function Lit" << std::endl;
 				auto declaration = std::make_unique<FunctionLiteral>(curr_tok);
 
+				std::cout << curr_tok.text << std::endl;
+				declaration->name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
+
 				nextToken();
 
-				if (!current_type_is(TokenType::IDENTIFIER)){
+				if (!current_type_is(TokenType::LPARENT)){
 
 						return nullptr;
 				}
-
-				if (!next_type_is(TokenType::LPARENT)){
-
-						return nullptr;
-				}
-				nextToken();
 				assert(curr_tok.tokentype == TokenType::LPARENT);
 
 				auto parameters = parseFunctionParameters();
@@ -436,18 +435,33 @@ private:
 				return declaration;
 
 		}
+
+		std::unique_ptr<Statement> parseTypedStatement(){
+				
+				Token type = curr_tok;
+				std::cout << type.text << std::endl;
+
+				if (!next_type_is(TokenType::IDENTIFIER)){
+
+						return nullptr;
+				}
+				nextToken();
+				if (next_type_is(TokenType::LPARENT)){
+
+						return parseFunctionLit();
+				}
+				return parseVariableDeclaration();
+
+		}
 		std::unique_ptr<Statement> parseStatement(){
 
 				switch (curr_tok.tokentype){
 
 						case TokenType::INT:
 								if (next_type_is(TokenType::IDENTIFIER)){
-
-										return parseVariableDeclaration();
+										return parseTypedStatement();
 								}
-								else if(next_type_is(TokenType::LPARENT)){
-										return parseFunctionLit();
-								}
+								
 						case TokenType::DOUBLE:
 								return parseVariableDeclaration();
 						case TokenType::BOOL:

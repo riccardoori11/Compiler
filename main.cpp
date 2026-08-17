@@ -94,6 +94,7 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 
 int main(){
+/*
 		lexxer a{"int x = (5+5)*2"};
 
 		Parser parser(std::move(a));
@@ -120,7 +121,8 @@ int main(){
 		assert(five_plus_five->TokenLiteral() == "+");
 		assert(five_plus_five->left->TokenLiteral() == "5");
 		assert(five_plus_five->right->TokenLiteral() == "5");
-
+*/
+/*
 		lexxer c{"if (x + y){int x = 2;} else{int x = 3;};"};
 
 		Parser parser1(std::move(c));
@@ -170,7 +172,30 @@ int main(){
 		assert(program_func->statements.size() == 1);
 
 
+		*/
 
+		lexxer d{"int declare(){ double x = 4; }"};
+
+		Parser p1(std::move(d));
+
+		auto program = p1.ParseProgram();
+
+		auto function_decl = dynamic_cast<FunctionLiteral*>(program->statements[0].get());
+
+		auto name = function_decl->name.get();
+
+		assert(name->token.text == "declare");
+
+		assert(function_decl->FunctionBody->Block_Statements.size() == 1);
+
+		auto function_decl_function_body = dynamic_cast<VariableDeclaration*>(function_decl->FunctionBody->Block_Statements[0].get());
+
+		assert(function_decl_function_body->TokenLiteral() == "double");
+
+		assert(function_decl_function_body->name->TokenLiteral() == "x");
+
+		assert(function_decl_function_body->value->TokenLiteral() == "4");
+		
 	/*	
 
 		
