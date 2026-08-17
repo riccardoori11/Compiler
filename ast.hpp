@@ -1,4 +1,5 @@
 #include <memory>
+#include <optional>
 #include "token.hpp"
 #include <string>
 #include <vector>
@@ -237,6 +238,24 @@ public:
 		};
 
 		std::string TokenLiteral() const override {
+
+				return token.text;
+		}
+
+};
+
+class CallExpression: public Expression{
+
+public:
+
+		Token token;
+		std::unique_ptr<Expression> function_name;
+		std::optional<std::vector<std::unique_ptr<Expression>>> arguments;
+
+		CallExpression(Token token, std::unique_ptr<Expression> function):token(token),function_name(std::move(function))
+		{}
+
+		std::string TokenLiteral() const override{
 
 				return token.text;
 		}

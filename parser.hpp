@@ -135,6 +135,46 @@ private:
 				return right;
 				
 		}
+
+		std::optional<std::vector<std::unique_ptr<Expression>>> parseCallExpressionArguments(){
+				auto args = std::vector<std::unique_ptr<Expression>>();
+
+				if (next_type_is(TokenType::RPARENT)){
+
+						nextToken();
+						return args;
+				}
+				nextToken();
+				args.push_back(ParseExpression());
+
+				while (true){
+
+						if (!next_type_is(TokenType::COMMA)){
+
+								return std::nullopt;
+						}
+
+						nextToken();
+						nextToken();
+						args.push_back(ParseExpression());
+
+						if (next_type_is(TokenType::RPARENT)){
+
+								break;
+						}
+
+				}
+
+				return std::optional<std::vector<std::unique_ptr<Expression>>>(std::move(args));
+		}
+
+		std::unique_ptr<Expression> parseCallEXpression(std::unique_ptr<Expression> function){
+				auto declaration = std::make_unique<CallExpression>(curr_tok,std::move(function));
+
+				declaration ->arguments = parseCallExpressionArguments();
+
+				return declaration;
+		}
 		
 		std::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
 
@@ -185,6 +225,10 @@ private:
 								return nullptr;
 						}
 						break;
+						case TokenType::LPARENT:
+								nextToken();
+								left = parseCallEXpression(std::move(left));
+								break;
 						default:
 								return left;
 
