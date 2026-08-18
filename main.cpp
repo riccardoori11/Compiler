@@ -58,6 +58,8 @@ std::string Convert_type_to_str(Token t){
 						return "}";
 				case TokenType::ELSE:
 						return "else";
+				case TokenType::COMMA:
+						return ",";
 		}
 		return "";
 		
@@ -94,6 +96,13 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 
 
 int main(){
+
+		lexxer a("add(1,2*3, 4 + 5)");
+
+		Parser p(a);
+		auto program = p.ParseProgram();
+		assert(program->statements.size() == 1);
+
 /*
 		lexxer a{"int x = (5+5)*2"};
 
@@ -173,7 +182,7 @@ int main(){
 
 
 		*/
-
+/*
 		lexxer d{"int declare(){ double x = 4; }"};
 
 		Parser p1(std::move(d));
@@ -195,10 +204,11 @@ int main(){
 		assert(function_decl_function_body->name->TokenLiteral() == "x");
 
 		assert(function_decl_function_body->value->TokenLiteral() == "4");
-		
+	*/	
 	/*	
 
 		
+	
 
 		auto addition = dynamic_cast<InfixExpression*>(declaration->value.get());
 

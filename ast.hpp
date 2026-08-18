@@ -261,3 +261,19 @@ public:
 		}
 
 };
+
+class ExpressionStatement: public Statement{
+
+public:
+		Token token;
+		std::unique_ptr<Expression> expr;
+
+		ExpressionStatement(Token token):token(std::move(token))
+		{
+		}
+
+		std::string TokenLiteral() const override{
+
+				return expr ? expr->TokenLiteral() : "";
+		}
+};

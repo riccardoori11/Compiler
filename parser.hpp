@@ -21,6 +21,7 @@ enum Precedence{
 		SUM,
 		PRODUCT,
 		PREFIX,
+		CALL
 
 };
 class Parser{
@@ -63,6 +64,8 @@ private:
 		Precedence getPrecedence(TokenType type){
 
 				switch(type){
+						case TokenType::LPARENT:
+								return Precedence::CALL;
 						case TokenType::COMPARE:
 								return Precedence::COMPARE;
 						case TokenType::LESS:
@@ -137,6 +140,7 @@ private:
 		}
 
 		std::optional<std::vector<std::unique_ptr<Expression>>> parseCallExpressionArguments(){
+				std::cout << "Parsing callExpression Arguments" << std::endl;
 				auto args = std::vector<std::unique_ptr<Expression>>();
 
 				if (next_type_is(TokenType::RPARENT)){
@@ -164,11 +168,13 @@ private:
 						}
 
 				}
+				nextToken();
 
 				return std::optional<std::vector<std::unique_ptr<Expression>>>(std::move(args));
 		}
 
 		std::unique_ptr<Expression> parseCallEXpression(std::unique_ptr<Expression> function){
+				std::cout << "Parsing call expression" << std::endl;
 				auto declaration = std::make_unique<CallExpression>(curr_tok,std::move(function));
 
 				declaration ->arguments = parseCallExpressionArguments();
@@ -210,6 +216,11 @@ private:
 
 		while(!next_type_is(TokenType::SEMICOLON) && precedence < getPeekPrecedence()){
 				switch (next_tok.tokentype){
+						case TokenType::LPARENT:
+								std::cout << "" << std::endl;
+								nextToken();
+								left = parseCallEXpression(std::move(left));
+								break;
 						case TokenType::COMPARE:
 						case TokenType::GREATER:
 						case TokenType::MULTIPLICATION:
@@ -225,10 +236,6 @@ private:
 								return nullptr;
 						}
 						break;
-						case TokenType::LPARENT:
-								nextToken();
-								left = parseCallEXpression(std::move(left));
-								break;
 						default:
 								return left;
 
@@ -497,6 +504,26 @@ private:
 				return parseVariableDeclaration();
 
 		}
+
+		std::unique_ptr<Statement> parseExpressionStatement(){
+
+				std::cout << "Parsing Expression Statement" << std::endl;
+
+				auto statement = std::make_unique<ExpressionStatement>(curr_tok);
+
+				statement->expr = ParseExpression();
+				/*add(1,2);
+				 * after parsing add(1,2) take over ;
+				 * */
+
+				if (next_type_is(TokenType::SEMICOLON)){
+
+						nextToken();
+				}
+
+				return statement;
+				
+		}
 		std::unique_ptr<Statement> parseStatement(){
 
 				switch (curr_tok.tokentype){
@@ -507,7 +534,9 @@ private:
 								}
 								
 						case TokenType::DOUBLE:
-								return parseVariableDeclaration();
+								if (next_type_is(TokenType::IDENTIFIER)){
+										return parseTypedStatement();
+								}
 						case TokenType::BOOL:
 								return parseVariableDeclaration();
 						case TokenType::RETURN:
@@ -515,7 +544,7 @@ private:
 						case TokenType::IF:
 								return parseIfStatement();
 						default:
-								return nullptr;
+								return parseExpressionStatement();
 				}
 		}
 
@@ -544,6 +573,7 @@ public:
 				return program;
 
 		};
+
 
 
 };
