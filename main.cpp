@@ -4,6 +4,8 @@
 #include "parser.hpp"
 #include "token.hpp"
 #include <ios>
+#include <istream>
+#include <stdexcept>
 #include <unistd.h>
 #include <utility>
 
@@ -94,18 +96,35 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 		}
 }
 
+auto Parse_input(std::istream& input_stream, std::string& s){
 
-
-int main(){
-		lexxer a{"int x = 4;"};
+		std::getline(input_stream,s);
+		lexxer a{s};
 
 		Parser parser(std::move(a));
 
 		auto program = parser.ParseProgram();
 
+		if (!program->statements.size()){
+
+				throw std::runtime_error("Could not parse input");
+		}
+
 		auto p = program->statements[0].get();
 
 		p->print();
+}
+
+
+int main(){
+
+		std::cout << "Write your input" << std::endl;
+
+		std::string s;
+
+		Parse_input(std::cin,s);
+
+
 /*
 		auto declaration = dynamic_cast<VariableDeclaration*>(program->statements[0].get());
 

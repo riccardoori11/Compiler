@@ -92,10 +92,9 @@ class VariableDeclaration: public Statement{
 
 		void print() const override{
 
-				std::cout << "Invoking" << std::endl;
 				std::cout << token.text << std::endl;
 				name->print();
-				name->print();
+				value->print();
 		};
 
 
@@ -133,7 +132,10 @@ public:
 
 				return token.text;
 		}
-void print() const override{};
+void print() const override{
+
+		std::cout << token.text << std::endl;
+};
 
 };
 
@@ -149,7 +151,11 @@ class Return: public Statement{
 
 						return token.text;
 				}
-void print() const override{};
+void print() const override{
+
+		std::cout << token.text << std::endl;
+		Returnvalue->print();
+};
 
 };
 
@@ -172,7 +178,12 @@ public:
 						return token.text;
 				}
 
-void print() const override{};
+void print() const override{
+
+		left->print();
+		std::cout << token.text << std::endl;
+		right->print();
+};
 };
 
 
@@ -191,7 +202,12 @@ public:
 
 				return token.text;
 		}
-void print() const override{};
+void print() const override{
+
+		std::cout << token.text << std::endl;
+
+		right->print();
+};
 
 
 
@@ -307,5 +323,6 @@ public:
 				return expr ? expr->TokenLiteral() : "";
 		}
 
-		void print() const override{};
+		void print() const override{
+		};
 };
