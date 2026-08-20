@@ -95,21 +95,18 @@ auto printVariableDeclaration(std::unique_ptr<Program> p){
 }
 
 
+
 int main(){
-
-		lexxer a("add(1,2*3, 4 + 5)");
-
-		Parser p(a);
-		auto program = p.ParseProgram();
-		assert(program->statements.size() == 1);
-
-/*
-		lexxer a{"int x = (5+5)*2"};
+		lexxer a{"int x = 4;"};
 
 		Parser parser(std::move(a));
 
 		auto program = parser.ParseProgram();
 
+		auto p = program->statements[0].get();
+
+		p->print();
+/*
 		auto declaration = dynamic_cast<VariableDeclaration*>(program->statements[0].get());
 
 		auto name = declaration->name->TokenLiteral();
@@ -130,7 +127,7 @@ int main(){
 		assert(five_plus_five->TokenLiteral() == "+");
 		assert(five_plus_five->left->TokenLiteral() == "5");
 		assert(five_plus_five->right->TokenLiteral() == "5");
-*/
+		*/
 /*
 		lexxer c{"if (x + y){int x = 2;} else{int x = 3;};"};
 

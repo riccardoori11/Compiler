@@ -1,4 +1,5 @@
 #include <memory>
+#include <iostream>
 #include <optional>
 #include "token.hpp"
 #include <string>
@@ -10,6 +11,7 @@ public:
 
 		virtual ~Node() = default;
 		virtual std::string TokenLiteral() const = 0;
+		virtual void print() const = 0;
 
 };
 
@@ -43,6 +45,9 @@ public:
 				return statements.front()->TokenLiteral();
 			
 		}
+		void print() const override{
+				statements.front()->print();
+		};
 
 };
 
@@ -60,6 +65,10 @@ class Identifier: public Expression{
 				return token.text;
 		}
 
+		void print() const override{
+
+				std::cout << token.text << std::endl;
+		};
 
 };
 
@@ -81,6 +90,13 @@ class VariableDeclaration: public Statement{
 				return token.text;
 		};
 
+		void print() const override{
+
+				std::cout << "Invoking" << std::endl;
+				std::cout << token.text << std::endl;
+				name->print();
+				name->print();
+		};
 
 
 };
@@ -98,6 +114,10 @@ class Integer_Liter: public Expression{
 
 						return token.text;
 				}
+void print() const override{
+
+		std::cout << value << std::endl;
+};
 
 };
 
@@ -113,6 +133,7 @@ public:
 
 				return token.text;
 		}
+void print() const override{};
 
 };
 
@@ -128,6 +149,7 @@ class Return: public Statement{
 
 						return token.text;
 				}
+void print() const override{};
 
 };
 
@@ -150,6 +172,7 @@ public:
 						return token.text;
 				}
 
+void print() const override{};
 };
 
 
@@ -164,10 +187,11 @@ public:
 		{
 		};
 
-		std::string TokenLiteral() const{
+		std::string TokenLiteral() const override{
 
 				return token.text;
 		}
+void print() const override{};
 
 
 
@@ -188,6 +212,7 @@ public:
 				}
 				return Block_Statements.front()->TokenLiteral();
 		}
+void print() const override{};
 
 };
 
@@ -208,6 +233,7 @@ public:
 
 				return token.text;
 		}
+void print() const override{};
 
 };
 
@@ -222,6 +248,8 @@ class FunctionParameters: public Node{
 
 				return binding_type.text;
 		};
+void print() const override{
+};
 };
 
 class FunctionLiteral: public Statement{
@@ -241,6 +269,7 @@ public:
 
 				return token.text;
 		}
+void print() const override{};
 
 };
 
@@ -259,6 +288,7 @@ public:
 
 				return token.text;
 		}
+void print() const override{};
 
 };
 
@@ -276,4 +306,6 @@ public:
 
 				return expr ? expr->TokenLiteral() : "";
 		}
+
+		void print() const override{};
 };

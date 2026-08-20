@@ -115,8 +115,8 @@ private:
 		std::unique_ptr<Expression> ParseGroupedExpression(){
 
 				
-				std::cout << "Eneterd" << std::endl;
-				std::cout << curr_tok.text << std::endl;
+			//	std::cout << "Eneterd" << std::endl;
+			//	std::cout << curr_tok.text << std::endl;
 				nextToken();
 
 				auto right = ParseExpression(Precedence::LOWEST);
@@ -124,7 +124,7 @@ private:
 
 				if (!right){
 
-						std::cout << "Entered ParseGroupedExpression" << std::endl;
+						//std::cout << "Entered ParseGroupedExpression" << std::endl;
 						return nullptr;
 				}
 
@@ -134,13 +134,13 @@ private:
 				}
 
 				nextToken();
-				std::cout << curr_tok.text << std::endl;
+				//std::cout << curr_tok.text << std::endl;
 				return right;
 				
 		}
 
 		std::optional<std::vector<std::unique_ptr<Expression>>> parseCallExpressionArguments(){
-				std::cout << "Parsing callExpression Arguments" << std::endl;
+				//std::cout << "Parsing callExpression Arguments" << std::endl;
 				auto args = std::vector<std::unique_ptr<Expression>>();
 
 				if (next_type_is(TokenType::RPARENT)){
@@ -174,7 +174,7 @@ private:
 		}
 
 		std::unique_ptr<Expression> parseCallEXpression(std::unique_ptr<Expression> function){
-				std::cout << "Parsing call expression" << std::endl;
+				//std::cout << "Parsing call expression" << std::endl;
 				auto declaration = std::make_unique<CallExpression>(curr_tok,std::move(function));
 
 				declaration ->arguments = parseCallExpressionArguments();
@@ -184,7 +184,7 @@ private:
 		
 		std::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
 
-				std::cout << curr_tok.text << std::endl;
+				//std::cout << curr_tok.text << std::endl;
 
 				std::unique_ptr<Expression> left;
 
@@ -194,7 +194,7 @@ private:
 								left = parseInteger();
 								break;
 						case TokenType::IDENTIFIER:
-								std::cout << "Entered Identifier" << std::endl;
+								//std::cout << "Entered Identifier" << std::endl;
 								left = parseIdentifier();
 								break;
 						case TokenType::NOT:
@@ -204,7 +204,7 @@ private:
 								left = parsePrefix();
 								break;
 						case TokenType::LPARENT:
-								std::cout << "Enterinf Parsed Group Expression" << std::endl;
+								//std::cout << "Enterinf Parsed Group Expression" << std::endl;
 								left = ParseGroupedExpression();
 								break;
 
@@ -217,7 +217,7 @@ private:
 		while(!next_type_is(TokenType::SEMICOLON) && precedence < getPeekPrecedence()){
 				switch (next_tok.tokentype){
 						case TokenType::LPARENT:
-								std::cout << "" << std::endl;
+								//std::cout << "" << std::endl;
 								nextToken();
 								left = parseCallEXpression(std::move(left));
 								break;
@@ -245,15 +245,14 @@ private:
 		}
 
 
-		std::unique_ptr<VariableDeclaration> parseVariableDeclaration(){
+		std::unique_ptr<VariableDeclaration> parseVariableDeclaration(Token t){
 
-				auto declaration = std::make_unique<VariableDeclaration>(curr_tok);
-				if (!next_type_is(TokenType::IDENTIFIER)){
+				auto declaration = std::make_unique<VariableDeclaration>(t);
 
-						return nullptr;
+				if (!declaration){
+
+						throw std::runtime_error("Could not parse declaration in VariableDeclaration");
 				}
-				nextToken();
-
 				declaration->name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
 
 				if (!next_type_is(TokenType::EQUAL)){
@@ -299,7 +298,7 @@ private:
 		}
 
 		std::unique_ptr<Expression> parsePrefix(){
-				std::cout << curr_tok.text << std::endl;
+				//std::cout << curr_tok.text << std::endl;
 				Token op = curr_tok;
 				nextToken();
 				/*
@@ -329,7 +328,7 @@ private:
 
 		std::unique_ptr<BlockStatements> parseBlockStatement(){
 
-				std::cout << "Entering Block Statement" << std::endl;
+				//std::cout << "Entering Block Statement" << std::endl;
 
 				auto block_statement = std::make_unique<BlockStatements>();
 
@@ -348,8 +347,8 @@ private:
 		}
 		std::unique_ptr<IfStatement> parseIfStatement(){
 
-				std::cout << "Parsing If Statement" << std::endl;
-				std::cout << curr_tok.text << std::endl;
+				//std::cout << "Parsing If Statement" << std::endl;
+				//std::cout << curr_tok.text << std::endl;
 
 				auto declaration = std::make_unique<IfStatement>(curr_tok);
 
@@ -362,10 +361,10 @@ private:
 
 				declaration->condition = ParseExpression(LOWEST);
 
-				std::cout << "Finished parsing condition" << std::endl;
+				//std::cout << "Finished parsing condition" << std::endl;
 /*
 				if (!next_type_is(TokenType::RPARENT)){
-						std::cout << "Hi" << std::endl;
+						//std::cout << "Hi" << std::endl;
 
 						return nullptr;
 				}
@@ -374,23 +373,23 @@ private:
 
 				if (!current_type_is(TokenType::LBRAC)){
 
-						std::cout << "Nullpointer" << std::endl;
+						//std::cout << "Nullpointer" << std::endl;
 						return nullptr;
 				}
 
 				declaration->Consequence = parseBlockStatement();
-				std::cout << "Finished parsing Consequence" << std::endl;
+				//std::cout << "Finished parsing Consequence" << std::endl;
 				if (next_type_is(TokenType::ELSE)){
-						std::cout << "parsing else" << std::endl;
+						//std::cout << "parsing else" << std::endl;
 						nextToken();
 
 						if (!next_type_is(TokenType::LBRAC)){
 						
 								return nullptr;
 						}
-						std::cout << "parsing Alternative" << std::endl;
+						//std::cout << "parsing Alternative" << std::endl;
 						declaration->Alternative = parseBlockStatement();
-						std::cout << "Finished parsing Alternative" << std::endl;
+						//std::cout << "Finished parsing Alternative" << std::endl;
 				}
 
 				
@@ -407,7 +406,7 @@ private:
 				if (next_type_is(TokenType::RPARENT)){
 
 						nextToken();
-						std::cout << "0 parameters" << std::endl;
+						//std::cout << "0 parameters" << std::endl;
 						return std::vector<std::unique_ptr<FunctionParameters>>{};
 				}
 
@@ -452,10 +451,10 @@ private:
 
 		std::unique_ptr<Statement> parseFunctionLit(){
 
-				std::cout << "Parsing function Lit" << std::endl;
+				//std::cout << "Parsing function Lit" << std::endl;
 				auto declaration = std::make_unique<FunctionLiteral>(curr_tok);
 
-				std::cout << curr_tok.text << std::endl;
+				//std::cout << curr_tok.text << std::endl;
 				declaration->name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
 
 				nextToken();
@@ -488,26 +487,30 @@ private:
 		}
 
 		std::unique_ptr<Statement> parseTypedStatement(){
+
+
 				
 				Token type = curr_tok;
-				std::cout << type.text << std::endl;
+				//std::cout << type.text << std::endl;
 
 				if (!next_type_is(TokenType::IDENTIFIER)){
 
 						return nullptr;
 				}
+				Token returnType = curr_tok;
 				nextToken();
 				if (next_type_is(TokenType::LPARENT)){
 
 						return parseFunctionLit();
 				}
-				return parseVariableDeclaration();
+
+				return parseVariableDeclaration(returnType);
 
 		}
 
 		std::unique_ptr<Statement> parseExpressionStatement(){
 
-				std::cout << "Parsing Expression Statement" << std::endl;
+				//std::cout << "Parsing Expression Statement" << std::endl;
 
 				auto statement = std::make_unique<ExpressionStatement>(curr_tok);
 
@@ -538,7 +541,7 @@ private:
 										return parseTypedStatement();
 								}
 						case TokenType::BOOL:
-								return parseVariableDeclaration();
+								return parseTypedStatement();
 						case TokenType::RETURN:
 								return parseReturn();
 						case TokenType::IF:
