@@ -118,11 +118,72 @@ auto Parse_input(std::istream& input_stream, std::string& s){
 
 int main(){
 
-		std::cout << "Write your input" << std::endl;
+		// Regression test for error.md #1: an uninitialized declaration
+		// must preserve the following declaration.
+		{
+				Parser parser(lexxer{"int x; int y = 2;"});
+				auto program = parser.ParseProgram();
+				assert(!program->statements.empty());
+				auto declaration = dynamic_cast<VariableDeclaration*>(program->statements[0].get());
+				assert(declaration != nullptr);
+				assert(declaration->name->TokenLiteral() == "x");
+				assert(declaration->value == nullptr && "int x; must have no initializer");
+				assert(program->statements.size() == 2 && "The following declaration must remain a separate statement");
+				auto second_declaration = dynamic_cast<VariableDeclaration*>(program->statements[1].get());
+				assert(second_declaration != nullptr);
+				assert(second_declaration->TokenLiteral() == "int");
+				assert(second_declaration->name->TokenLiteral() == "y");
+				assert(second_declaration->value != nullptr);
+				assert(second_declaration->value->TokenLiteral() == "2");
+		}
+		// Regression tests for error.md #2: malformed expressions must
+		// be rejected, not stored as apparently successful AST statements.
+		
+		{
+				const char* invalid_inputs[] = {
+						"int x = ;",
+						"return @;",
+						"int x = -;",
+						"@",
+						"1 + ;",
+						"if (1 { int x = 2; }",
+						"f(1, 2;"
+				};
+				bool all_rejected = true;
+				for (const char* input : invalid_inputs){
+						bool rejected = false;
+						try {
+								Parser parser(lexxer{input});
+								auto program = parser.ParseProgram();
+								rejected = program && program->statements.empty();
+						} catch (const std::runtime_error&) {
+								rejected = true;
+						}
+						if (!rejected){
+								std::cerr << "FAIL: malformed input returned AST statements: " << input << '\n';
+								all_rejected = false;
+						}
+				}
+				assert(all_rejected && "Malformed expressions must not produce successful AST statements");
+		}
 
-		std::string s;
+		{
+				Parser parser(lexxer{"f(1);"});
+				auto program = parser.ParseProgram();
+				assert(program->statements.size() == 1);
+				auto statement = dynamic_cast<ExpressionStatement*>(program->statements[0].get());
+				assert(statement && statement->expr);
+				auto call = dynamic_cast<CallExpression*>(statement->expr.get());
+				assert(call && call->arguments);
+				assert(call->function_name && call->function_name->TokenLiteral() == "f");
+				assert(call->arguments->size() == 1);
+				assert(call->arguments->at(0));
+				assert(call->arguments->at(0)->TokenLiteral() == "1");
+		}
 
-		Parse_input(std::cin,s);
+//		std::string s;
+
+		//Parse_input(std::cin,s);
 
 
 /*

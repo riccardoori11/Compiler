@@ -28,7 +28,8 @@ enum class TokenType{
 		RBRAC,
 		IF,
 		ELSE,
-		COMMA
+		COMMA,
+		FLOAT
 };
 
 

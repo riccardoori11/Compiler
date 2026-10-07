@@ -154,11 +154,6 @@ private:
 
 				while (true){
 
-						if (!next_type_is(TokenType::COMMA)){
-
-								return std::nullopt;
-						}
-
 						nextToken();
 						nextToken();
 						args.push_back(ParseExpression());
@@ -166,6 +161,11 @@ private:
 						if (next_type_is(TokenType::RPARENT)){
 
 								break;
+						}
+						
+						if (!next_type_is(TokenType::COMMA)){
+
+								return std::nullopt;
 						}
 
 				}
@@ -179,6 +179,11 @@ private:
 				auto declaration = std::make_unique<CallExpression>(curr_tok,std::move(function));
 
 				declaration ->arguments = parseCallExpressionArguments();
+
+				if (!declaration->arguments){
+
+						throw std::runtime_error("Could not get arguments");
+				}
 
 				return declaration;
 		}
@@ -254,6 +259,7 @@ private:
 
 						throw std::runtime_error("Could not parse declaration in VariableDeclaration");
 				}
+
 				declaration->name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
 
 				if (!next_type_is(TokenType::EQUAL)){
@@ -261,6 +267,8 @@ private:
 						if (next_type_is(TokenType::SEMICOLON)){
 
 								declaration->value = 0;
+								nextToken();
+								return declaration;
 						}
 						else{
 
@@ -272,9 +280,12 @@ private:
 				nextToken();
 
 				declaration->value = ParseExpression();
-
-				
 				nextToken();
+				if (!declaration->value){
+						throw std::runtime_error("could not parse value");
+				}
+				
+				
 				return declaration;
 
 
@@ -307,6 +318,10 @@ private:
 				 * */
 				auto right = ParseExpression(Precedence::PREFIX);
 
+				if (!right){
+						throw std::runtime_error("Could not find the right side of prefix");
+				}
+
 				return std::make_unique<PrefixExpression>(std::move(op),std::move(right));
 		}
 		
@@ -321,7 +336,10 @@ private:
 				nextToken();
 
 				declaration->Returnvalue = ParseExpression();
+				if (declaration->Returnvalue == nullptr){
 
+						throw std::runtime_error("Invalid return value");
+				}
 				nextToken();
 				return declaration;
 				
@@ -464,6 +482,7 @@ private:
 
 						return nullptr;
 				}
+
 				assert(curr_tok.tokentype == TokenType::LPARENT);
 
 				auto parameters = parseFunctionParameters();
@@ -473,7 +492,12 @@ private:
 				}
 
 				declaration->Parameters = std::move(*parameters);
+				if (!next_type_is(TokenType::RPARENT)){
+						throw std::runtime_error("Missing Right Parentheses");
+				}
 
+				
+				nextToken();
 				if (!next_type_is(TokenType::LBRAC)){
 
 						throw std::runtime_error("Eror parsing beginning function body");
@@ -489,8 +513,6 @@ private:
 
 		std::unique_ptr<Statement> parseTypedStatement(){
 
-
-				
 				Token type = curr_tok;
 				//std::cout << type.text << std::endl;
 
@@ -520,6 +542,10 @@ private:
 				 * after parsing add(1,2) take over ;
 				 * */
 
+				if (!statement->expr){
+						throw std::runtime_error("Could not parse expression of expressionStatement");
+				}
+
 				if (next_type_is(TokenType::SEMICOLON)){
 
 						nextToken();
@@ -543,6 +569,7 @@ private:
 								}
 						case TokenType::BOOL:
 								return parseTypedStatement();
+
 						case TokenType::RETURN:
 								return parseReturn();
 						case TokenType::IF:
