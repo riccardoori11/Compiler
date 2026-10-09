@@ -382,8 +382,9 @@ private:
 						}
 						nextToken();
 				}
-
-
+				if (!current_type_is(TokenType::RBRAC)){
+						throw std::runtime_error("Failed to close Right Bracket");
+				}
 				return block_statement;
 		}
 		std::unique_ptr<IfStatement> parseIfStatement(){
@@ -418,6 +419,9 @@ private:
 						return nullptr;
 				}
 				declaration->Consequence = parseBlockStatement();
+				if (!declaration->Consequence){
+						throw std::runtime_error("No Consequence");
+				}
 				if (next_type_is(TokenType::ELSE)){
 						//std::cout << "parsing else" << std::endl;
 						nextToken();
@@ -525,6 +529,7 @@ private:
 				
 //std::cout << curr_tok.text << std::endl;
 				declaration->FunctionBody = parseBlockStatement();
+
 				//std::cout << curr_tok.text << std::endl;
 
 				return declaration;

@@ -470,6 +470,227 @@ int main(){
 				assert(all_calls_correct && "Calls must preserve their arguments and following statements, and reject malformed argument lists");
 		}
 
+		// Regression tests for error.md #5: braces and 'else' must not
+		// become extra statements, and genuine block statements must remain intact.
+		{
+				auto is_integer = [](const Expression* expression, int value){
+						auto integer = dynamic_cast<const Integer_Liter*>(expression);
+						return integer && integer->value == value;
+				};
+				auto is_declaration = [&](const Statement* statement, const char* name, int value){
+						auto declaration = dynamic_cast<const VariableDeclaration*>(statement);
+						return declaration && declaration->TokenLiteral() == "int" && declaration->name &&
+								declaration->name->TokenLiteral() == name && is_integer(declaration->value.get(), value);
+				};
+				auto is_return = [](const Statement* statement, const char* value){
+						auto return_statement = dynamic_cast<const Return*>(statement);
+						return return_statement && return_statement->Returnvalue &&
+								return_statement->Returnvalue->TokenLiteral() == value;
+				};
+				auto get_if = [&](const Statement* statement, int condition) -> const IfStatement* {
+						auto conditional = dynamic_cast<const IfStatement*>(statement);
+						return conditional && is_integer(conditional->condition.get(), condition) && conditional->Consequence
+								? conditional : nullptr;
+				};
+				auto get_function = [](const Program& program) -> const FunctionLiteral* {
+						if (program.statements.size() != 1){
+								return nullptr;
+						}
+						auto function = dynamic_cast<const FunctionLiteral*>(program.statements[0].get());
+						return function && function->name && function->name->TokenLiteral() == "f" &&
+								function->Parameters.empty() && function->FunctionBody ? function : nullptr;
+				};
+
+				bool all_block_contents_correct = true;
+				auto test_block_contents = [&](const char* name, const char* input, auto check){
+						try {
+								Parser parser(lexxer{input});
+								auto program = parser.ParseProgram();
+								if (program && check(*program)){
+										return;
+								}
+								std::cerr << "FAIL: error.md #5 (" << name << "): unexpected block contents: " << input << '\n';
+						} catch (const std::runtime_error& error) {
+								std::cerr << "FAIL: error.md #5 (" << name << "): " << error.what()
+										<< ": " << input << '\n';
+						}
+						all_block_contents_correct = false;
+				};
+
+				struct ConditionalBlockCase {
+						const char* name;
+						const char* input;
+						std::size_t consequence_size;
+						bool has_else;
+						std::size_t alternative_size;
+				};
+				const ConditionalBlockCase conditional_blocks[] = {
+						{"empty consequence", "if (1) {}", 0, false, 0},
+						{"empty consequence and alternative", "if (1) {} else {}", 0, true, 0},
+						{"one consequence declaration", "if (1) { int x = 1; }", 1, false, 0},
+						{"one declaration in each branch", "if (1) { int x = 1; } else { int x = 3; }", 1, true, 1},
+						{"empty consequence with populated alternative", "if (1) {} else { int x = 3; }", 0, true, 1},
+						{"populated consequence with empty alternative", "if (1) { int x = 1; } else {}", 1, true, 0},
+						{"multiple declarations in each branch", "if (1) { int x = 1; int y = 2; } else { int x = 3; int y = 4; }", 2, true, 2}
+				};
+				const char* declaration_names[] = {"x", "y"};
+				for (const auto& test_case : conditional_blocks){
+						test_block_contents(test_case.name, test_case.input, [&](const Program& program){
+								auto conditional = program.statements.size() == 1 ? get_if(program.statements[0].get(), 1) : nullptr;
+								if (!conditional || conditional->Consequence->Block_Statements.size() != test_case.consequence_size){
+										return false;
+								}
+								for (std::size_t i{}; i < test_case.consequence_size; ++i){
+										if (!is_declaration(conditional->Consequence->Block_Statements[i].get(), declaration_names[i], static_cast<int>(i) + 1)){
+												return false;
+										}
+								}
+								if (!test_case.has_else){
+										return conditional->Alternative == nullptr;
+								}
+								if (!conditional->Alternative || conditional->Alternative->Block_Statements.size() != test_case.alternative_size){
+										return false;
+								}
+								for (std::size_t i{}; i < test_case.alternative_size; ++i){
+										if (!is_declaration(conditional->Alternative->Block_Statements[i].get(), declaration_names[i], static_cast<int>(i) + 3)){
+												return false;
+										}
+								}
+								return true;
+						});
+				}
+
+				test_block_contents("empty function body", "int f() {}", [&](const Program& program){
+						auto function = get_function(program);
+						return function && function->FunctionBody->Block_Statements.empty();
+				});
+
+				test_block_contents("one return in function body", "int f() { return 1; }", [&](const Program& program){
+						auto function = get_function(program);
+						return function && function->FunctionBody->Block_Statements.size() == 1 &&
+								is_return(function->FunctionBody->Block_Statements[0].get(), "1");
+				});
+
+				test_block_contents("declaration and return in function body", "int f() { int x = 1; return x; }", [&](const Program& program){
+						auto function = get_function(program);
+						return function && function->FunctionBody->Block_Statements.size() == 2 &&
+								is_declaration(function->FunctionBody->Block_Statements[0].get(), "x", 1) &&
+								is_return(function->FunctionBody->Block_Statements[1].get(), "x");
+				});
+
+				test_block_contents("real expression statements in both branches", "if (1) { f(1); } else { 2 + 3; }", [&](const Program& program){
+						auto conditional = program.statements.size() == 1 ? get_if(program.statements[0].get(), 1) : nullptr;
+						if (!conditional || conditional->Consequence->Block_Statements.size() != 1 ||
+								!conditional->Alternative || conditional->Alternative->Block_Statements.size() != 1){
+								return false;
+						}
+						auto consequence = dynamic_cast<const ExpressionStatement*>(conditional->Consequence->Block_Statements[0].get());
+						auto call = consequence ? dynamic_cast<const CallExpression*>(consequence->expr.get()) : nullptr;
+						auto callee = call ? dynamic_cast<const Identifier*>(call->function_name.get()) : nullptr;
+						auto alternative = dynamic_cast<const ExpressionStatement*>(conditional->Alternative->Block_Statements[0].get());
+						auto sum = alternative ? dynamic_cast<const InfixExpression*>(alternative->expr.get()) : nullptr;
+						return callee && callee->TokenLiteral() == "f" && call->arguments && call->arguments->size() == 1 &&
+								is_integer(call->arguments->at(0).get(), 1) && sum && sum->TokenLiteral() == "+" &&
+								is_integer(sum->left.get(), 2) && is_integer(sum->right.get(), 3);
+				});
+
+				test_block_contents("nested empty branches", "if (1) { if (2) {} else {} } else { if (3) {} else {} }", [&](const Program& program){
+						auto outer = program.statements.size() == 1 ? get_if(program.statements[0].get(), 1) : nullptr;
+						if (!outer || outer->Consequence->Block_Statements.size() != 1 ||
+								!outer->Alternative || outer->Alternative->Block_Statements.size() != 1){
+								return false;
+						}
+						auto consequence = get_if(outer->Consequence->Block_Statements[0].get(), 2);
+						auto alternative = get_if(outer->Alternative->Block_Statements[0].get(), 3);
+						return consequence && consequence->Consequence->Block_Statements.empty() && consequence->Alternative &&
+								consequence->Alternative->Block_Statements.empty() && alternative &&
+								alternative->Consequence->Block_Statements.empty() && alternative->Alternative &&
+								alternative->Alternative->Block_Statements.empty();
+				});
+
+				test_block_contents("populated branches inside a function", "int f() { if (1) { int x = 2; } else { int y = 3; } return 4; }", [&](const Program& program){
+						auto function = get_function(program);
+						if (!function || function->FunctionBody->Block_Statements.size() != 2){
+								return false;
+						}
+						const auto& body = function->FunctionBody->Block_Statements;
+						auto conditional = get_if(body[0].get(), 1);
+						return conditional && conditional->Consequence->Block_Statements.size() == 1 &&
+								conditional->Alternative && conditional->Alternative->Block_Statements.size() == 1 &&
+								is_declaration(conditional->Consequence->Block_Statements[0].get(), "x", 2) &&
+								is_declaration(conditional->Alternative->Block_Statements[0].get(), "y", 3) && is_return(body[1].get(), "4");
+				});
+
+				assert(all_block_contents_correct && "Blocks must contain only their actual statements, never braces or else tokens");
+		}
+
+		// Regression tests for error.md #6: EOF must not stand in for '}'.
+		// Each unfinished input is paired with a correctly closed version.
+		{
+				struct BlockTerminationCase {
+						const char* name;
+						const char* unfinished_input;
+						const char* closed_input;
+						std::size_t statement_count;
+				};
+				const BlockTerminationCase block_terminations[] = {
+						{"empty consequence", "if (1) {", "if (1) {}", 1},
+						{"populated consequence", "if (1) { int x = 2;", "if (1) { int x = 2; }", 1},
+						{"empty alternative", "if (1) {} else {", "if (1) {} else {}", 1},
+						{"populated alternative", "if (1) {} else { int x = 2;", "if (1) {} else { int x = 2; }", 1},
+						{"empty function body", "int f() {", "int f() {}", 1},
+						{"populated function body", "int f() { return 1;", "int f() { return 1; }", 1},
+						{"missing outer if brace", "if (1) { if (2) {}", "if (1) { if (2) {} }", 1},
+						{"missing inner and outer if braces", "if (1) { if (2) {", "if (1) { if (2) {} }", 1},
+						{"missing function brace after nested if", "int f() { if (1) {}", "int f() { if (1) {} }", 1},
+						{"missing function brace after nested if/else", "int f() { if (1) {} else {}", "int f() { if (1) {} else {} }", 1},
+						{"valid declaration before unfinished block", "int x = 0; if (1) {", "int x = 0; if (1) {}", 2}
+				};
+
+				bool all_blocks_terminated = true;
+				for (const auto& test_case : block_terminations){
+						bool rejected = false;
+						try {
+								Parser parser(lexxer{test_case.unfinished_input});
+								auto program = parser.ParseProgram();
+								rejected = !program || program->statements.empty();
+						} catch (const std::runtime_error&) {
+								rejected = true;
+						}
+						if (!rejected){
+								std::cerr << "FAIL: error.md #6 (" << test_case.name << "): unfinished block returned AST statements: "
+										<< test_case.unfinished_input << '\n';
+								all_blocks_terminated = false;
+						}
+
+						// A real closing brace at EOF must still be accepted.
+						try {
+								Parser parser(lexxer{test_case.closed_input});
+								auto program = parser.ParseProgram();
+								bool accepted = program && program->statements.size() == test_case.statement_count;
+								if (accepted){
+										for (const auto& statement : program->statements){
+												if (!statement){
+														accepted = false;
+														break;
+												}
+										}
+								}
+								if (!accepted){
+										std::cerr << "FAIL: error.md #6 (" << test_case.name << "): closed block returned an unexpected AST: "
+												<< test_case.closed_input << '\n';
+										all_blocks_terminated = false;
+								}
+						} catch (const std::runtime_error& error) {
+								std::cerr << "FAIL: error.md #6 (" << test_case.name << "): closed block was rejected: "
+										<< error.what() << ": " << test_case.closed_input << '\n';
+								all_blocks_terminated = false;
+						}
+				}
+
+				assert(all_blocks_terminated && "Unfinished blocks must be rejected, and properly closed blocks must be accepted");
+		}
+
 //		std::string s;
 
 		//Parse_input(std::cin,s);

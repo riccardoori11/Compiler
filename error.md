@@ -6,23 +6,7 @@ Inputs below are source text passed to `Parser::ParseProgram()` unless CLI behav
 
 Error.md produced by codex, I will still correct the errors myself.
 
-4. **Medium — Calls with exactly one argument fail.**
 
-   Location: `parser.hpp:143–174`.
-
-   `f(1);` produces a `CallExpression` with disengaged `arguments`, followed by an extra expression statement with a null expression. After reading the first argument, the loop requires a comma before checking for `)`. Zero-argument and two-argument calls passed the same inspection.
-
-   Suggested fix: check for `)` after the first argument, or parse the first argument followed by zero or more comma/argument pairs and then require the closing parenthesis.
-
-5. **Medium — Braces and `else` are stored as bogus block statements.**
-
-   Locations: `parser.hpp:330–347`, `parser.hpp:381–392`, `parser.hpp:482–483`.
-
-   `parseBlockStatement()` starts parsing while the current token is still `{`. For alternatives, it starts at `else`. Those tokens fall through to expression parsing, which returns a non-null statement containing a null expression.
-
-   Consequently, `if (1) {}` has one statement in its supposedly empty consequence. `if (1) {} else {}` has two bogus statements in its empty alternative. Function bodies have the same leading bogus statement. The commented assertion expecting one statement in an `if` consequence at `main.cpp:172` would fail for the example preceding it.
-
-   Suggested fix: enter block parsing at a validated `{`, advance into the body before parsing statements, and reject failed expression statements as described in finding 2.
 
 6. **Medium — Unterminated blocks are accepted at EOF.**
 
