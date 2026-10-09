@@ -6,16 +6,6 @@ Inputs below are source text passed to `Parser::ParseProgram()` unless CLI behav
 
 Error.md produced by codex, I will still correct the errors myself.
 
-3. **High — Block statements advance twice, skipping tokens and changing scope.**
-
-   Locations: `parser.hpp:397`, `parser.hpp:485`, `parser.hpp:344`, `parser.hpp:575`.
-
-   `parseIfStatement()` and `parseFunctionLit()` advance beyond the closing `}`, then their containing program/block loop advances again.
-
-   For `if (1) {} int y = 2;` and `int f() { return 1; } int y = 2;`, the following `int` token is skipped and `y` is no longer parsed as a declaration. More seriously, `int f() { if (1) {} } int y = 2;` skips the outer closing brace and places `y` inside `f`'s body.
-
-   Suggested fix: establish one token-position contract for all statement parsers. For example, leave the current token on the final delimiter and let the enclosing loop advance exactly once.
-
 4. **Medium — Calls with exactly one argument fail.**
 
    Location: `parser.hpp:143–174`.

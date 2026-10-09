@@ -167,6 +167,132 @@ int main(){
 				assert(all_rejected && "Malformed expressions must not produce successful AST statements");
 		}
 
+		// Regression tests for error.md #3: block statements must leave
+		// the next statement and the enclosing block's closing brace intact.
+		{
+				auto is_declaration = [](const Statement* statement, const char* name, int value){
+						auto declaration = dynamic_cast<const VariableDeclaration*>(statement);
+						if (!declaration || declaration->TokenLiteral() != "int" || !declaration->name ||
+								declaration->name->TokenLiteral() != name){
+								return false;
+						}
+						auto integer = dynamic_cast<const Integer_Liter*>(declaration->value.get());
+						return integer && integer->value == value;
+				};
+				auto is_if = [](const Statement* statement, const char* condition,
+								std::size_t body_size, bool has_else = false){
+						auto conditional = dynamic_cast<const IfStatement*>(statement);
+						return conditional && conditional->condition &&
+								conditional->condition->TokenLiteral() == condition &&
+								conditional->Consequence &&
+								conditional->Consequence->Block_Statements.size() == body_size &&
+								(has_else ? conditional->Alternative && conditional->Alternative->Block_Statements.empty()
+										: conditional->Alternative == nullptr);
+				};
+				auto is_function = [](const Statement* statement, const char* name, std::size_t body_size){
+						auto function = dynamic_cast<const FunctionLiteral*>(statement);
+						return function && function->name && function->name->TokenLiteral() == name &&
+								function->Parameters.empty() && function->FunctionBody &&
+								function->FunctionBody->Block_Statements.size() == body_size;
+				};
+				auto is_return = [](const Statement* statement, const char* value){
+						auto return_statement = dynamic_cast<const Return*>(statement);
+						return return_statement && return_statement->Returnvalue &&
+								return_statement->Returnvalue->TokenLiteral() == value;
+				};
+
+				bool all_blocks_preserved = true;
+				auto test_block = [&](const char* name, const char* input, auto check){
+						try {
+								Parser parser(lexxer{input});
+								auto program = parser.ParseProgram();
+								if (program && check(*program)){
+										return;
+								}
+								std::cerr << "FAIL: error.md #3 (" << name << "): unexpected AST: " << input << '\n';
+						} catch (const std::runtime_error& error) {
+								std::cerr << "FAIL: error.md #3 (" << name << "): " << error.what()
+										<< ": " << input << '\n';
+						}
+						all_blocks_preserved = false;
+				};
+
+				test_block("declaration after if", "if (1) {} int y = 2;", [&](const Program& program){
+						return program.statements.size() == 2 &&
+								is_if(program.statements[0].get(), "1", 0) &&
+								is_declaration(program.statements[1].get(), "y", 2);
+				});
+
+				test_block("declaration after if/else", "if (1) {} else {} int y = 2;", [&](const Program& program){
+						return program.statements.size() == 2 &&
+								is_if(program.statements[0].get(), "1", 0, true) &&
+								is_declaration(program.statements[1].get(), "y", 2);
+				});
+
+				test_block("declaration after function", "int f() { return 1; } int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_function(program.statements[0].get(), "f", 1) ||
+								!is_declaration(program.statements[1].get(), "y", 2)){
+								return false;
+						}
+						auto function = dynamic_cast<const FunctionLiteral*>(program.statements[0].get());
+						return is_return(function->FunctionBody->Block_Statements[0].get(), "1");
+				});
+
+				test_block("nested if preserves function scope", "int f() { if (1) {} } int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_function(program.statements[0].get(), "f", 1) ||
+								!is_declaration(program.statements[1].get(), "y", 2)){
+								return false;
+						}
+						auto function = dynamic_cast<const FunctionLiteral*>(program.statements[0].get());
+						return is_if(function->FunctionBody->Block_Statements[0].get(), "1", 0);
+				});
+
+				test_block("nested if/else preserves function scope", "int f() { if (1) {} else {} } int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_function(program.statements[0].get(), "f", 1) ||
+								!is_declaration(program.statements[1].get(), "y", 2)){
+								return false;
+						}
+						auto function = dynamic_cast<const FunctionLiteral*>(program.statements[0].get());
+						return is_if(function->FunctionBody->Block_Statements[0].get(), "1", 0, true);
+				});
+
+				test_block("statements after if inside function", "int f() { if (1) {} int x = 3; return x; } int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_function(program.statements[0].get(), "f", 3) ||
+								!is_declaration(program.statements[1].get(), "y", 2)){
+								return false;
+						}
+						auto function = dynamic_cast<const FunctionLiteral*>(program.statements[0].get());
+						const auto& body = function->FunctionBody->Block_Statements;
+						return is_if(body[0].get(), "1", 0) && is_declaration(body[1].get(), "x", 3) &&
+								is_return(body[2].get(), "x");
+				});
+
+				test_block("nested if preserves outer if scope", "if (1) { if (2) {} } int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_if(program.statements[0].get(), "1", 1) ||
+								!is_declaration(program.statements[1].get(), "y", 2)){
+								return false;
+						}
+						auto conditional = dynamic_cast<const IfStatement*>(program.statements[0].get());
+						return is_if(conditional->Consequence->Block_Statements[0].get(), "2", 0);
+				});
+
+				test_block("consecutive if statements", "if (1) {} if (2) {} int y = 2;", [&](const Program& program){
+						return program.statements.size() == 3 &&
+								is_if(program.statements[0].get(), "1", 0) &&
+								is_if(program.statements[1].get(), "2", 0) &&
+								is_declaration(program.statements[2].get(), "y", 2);
+				});
+
+				test_block("consecutive functions", "int f() {} int g() {} int y = 2;", [&](const Program& program){
+						return program.statements.size() == 3 &&
+								is_function(program.statements[0].get(), "f", 0) &&
+								is_function(program.statements[1].get(), "g", 0) &&
+								is_declaration(program.statements[2].get(), "y", 2);
+				});
+
+				assert(all_blocks_preserved && "Block statements must preserve subsequent statements and enclosing scope");
+		}
+
 		{
 				Parser parser(lexxer{"f(1);"});
 				auto program = parser.ParseProgram();

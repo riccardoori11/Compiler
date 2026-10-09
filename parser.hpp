@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <charconv>
 #include <execution>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -351,8 +352,10 @@ private:
 
 				auto block_statement = std::make_unique<BlockStatements>();
 
-				while (!current_type_is(TokenType::ENDOFFILE) && !current_type_is(TokenType::RBRAC)){
 
+				nextToken();
+				while (!current_type_is(TokenType::ENDOFFILE) && !current_type_is(TokenType::RBRAC)){
+						 
 						auto statement = parseStatement();
 
 						if (statement){
@@ -361,6 +364,7 @@ private:
 						}
 						nextToken();
 				}
+
 
 				return block_statement;
 		}
@@ -377,7 +381,6 @@ private:
 				}
 
 				nextToken();
-
 				declaration->condition = ParseExpression(LOWEST);
 
 				//std::cout << "Finished parsing condition" << std::endl;
@@ -388,16 +391,15 @@ private:
 						return nullptr;
 				}
 */
+				if (!declaration->condition){
+						throw std::runtime_error("No condition ");
+				}
 				nextToken();
-
 				if (!current_type_is(TokenType::LBRAC)){
-
 						//std::cout << "Nullpointer" << std::endl;
 						return nullptr;
 				}
-
 				declaration->Consequence = parseBlockStatement();
-				//std::cout << "Finished parsing Consequence" << std::endl;
 				if (next_type_is(TokenType::ELSE)){
 						//std::cout << "parsing else" << std::endl;
 						nextToken();
@@ -407,12 +409,13 @@ private:
 								return nullptr;
 						}
 						//std::cout << "parsing Alternative" << std::endl;
+						//std::cout << curr_tok.text << std::endl;
+						nextToken();
 						declaration->Alternative = parseBlockStatement();
-						//std::cout << "Finished parsing Alternative" << std::endl;
-				}
+					//	std::cout << "Finished parsing Alternative" << std::endl;
+					//	std::cout << curr_tok.text << std::endl;
 
-				
-				nextToken();
+				}
 
 				return declaration;
 		}
@@ -487,26 +490,26 @@ private:
 
 				auto parameters = parseFunctionParameters();
 
+
 				if (!parameters){
 						throw std::runtime_error("Could not parse function parameters");
 				}
 
 				declaration->Parameters = std::move(*parameters);
-				if (!next_type_is(TokenType::RPARENT)){
+				if (!current_type_is(TokenType::RPARENT)){
 						throw std::runtime_error("Missing Right Parentheses");
 				}
-
-				
 				nextToken();
-				if (!next_type_is(TokenType::LBRAC)){
+				if (!current_type_is(TokenType::LBRAC)){
 
 						throw std::runtime_error("Eror parsing beginning function body");
 				}
 
-				nextToken();
+				
+//std::cout << curr_tok.text << std::endl;
 				declaration->FunctionBody = parseBlockStatement();
+				//std::cout << curr_tok.text << std::endl;
 
-				nextToken();
 				return declaration;
 
 		}
