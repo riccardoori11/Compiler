@@ -460,7 +460,6 @@ private:
 						return std::vector<std::unique_ptr<FunctionParameters>>{};
 				}
 				
-				printCurrToken();
 				while (true){
 						nextToken();
 
@@ -499,13 +498,14 @@ private:
 
 		}
 
-		std::unique_ptr<Statement> parseFunctionLit(){
+		std::unique_ptr<Statement> parseFunctionLit(Token return_type){
 
 				//std::cout << "Parsing function Lit" << std::endl;
-				auto declaration = std::make_unique<FunctionLiteral>(curr_tok);
 
-				//std::cout << curr_tok.text << std::endl;
+				auto declaration = std::make_unique<FunctionLiteral>(curr_tok);
+				//0std::cout << curr_tok.text << std::endl;
 				declaration->name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
+				declaration->type = return_type.tokentype;
 
 				nextToken();
 
@@ -554,7 +554,7 @@ private:
 				nextToken();
 				if (next_type_is(TokenType::LPARENT)){
 
-						return parseFunctionLit();
+						return parseFunctionLit(returnType);
 				}
 
 				return parseVariableDeclaration(returnType);

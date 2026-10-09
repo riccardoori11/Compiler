@@ -7,26 +7,6 @@ Inputs below are source text passed to `Parser::ParseProgram()` unless CLI behav
 Error.md produced by codex, I will still correct the errors myself.
 
 
-7. **Medium — Declaration/return terminators are consumed without validation.**
-
-   Locations: `parser.hpp:274–278`, `parser.hpp:323–326`.
-
-   Both parsers unconditionally call `nextToken()` after their expression, assuming the following token is a semicolon. `int x = 1 int y = 2;` silently consumes the second `int`. `return 1 return 2;` drops the second `return` keyword.
-
-   For `int f() { return 1 } int y = 2;`, this consumes the closing brace and incorrectly puts `y` inside the function body. Whether semicolons are required or optional, the parser should not silently eat unrelated tokens.
-
-   Suggested fix: require and consume `;` if the language requires it; otherwise consume it only when present and preserve block delimiters.
-
-8. **Medium — Function declarations lose their return type.**
-
-   Locations: `parser.hpp:453–459`, `parser.hpp:494–508`, `ast.hpp:271–286`.
-
-   `parseTypedStatement()` saves the type token, but calls `parseFunctionLit()` after advancing to the function name and does not pass the type. The function's only token is therefore its name, and the AST has no separate return-type field.
-
-   For `double f(int x) { return x; }`, the function token is `f`; the fact that it returns `double` is absent from the AST.
-
-   Suggested fix: pass the saved type into the function parser and store it separately from the name.
-
 9. **Medium — Whitespace generates illegal tokens.**
 
    Locations: `lexxer.hpp:37–43`, `lexxer.hpp:114–128`, `lexxer.hpp:166–173`.

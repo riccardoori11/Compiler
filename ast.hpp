@@ -276,6 +276,7 @@ public:
 		std::unique_ptr<Identifier> name;
 		std::vector<std::unique_ptr<FunctionParameters>> Parameters;
 		std::unique_ptr<BlockStatements> FunctionBody;
+			TokenType type{TokenType::ILLEGAL};
 
 		FunctionLiteral(Token token):token(std::move(token))
 		{

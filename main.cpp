@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <utility>
+#include <vector>
 
 std::string Convert_type_to_str(Token t){
 
@@ -842,6 +843,295 @@ int main(){
 				});
 
 				assert(all_terminators_correct && "Declaration and return terminators must not consume unrelated tokens or change scope");
+		}
+
+		// Regression tests for error.md #8: a function's declared return
+		// type must survive parsing independently of its name, parameters, and body.
+		{
+				auto get_function = [](const Statement* statement, const char* name, TokenType return_type,
+								std::size_t parameter_count, std::size_t body_size) -> const FunctionLiteral* {
+						auto function = dynamic_cast<const FunctionLiteral*>(statement);
+						return function && function->type == return_type && function->name &&
+								function->name->TokenLiteral() == name && function->Parameters.size() == parameter_count &&
+								function->FunctionBody && function->FunctionBody->Block_Statements.size() == body_size
+								? function : nullptr;
+				};
+				auto is_parameter = [](const FunctionParameters* parameter, const char* name,
+								TokenType type, const char* type_literal){
+						return parameter && parameter->binding_type.tokentype == type && parameter->TokenLiteral() == type_literal &&
+								parameter->name && parameter->name->TokenLiteral() == name;
+				};
+				auto is_return = [](const Statement* statement, const char* value){
+						auto return_statement = dynamic_cast<const Return*>(statement);
+						return return_statement && return_statement->Returnvalue &&
+								return_statement->Returnvalue->TokenLiteral() == value;
+				};
+				auto is_declaration = [](const Statement* statement, const char* name, int value){
+						auto declaration = dynamic_cast<const VariableDeclaration*>(statement);
+						auto integer = declaration ? dynamic_cast<const Integer_Liter*>(declaration->value.get()) : nullptr;
+						return declaration && declaration->TokenLiteral() == "int" && declaration->name &&
+								declaration->name->TokenLiteral() == name && integer && integer->value == value;
+				};
+
+				bool all_return_types_preserved = true;
+				auto test_return_type = [&](const char* name, const char* input, auto check){
+						try {
+								Parser parser(lexxer{input});
+								auto program = parser.ParseProgram();
+								if (program && check(*program)){
+										return;
+								}
+								std::cerr << "FAIL: error.md #8 (" << name << "): unexpected function type or AST: " << input << '\n';
+						} catch (const std::runtime_error& error) {
+								std::cerr << "FAIL: error.md #8 (" << name << "): " << error.what()
+										<< ": " << input << '\n';
+						}
+						all_return_types_preserved = false;
+				};
+
+				struct FunctionTypeCase {
+						const char* name;
+						const char* input;
+						TokenType return_type;
+				};
+				const FunctionTypeCase empty_functions[] = {
+						{"int return type", "int f() {}", TokenType::INT},
+						{"double return type", "double f() {}", TokenType::DOUBLE},
+						{"bool return type", "bool f() {}", TokenType::BOOL}
+				};
+				for (const auto& test_case : empty_functions){
+						test_return_type(test_case.name, test_case.input, [&](const Program& program){
+								return program.statements.size() == 1 &&
+										get_function(program.statements[0].get(), "f", test_case.return_type, 0, 0) != nullptr;
+						});
+				}
+
+				struct ParameterTypeCase {
+						const char* name;
+						const char* input;
+						TokenType return_type;
+						TokenType parameter_type;
+						const char* parameter_type_literal;
+				};
+				const ParameterTypeCase parameter_functions[] = {
+						{"int return with double parameter", "int f(double x) { return x; }", TokenType::INT, TokenType::DOUBLE, "double"},
+						{"double return with int parameter", "double f(int x) { return x; }", TokenType::DOUBLE, TokenType::INT, "int"},
+						{"bool return with int parameter", "bool f(int x) { return x; }", TokenType::BOOL, TokenType::INT, "int"}
+				};
+				for (const auto& test_case : parameter_functions){
+						test_return_type(test_case.name, test_case.input, [&](const Program& program){
+								auto function = program.statements.size() == 1 ?
+										get_function(program.statements[0].get(), "f", test_case.return_type, 1, 1) : nullptr;
+								return function && is_parameter(function->Parameters[0].get(), "x", test_case.parameter_type, test_case.parameter_type_literal) &&
+										is_return(function->FunctionBody->Block_Statements[0].get(), "x");
+						});
+				}
+
+				test_return_type("mixed parameter types", "double blend(int x, double scale, bool flag) { return scale; }", [&](const Program& program){
+						auto function = program.statements.size() == 1 ? get_function(program.statements[0].get(), "blend", TokenType::DOUBLE, 3, 1) : nullptr;
+						return function && is_parameter(function->Parameters[0].get(), "x", TokenType::INT, "int") &&
+								is_parameter(function->Parameters[1].get(), "scale", TokenType::DOUBLE, "double") &&
+								is_parameter(function->Parameters[2].get(), "flag", TokenType::BOOL, "bool") &&
+								is_return(function->FunctionBody->Block_Statements[0].get(), "scale");
+				});
+
+				test_return_type("local variable type differs from return type", "double f() { int x = 1; return x; }", [&](const Program& program){
+						auto function = program.statements.size() == 1 ? get_function(program.statements[0].get(), "f", TokenType::DOUBLE, 0, 2) : nullptr;
+						return function && is_declaration(function->FunctionBody->Block_Statements[0].get(), "x", 1) &&
+								is_return(function->FunctionBody->Block_Statements[1].get(), "x");
+				});
+
+				test_return_type("consecutive functions retain separate types", "int first() { return 1; } double second() { return 2; } bool third() { return 3; }", [&](const Program& program){
+						if (program.statements.size() != 3){
+								return false;
+						}
+						auto first = get_function(program.statements[0].get(), "first", TokenType::INT, 0, 1);
+						auto second = get_function(program.statements[1].get(), "second", TokenType::DOUBLE, 0, 1);
+						auto third = get_function(program.statements[2].get(), "third", TokenType::BOOL, 0, 1);
+						return first && is_return(first->FunctionBody->Block_Statements[0].get(), "1") &&
+								second && is_return(second->FunctionBody->Block_Statements[0].get(), "2") &&
+								third && is_return(third->FunctionBody->Block_Statements[0].get(), "3");
+				});
+
+				test_return_type("declarations around a function", "int before = 1; double f() { return 2; } int after = 3;", [&](const Program& program){
+						if (program.statements.size() != 3 || !is_declaration(program.statements[0].get(), "before", 1) ||
+								!is_declaration(program.statements[2].get(), "after", 3)){
+								return false;
+						}
+						auto function = get_function(program.statements[1].get(), "f", TokenType::DOUBLE, 0, 1);
+						return function && is_return(function->FunctionBody->Block_Statements[0].get(), "2");
+				});
+
+				assert(all_return_types_preserved && "Function ASTs must preserve their declared return types, names, parameters, and bodies");
+		}
+
+		// Regression tests for error.md #9: whitespace must separate tokens
+		// without producing illegal tokens, extra statements, or an extra token at EOF.
+		{
+				bool all_whitespace_correct = true;
+				auto test_tokens = [&](const char* name, const char* input, const std::vector<Token>& expected){
+						lexxer lexer{input};
+						for (std::size_t i = 0; i < expected.size(); ++i){
+								auto actual = lexer.nextToken();
+								if (actual.tokentype != expected[i].tokentype || actual.text != expected[i].text){
+										std::cerr << "FAIL: error.md #9 (" << name << ", lexer): unexpected token or text at token " << i << '\n';
+										all_whitespace_correct = false;
+										return;
+								}
+						}
+						// EOF must remain EOF when the parser requests another lookahead token.
+						for (int i = 0; i < 2; ++i){
+								auto eof = lexer.nextToken();
+								if (eof.tokentype != TokenType::ENDOFFILE || !eof.text.empty()){
+										std::cerr << "FAIL: error.md #9 (" << name << ", lexer): EOF is not stable\n";
+										all_whitespace_correct = false;
+										return;
+								}
+						}
+				};
+				auto test_program = [&](const char* name, const char* input, auto check){
+						try {
+								Parser parser(lexxer{input});
+								auto program = parser.ParseProgram();
+								if (program && check(*program)){
+										return;
+								}
+								std::cerr << "FAIL: error.md #9 (" << name << ", parser): whitespace changed the AST\n";
+						} catch (const std::runtime_error& error) {
+								std::cerr << "FAIL: error.md #9 (" << name << ", parser): " << error.what() << '\n';
+						}
+						all_whitespace_correct = false;
+				};
+				auto is_integer = [](const Expression* expression, int value){
+						auto integer = dynamic_cast<const Integer_Liter*>(expression);
+						return integer && integer->value == value;
+				};
+				auto is_declaration = [&](const Statement* statement, const char* name, int value){
+						auto declaration = dynamic_cast<const VariableDeclaration*>(statement);
+						return declaration && declaration->TokenLiteral() == "int" && declaration->name &&
+								declaration->name->TokenLiteral() == name && is_integer(declaration->value.get(), value);
+				};
+
+				struct WhitespaceCase {
+						const char* name;
+						const char* input;
+				};
+				const WhitespaceCase empty_inputs[] = {
+						{"empty input control", ""},
+						{"single space only", " "},
+						{"multiple spaces only", "   "},
+						{"tabs only", "\t\t"},
+						{"newlines only", "\n\n"},
+						{"carriage returns only", "\r\r"},
+						{"CRLF only", "\r\n\r\n"},
+						{"mixed whitespace only", " \t\n\r\f\v "}
+				};
+				const std::vector<Token> eof_tokens{{TokenType::ENDOFFILE, ""}};
+				for (const auto& test_case : empty_inputs){
+						test_tokens(test_case.name, test_case.input, eof_tokens);
+						test_program(test_case.name, test_case.input, [](const Program& program){
+								return program.statements.empty();
+						});
+				}
+
+				const WhitespaceCase declaration_inputs[] = {
+						{"spaces control", "int x = 1;"},
+						{"tabs between tokens", "int\tx\t=\t1\t;"},
+						{"newlines between tokens", "int\nx\n=\n1\n;"},
+						{"carriage returns between tokens", "int\rx\r=\r1\r;"},
+						{"CRLF between tokens", "int\r\nx\r\n=\r\n1\r\n;"},
+						{"form feeds between tokens", "int\fx\f=\f1\f;"},
+						{"vertical tabs between tokens", "int\vx\v=\v1\v;"},
+						{"leading mixed whitespace", " \t\r\nint x = 1;"},
+						{"single trailing space", "int x = 1; "},
+						{"multiple trailing spaces", "int x = 1;   "},
+						{"trailing mixed whitespace", "int x = 1; \t\n\r\f\v"},
+						{"mixed whitespace between tokens", "int \t\nx\r\n=\f\v1 \t;"}
+				};
+				const std::vector<Token> declaration_tokens{
+						{TokenType::INT, "int"}, {TokenType::IDENTIFIER, "x"}, {TokenType::EQUAL, "="},
+						{TokenType::INTEGER, "1"}, {TokenType::SEMICOLON, ";"}, {TokenType::ENDOFFILE, ""}
+				};
+				for (const auto& test_case : declaration_inputs){
+						test_tokens(test_case.name, test_case.input, declaration_tokens);
+						test_program(test_case.name, test_case.input, [&](const Program& program){
+								return program.statements.size() == 1 && is_declaration(program.statements[0].get(), "x", 1);
+						});
+				}
+
+				test_tokens("whitespace separates identifiers", "alpha\tbeta", {
+						{TokenType::IDENTIFIER, "alpha"}, {TokenType::IDENTIFIER, "beta"}, {TokenType::ENDOFFILE, ""}
+				});
+				test_tokens("whitespace separates integers", "12\n34", {
+						{TokenType::INTEGER, "12"}, {TokenType::INTEGER, "34"}, {TokenType::ENDOFFILE, ""}
+				});
+				test_tokens("non-whitespace stays illegal", "\t@\n", {
+						{TokenType::ILLEGAL, "@"}, {TokenType::ENDOFFILE, ""}
+				});
+
+				const WhitespaceCase consecutive_declarations[] = {
+						{"newline between declarations", "int x = 1;\nint y = 2;"},
+						{"CRLF between declarations", "int x = 1;\r\nint y = 2;\r\n"},
+						{"blank lines and indentation", "\n\tint x = 1;\n\n \tint y = 2;\n\t"}
+				};
+				for (const auto& test_case : consecutive_declarations){
+						test_program(test_case.name, test_case.input, [&](const Program& program){
+								return program.statements.size() == 2 && is_declaration(program.statements[0].get(), "x", 1) &&
+										is_declaration(program.statements[1].get(), "y", 2);
+						});
+				}
+
+				test_program("multiline function", "int f(\n\tint x,\n\tdouble y\n)\n{\n\treturn x;\n}\nint z = 3;\n", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_declaration(program.statements[1].get(), "z", 3)){
+								return false;
+						}
+						auto function = dynamic_cast<const FunctionLiteral*>(program.statements[0].get());
+						if (!function || function->type != TokenType::INT || !function->name || function->name->TokenLiteral() != "f" ||
+								function->Parameters.size() != 2 || !function->FunctionBody || function->FunctionBody->Block_Statements.size() != 1){
+								return false;
+						}
+						auto x = function->Parameters[0].get();
+						auto y = function->Parameters[1].get();
+						auto returned = dynamic_cast<const Return*>(function->FunctionBody->Block_Statements[0].get());
+						auto value = returned ? dynamic_cast<const Identifier*>(returned->Returnvalue.get()) : nullptr;
+						return x && x->binding_type.tokentype == TokenType::INT && x->name && x->name->TokenLiteral() == "x" &&
+								y && y->binding_type.tokentype == TokenType::DOUBLE && y->name && y->name->TokenLiteral() == "y" &&
+								value && value->TokenLiteral() == "x";
+				});
+
+				test_program("multiline if and else", "\nif\t(\n1\n)\t{\nint x = 2;\n}\nelse\n{\nint x = 3;\n}\nint y = 4;\n", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_declaration(program.statements[1].get(), "y", 4)){
+								return false;
+						}
+						auto conditional = dynamic_cast<const IfStatement*>(program.statements[0].get());
+						return conditional && is_integer(conditional->condition.get(), 1) && conditional->Consequence && conditional->Alternative &&
+								conditional->Consequence->Block_Statements.size() == 1 && conditional->Alternative->Block_Statements.size() == 1 &&
+								is_declaration(conditional->Consequence->Block_Statements[0].get(), "x", 2) &&
+								is_declaration(conditional->Alternative->Block_Statements[0].get(), "x", 3);
+				});
+
+				test_program("multiline call arguments", "f(\n1,\r\n2\t);\nint y = 3;\n", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_declaration(program.statements[1].get(), "y", 3)){
+								return false;
+						}
+						auto statement = dynamic_cast<const ExpressionStatement*>(program.statements[0].get());
+						auto call = statement ? dynamic_cast<const CallExpression*>(statement->expr.get()) : nullptr;
+						auto name = call ? dynamic_cast<const Identifier*>(call->function_name.get()) : nullptr;
+						return call && name && name->TokenLiteral() == "f" && call->arguments && call->arguments->size() == 2 &&
+								is_integer((*call->arguments)[0].get(), 1) && is_integer((*call->arguments)[1].get(), 2);
+				});
+
+				test_program("multiline infix expression", "\nint x =\n1\t+\r\n2;\n", [&](const Program& program){
+						if (program.statements.size() != 1){
+								return false;
+						}
+						auto declaration = dynamic_cast<const VariableDeclaration*>(program.statements[0].get());
+						auto addition = declaration ? dynamic_cast<const InfixExpression*>(declaration->value.get()) : nullptr;
+						return declaration && declaration->TokenLiteral() == "int" && declaration->name && declaration->name->TokenLiteral() == "x" &&
+								addition && addition->TokenLiteral() == "+" && is_integer(addition->left.get(), 1) && is_integer(addition->right.get(), 2);
+				});
+
+				assert(all_whitespace_correct && "Whitespace must preserve token boundaries, EOF, and the parsed AST");
 		}
 
 //		std::string s;
