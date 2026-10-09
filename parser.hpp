@@ -32,6 +32,15 @@ private:
 		Token curr_tok;
 		Token next_tok;
 
+		void printCurrToken(){
+
+				std::cout << curr_tok.text << std::endl;
+		}
+
+		void printNextToken(){
+
+				std::cout << next_tok.text << std::endl;
+		}
 
 		bool isValidVariableType(TokenType type){
 
@@ -151,16 +160,25 @@ private:
 						return args;
 				}
 				nextToken();
-				args.push_back(ParseExpression());
-
+				auto callExpre = ParseExpression();
+				if (!callExpre){
+						throw std::runtime_error("Failed to parse callExpressionArguments");
+				}
+				args.push_back(std::move(callExpre));
+				
+				if (next_type_is(TokenType::RPARENT)){
+						nextToken();
+						return args;
+				}
 				while (true){
-
 						nextToken();
 						nextToken();
-						args.push_back(ParseExpression());
-
+						callExpre = ParseExpression();
+						if (!callExpre){
+								throw std::runtime_error("Failed to parse callExpressionArguments");
+						}
+						args.push_back(std::move(callExpre));
 						if (next_type_is(TokenType::RPARENT)){
-
 								break;
 						}
 						
@@ -423,17 +441,18 @@ private:
 		/*Might be empty parameter*/
 		std::optional<std::vector<std::unique_ptr<FunctionParameters>>> parseFunctionParameters(){
 
+				
 				std::vector<std::unique_ptr<FunctionParameters>> parameters;
 
 				if (next_type_is(TokenType::RPARENT)){
-
 						nextToken();
+
 						//std::cout << "0 parameters" << std::endl;
 						return std::vector<std::unique_ptr<FunctionParameters>>{};
 				}
-
+				
+				printCurrToken();
 				while (true){
-
 						nextToken();
 
 						if (!isValidVariableType(curr_tok.tokentype)){
@@ -489,8 +508,6 @@ private:
 				assert(curr_tok.tokentype == TokenType::LPARENT);
 
 				auto parameters = parseFunctionParameters();
-
-
 				if (!parameters){
 						throw std::runtime_error("Could not parse function parameters");
 				}

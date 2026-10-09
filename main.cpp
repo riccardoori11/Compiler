@@ -293,18 +293,181 @@ int main(){
 				assert(all_blocks_preserved && "Block statements must preserve subsequent statements and enclosing scope");
 		}
 
+		// Regression tests for error.md #4: calls with one argument must
+		// retain that argument, consume ')', and preserve the next statement.
 		{
-				Parser parser(lexxer{"f(1);"});
-				auto program = parser.ParseProgram();
-				assert(program->statements.size() == 1);
-				auto statement = dynamic_cast<ExpressionStatement*>(program->statements[0].get());
-				assert(statement && statement->expr);
-				auto call = dynamic_cast<CallExpression*>(statement->expr.get());
-				assert(call && call->arguments);
-				assert(call->function_name && call->function_name->TokenLiteral() == "f");
-				assert(call->arguments->size() == 1);
-				assert(call->arguments->at(0));
-				assert(call->arguments->at(0)->TokenLiteral() == "1");
+				auto is_integer = [](const Expression* expression, int value){
+						auto integer = dynamic_cast<const Integer_Liter*>(expression);
+						return integer && integer->value == value;
+				};
+				auto is_identifier = [](const Expression* expression, const char* name){
+						auto identifier = dynamic_cast<const Identifier*>(expression);
+						return identifier && identifier->TokenLiteral() == name;
+				};
+				auto get_call = [&](const Expression* expression, const char* name,
+								std::size_t argument_count) -> const CallExpression* {
+						auto call = dynamic_cast<const CallExpression*>(expression);
+						if (!call || !is_identifier(call->function_name.get(), name) || !call->arguments ||
+								call->arguments->size() != argument_count){
+								return nullptr;
+						}
+						for (const auto& argument : *call->arguments){
+								if (!argument){
+										return nullptr;
+								}
+						}
+						return call;
+				};
+				auto get_statement_call = [&](const Statement* statement, const char* name,
+								std::size_t argument_count) -> const CallExpression* {
+						auto expression_statement = dynamic_cast<const ExpressionStatement*>(statement);
+						return expression_statement ? get_call(expression_statement->expr.get(), name, argument_count)
+								: nullptr;
+				};
+
+				bool all_calls_correct = true;
+				auto test_call = [&](const char* name, const char* input, auto check){
+						try {
+								Parser parser(lexxer{input});
+								auto program = parser.ParseProgram();
+								if (program && check(*program)){
+										return;
+								}
+								std::cerr << "FAIL: error.md #4 (" << name << "): unexpected AST: " << input << '\n';
+						} catch (const std::runtime_error& error) {
+								std::cerr << "FAIL: error.md #4 (" << name << "): " << error.what()
+										<< ": " << input << '\n';
+						}
+						all_calls_correct = false;
+				};
+
+				struct IntegerCallCase {
+						const char* name;
+						const char* input;
+						std::size_t argument_count;
+				};
+				const IntegerCallCase integer_calls[] = {
+						{"one integer argument", "f(1);", 1},
+						{"zero arguments", "f();", 0},
+						{"two arguments", "f(1, 2);", 2},
+						{"three arguments", "f(1, 2, 3);", 3}
+				};
+				for (const auto& test_case : integer_calls){
+						test_call(test_case.name, test_case.input, [&](const Program& program){
+								if (program.statements.size() != 1){
+										return false;
+								}
+								auto call = get_statement_call(program.statements[0].get(), "f", test_case.argument_count);
+								if (!call){
+										return false;
+								}
+								for (std::size_t i{}; i < test_case.argument_count; ++i){
+										if (!is_integer(call->arguments->at(i).get(), static_cast<int>(i) + 1)){
+												return false;
+										}
+								}
+								return true;
+						});
+				}
+
+				test_call("one identifier argument", "f(x);", [&](const Program& program){
+						auto call = program.statements.size() == 1 ? get_statement_call(program.statements[0].get(), "f", 1) : nullptr;
+						return call && is_identifier(call->arguments->at(0).get(), "x");
+				});
+
+				test_call("one prefix argument", "f(-1);", [&](const Program& program){
+						auto call = program.statements.size() == 1 ? get_statement_call(program.statements[0].get(), "f", 1) : nullptr;
+						auto prefix = call ? dynamic_cast<const PrefixExpression*>(call->arguments->at(0).get()) : nullptr;
+						return prefix && prefix->TokenLiteral() == "-" && is_integer(prefix->right.get(), 1);
+				});
+
+				test_call("one infix argument preserves precedence", "f(1 + 2 * 3);", [&](const Program& program){
+						auto call = program.statements.size() == 1 ? get_statement_call(program.statements[0].get(), "f", 1) : nullptr;
+						auto sum = call ? dynamic_cast<const InfixExpression*>(call->arguments->at(0).get()) : nullptr;
+						auto product = sum ? dynamic_cast<const InfixExpression*>(sum->right.get()) : nullptr;
+						return sum && sum->TokenLiteral() == "+" && is_integer(sum->left.get(), 1) &&
+								product && product->TokenLiteral() == "*" && is_integer(product->left.get(), 2) &&
+								is_integer(product->right.get(), 3);
+				});
+
+				test_call("one grouped argument", "f((1 + 2));", [&](const Program& program){
+						auto call = program.statements.size() == 1 ? get_statement_call(program.statements[0].get(), "f", 1) : nullptr;
+						auto sum = call ? dynamic_cast<const InfixExpression*>(call->arguments->at(0).get()) : nullptr;
+						return sum && sum->TokenLiteral() == "+" && is_integer(sum->left.get(), 1) &&
+								is_integer(sum->right.get(), 2);
+				});
+
+				test_call("nested calls with one argument", "f(g(1));", [&](const Program& program){
+						auto outer = program.statements.size() == 1 ? get_statement_call(program.statements[0].get(), "f", 1) : nullptr;
+						auto inner = outer ? get_call(outer->arguments->at(0).get(), "g", 1) : nullptr;
+						return inner && is_integer(inner->arguments->at(0).get(), 1);
+				});
+
+				test_call("call in a variable initializer", "int x = f(1);", [&](const Program& program){
+						auto declaration = program.statements.size() == 1 ? dynamic_cast<const VariableDeclaration*>(program.statements[0].get()) : nullptr;
+						auto call = declaration ? get_call(declaration->value.get(), "f", 1) : nullptr;
+						return declaration && declaration->TokenLiteral() == "int" && declaration->name &&
+								declaration->name->TokenLiteral() == "x" && call && is_integer(call->arguments->at(0).get(), 1);
+				});
+
+				test_call("call in a return statement", "return f(1);", [&](const Program& program){
+						auto return_statement = program.statements.size() == 1 ? dynamic_cast<const Return*>(program.statements[0].get()) : nullptr;
+						auto call = return_statement ? get_call(return_statement->Returnvalue.get(), "f", 1) : nullptr;
+						return call && is_integer(call->arguments->at(0).get(), 1);
+				});
+
+				test_call("infix expression after a call", "f(1) + 2;", [&](const Program& program){
+						auto statement = program.statements.size() == 1 ? dynamic_cast<const ExpressionStatement*>(program.statements[0].get()) : nullptr;
+						auto sum = statement ? dynamic_cast<const InfixExpression*>(statement->expr.get()) : nullptr;
+						auto call = sum ? get_call(sum->left.get(), "f", 1) : nullptr;
+						return sum && sum->TokenLiteral() == "+" && call && is_integer(call->arguments->at(0).get(), 1) &&
+								is_integer(sum->right.get(), 2);
+				});
+
+				test_call("declaration after a call", "f(1); int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2){
+								return false;
+						}
+						auto call = get_statement_call(program.statements[0].get(), "f", 1);
+						auto declaration = dynamic_cast<const VariableDeclaration*>(program.statements[1].get());
+						return call && is_integer(call->arguments->at(0).get(), 1) && declaration &&
+								declaration->TokenLiteral() == "int" && declaration->name &&
+								declaration->name->TokenLiteral() == "y" && is_integer(declaration->value.get(), 2);
+				});
+
+				test_call("consecutive calls", "f(1); g(2);", [&](const Program& program){
+						if (program.statements.size() != 2){
+								return false;
+						}
+						auto first = get_statement_call(program.statements[0].get(), "f", 1);
+						auto second = get_statement_call(program.statements[1].get(), "g", 1);
+						return first && is_integer(first->arguments->at(0).get(), 1) &&
+								second && is_integer(second->arguments->at(0).get(), 2);
+				});
+
+				const char* invalid_calls[] = {
+						"f(1;",
+						"f(,);",
+						"f(1,);",
+						"f(1 2);",
+						"f(1, @);"
+				};
+				for (const char* input : invalid_calls){
+						bool rejected = false;
+						try {
+								Parser parser(lexxer{input});
+								auto program = parser.ParseProgram();
+								rejected = program && program->statements.empty();
+						} catch (const std::runtime_error&) {
+								rejected = true;
+						}
+						if (!rejected){
+								std::cerr << "FAIL: error.md #4: malformed call returned AST statements: " << input << '\n';
+								all_calls_correct = false;
+						}
+				}
+
+				assert(all_calls_correct && "Calls must preserve their arguments and following statements, and reject malformed argument lists");
 		}
 
 //		std::string s;
