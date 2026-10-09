@@ -7,15 +7,6 @@ Inputs below are source text passed to `Parser::ParseProgram()` unless CLI behav
 Error.md produced by codex, I will still correct the errors myself.
 
 
-
-6. **Medium — Unterminated blocks are accepted at EOF.**
-
-   Location: `parser.hpp:330–347`.
-
-   `if (1) { int x = 2;` and `int f() { return 1;` both return ASTs without reporting the missing `}`. The block loop treats EOF and a closing brace as equivalent successful endings.
-
-   Suggested fix: require `}` after the loop and return a parse error when EOF arrives first.
-
 7. **Medium — Declaration/return terminators are consumed without validation.**
 
    Locations: `parser.hpp:274–278`, `parser.hpp:323–326`.

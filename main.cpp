@@ -691,6 +691,159 @@ int main(){
 				assert(all_blocks_terminated && "Unfinished blocks must be rejected, and properly closed blocks must be accepted");
 		}
 
+		// Regression tests for error.md #7: an omitted ';' may be rejected
+		// or allowed, but it must never discard tokens or change statements/scope.
+		{
+				auto is_integer = [](const Expression* expression, int value){
+						auto integer = dynamic_cast<const Integer_Liter*>(expression);
+						return integer && integer->value == value;
+				};
+				auto is_declaration = [&](const Statement* statement, const char* name, int value){
+						auto declaration = dynamic_cast<const VariableDeclaration*>(statement);
+						return declaration && declaration->TokenLiteral() == "int" && declaration->name &&
+								declaration->name->TokenLiteral() == name && is_integer(declaration->value.get(), value);
+				};
+				auto is_return = [&](const Statement* statement, int value){
+						auto return_statement = dynamic_cast<const Return*>(statement);
+						return return_statement && is_integer(return_statement->Returnvalue.get(), value);
+				};
+				auto is_call = [&](const Statement* statement, const char* name, int argument){
+						auto expression_statement = dynamic_cast<const ExpressionStatement*>(statement);
+						auto call = expression_statement ? dynamic_cast<const CallExpression*>(expression_statement->expr.get()) : nullptr;
+						auto callee = call ? dynamic_cast<const Identifier*>(call->function_name.get()) : nullptr;
+						return callee && callee->TokenLiteral() == name && call->arguments && call->arguments->size() == 1 &&
+								is_integer(call->arguments->at(0).get(), argument);
+				};
+				auto get_function = [](const Statement* statement) -> const FunctionLiteral* {
+						auto function = dynamic_cast<const FunctionLiteral*>(statement);
+						return function && function->name && function->name->TokenLiteral() == "f" &&
+								function->Parameters.empty() && function->FunctionBody ? function : nullptr;
+				};
+				auto get_if = [&](const Statement* statement) -> const IfStatement* {
+						auto conditional = dynamic_cast<const IfStatement*>(statement);
+						return conditional && is_integer(conditional->condition.get(), 1) && conditional->Consequence
+								? conditional : nullptr;
+				};
+
+				bool all_terminators_correct = true;
+				auto test_terminator = [&](const char* name, const char* missing_semicolon,
+								const char* with_semicolon, auto check){
+						try {
+								Parser parser(lexxer{missing_semicolon});
+								auto program = parser.ParseProgram();
+								bool rejected = !program || program->statements.empty();
+								if (!rejected && !check(*program)){
+										std::cerr << "FAIL: error.md #7 (" << name << "): omitted semicolon changed the AST: "
+												<< missing_semicolon << '\n';
+										all_terminators_correct = false;
+								}
+						} catch (const std::runtime_error&) {
+								// Rejection is valid when semicolons are required.
+						}
+
+						try {
+								Parser parser(lexxer{with_semicolon});
+								auto program = parser.ParseProgram();
+								if (!program || !check(*program)){
+										std::cerr << "FAIL: error.md #7 (" << name << "): terminated statements returned an unexpected AST: "
+												<< with_semicolon << '\n';
+										all_terminators_correct = false;
+								}
+						} catch (const std::runtime_error& error) {
+								std::cerr << "FAIL: error.md #7 (" << name << "): terminated statements were rejected: "
+										<< error.what() << ": " << with_semicolon << '\n';
+								all_terminators_correct = false;
+						}
+				};
+
+				test_terminator("consecutive declarations", "int x = 1 int y = 2;", "int x = 1; int y = 2;", [&](const Program& program){
+						return program.statements.size() == 2 && is_declaration(program.statements[0].get(), "x", 1) &&
+								is_declaration(program.statements[1].get(), "y", 2);
+				});
+
+				test_terminator("consecutive returns", "return 1 return 2;", "return 1; return 2;", [&](const Program& program){
+						return program.statements.size() == 2 && is_return(program.statements[0].get(), 1) &&
+								is_return(program.statements[1].get(), 2);
+				});
+
+				test_terminator("return after declaration", "int x = 1 return 2;", "int x = 1; return 2;", [&](const Program& program){
+						return program.statements.size() == 2 && is_declaration(program.statements[0].get(), "x", 1) &&
+								is_return(program.statements[1].get(), 2);
+				});
+
+				test_terminator("declaration after return", "return 1 int x = 2;", "return 1; int x = 2;", [&](const Program& program){
+						return program.statements.size() == 2 && is_return(program.statements[0].get(), 1) &&
+								is_declaration(program.statements[1].get(), "x", 2);
+				});
+
+				test_terminator("call after declaration", "int x = 1 g(2);", "int x = 1; g(2);", [&](const Program& program){
+						return program.statements.size() == 2 && is_declaration(program.statements[0].get(), "x", 1) &&
+								is_call(program.statements[1].get(), "g", 2);
+				});
+
+				test_terminator("call after return", "return 1 g(2);", "return 1; g(2);", [&](const Program& program){
+						return program.statements.size() == 2 && is_return(program.statements[0].get(), 1) &&
+								is_call(program.statements[1].get(), "g", 2);
+				});
+
+				test_terminator("declaration at EOF", "int x = 1", "int x = 1;", [&](const Program& program){
+						return program.statements.size() == 1 && is_declaration(program.statements[0].get(), "x", 1);
+				});
+
+				test_terminator("return at EOF", "return 1", "return 1;", [&](const Program& program){
+						return program.statements.size() == 1 && is_return(program.statements[0].get(), 1);
+				});
+
+				test_terminator("declaration before function closing brace", "int f() { int x = 1 } int y = 2;", "int f() { int x = 1; } int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_declaration(program.statements[1].get(), "y", 2)){
+								return false;
+						}
+						auto function = get_function(program.statements[0].get());
+						return function && function->FunctionBody->Block_Statements.size() == 1 &&
+								is_declaration(function->FunctionBody->Block_Statements[0].get(), "x", 1);
+				});
+
+				test_terminator("return before function closing brace", "int f() { return 1 } int y = 2;", "int f() { return 1; } int y = 2;", [&](const Program& program){
+						if (program.statements.size() != 2 || !is_declaration(program.statements[1].get(), "y", 2)){
+								return false;
+						}
+						auto function = get_function(program.statements[0].get());
+						return function && function->FunctionBody->Block_Statements.size() == 1 &&
+								is_return(function->FunctionBody->Block_Statements[0].get(), 1);
+				});
+
+				test_terminator("consecutive returns inside function", "int f() { return 1 return 2; }", "int f() { return 1; return 2; }", [&](const Program& program){
+						auto function = program.statements.size() == 1 ? get_function(program.statements[0].get()) : nullptr;
+						return function && function->FunctionBody->Block_Statements.size() == 2 &&
+								is_return(function->FunctionBody->Block_Statements[0].get(), 1) &&
+								is_return(function->FunctionBody->Block_Statements[1].get(), 2);
+				});
+
+				test_terminator("return after declaration inside function", "int f() { int x = 1 return 2; }", "int f() { int x = 1; return 2; }", [&](const Program& program){
+						auto function = program.statements.size() == 1 ? get_function(program.statements[0].get()) : nullptr;
+						return function && function->FunctionBody->Block_Statements.size() == 2 &&
+								is_declaration(function->FunctionBody->Block_Statements[0].get(), "x", 1) &&
+								is_return(function->FunctionBody->Block_Statements[1].get(), 2);
+				});
+
+				test_terminator("consecutive returns inside if", "if (1) { return 1 return 2; }", "if (1) { return 1; return 2; }", [&](const Program& program){
+						auto conditional = program.statements.size() == 1 ? get_if(program.statements[0].get()) : nullptr;
+						return conditional && !conditional->Alternative && conditional->Consequence->Block_Statements.size() == 2 &&
+								is_return(conditional->Consequence->Block_Statements[0].get(), 1) &&
+								is_return(conditional->Consequence->Block_Statements[1].get(), 2);
+				});
+
+				test_terminator("call after declaration inside else", "if (1) {} else { int x = 1 g(2); }", "if (1) {} else { int x = 1; g(2); }", [&](const Program& program){
+						auto conditional = program.statements.size() == 1 ? get_if(program.statements[0].get()) : nullptr;
+						return conditional && conditional->Consequence->Block_Statements.empty() && conditional->Alternative &&
+								conditional->Alternative->Block_Statements.size() == 2 &&
+								is_declaration(conditional->Alternative->Block_Statements[0].get(), "x", 1) &&
+								is_call(conditional->Alternative->Block_Statements[1].get(), "g", 2);
+				});
+
+				assert(all_terminators_correct && "Declaration and return terminators must not consume unrelated tokens or change scope");
+		}
+
 //		std::string s;
 
 		//Parse_input(std::cin,s);

@@ -303,8 +303,11 @@ private:
 				if (!declaration->value){
 						throw std::runtime_error("could not parse value");
 				}
-				
-				
+
+				if (!current_type_is(TokenType::SEMICOLON)){
+
+						throw std::runtime_error("Incorrect input");
+				}
 				return declaration;
 
 
@@ -356,10 +359,12 @@ private:
 
 				declaration->Returnvalue = ParseExpression();
 				if (declaration->Returnvalue == nullptr){
-
 						throw std::runtime_error("Invalid return value");
 				}
 				nextToken();
+				if (!current_type_is(TokenType::SEMICOLON)){
+						throw std::runtime_error("Invalid input");
+				}
 				return declaration;
 				
 		}
