@@ -1,4 +1,8 @@
 Following Writing an Interpreter in Go book by Thorsten Bell except in c++
 
-Todo:
-public ParseExpression (prefix or infix) for debugging, rn only have parseProgram 
+ 
+Source -> Lexer -> Parser -> AST -> Evaluator -> RunTime Values  
+
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+cmake --build build --target evaluator_tests
+./build/evaluator_tests

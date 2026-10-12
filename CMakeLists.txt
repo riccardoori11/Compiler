@@ -21,3 +21,12 @@ target_compile_options(lexer PRIVATE
     $<$<CONFIG:Debug>:-g>
     $<$<CONFIG:Debug>:-O0>
 )
+
+include(CTest)
+
+if(BUILD_TESTING)
+    add_executable(evaluator_tests tests/evaluator_tests.cpp)
+    target_include_directories(evaluator_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_options(evaluator_tests PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME evaluator_tests COMMAND evaluator_tests)
+endif()
