@@ -76,44 +76,15 @@ lexxer() = default;
 
 lexxer(std::string input):input(std::move(input)){}
 
-/*
-
-lexxer(const lexxer& other):input(other.input),pos(other.pos){
-}
-
-
-// copy assignment
-lexxer& operator= (const lexxer& other){
-
-		if (this != &other){
-				input = other.input;
-				pos = other.pos;
-		}
-
-		
-		return *this;
-
-}
-
-// move constructor
-lexxer(lexxer&& other):input(std::exchange(input,other.input)){
-		
-}
-
-// move assignment
-lexxer& operator= (lexxer&& other){
-
-		std::swap(input,other.input);
-		return *this;
-
-}
-
-*/
 Token nextToken(){
 				
 		while(pos< input.size()){
 
 				skip_whiteSpace();
+
+				if (pos >= input.size()){
+						return Token(TokenType::ENDOFFILE,{});
+				}
 
 				if (is_letter(input[pos])){
 						return readIdentifier();

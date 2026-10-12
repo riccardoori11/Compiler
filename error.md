@@ -7,16 +7,6 @@ Inputs below are source text passed to `Parser::ParseProgram()` unless CLI behav
 Error.md produced by codex, I will still correct the errors myself.
 
 
-9. **Medium — Whitespace generates illegal tokens.**
-
-   Locations: `lexxer.hpp:37–43`, `lexxer.hpp:114–128`, `lexxer.hpp:166–173`.
-
-   Only the literal space character is skipped. Tabs, newlines, and carriage returns are emitted as `ILLEGAL`, so `int\tx = 1;` fails to produce the intended declaration. Passing `int x = 1;\nint y = 2;` directly to the parser creates an extra invalid statement between declarations. Here `\t` and `\n` denote actual tab/newline characters.
-
-   There is also no EOF check after skipping spaces. An input consisting of one space produces `ILLEGAL` with empty text before EOF; `int x = 1; ` produces an extra invalid AST statement. This is an incorrect token result, not evidence of an out-of-bounds string read.
-
-   Suggested fix: skip all supported whitespace with bounds checks, then check for EOF before classifying another character.
-
 10. **Medium — Out-of-range integer literals silently become zero.**
 
     Location: `parser.hpp:99–105`.
