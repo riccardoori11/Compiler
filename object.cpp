@@ -1,3 +1,5 @@
+#pragma once
+
 #include "object.hpp"
 #include <format>
 #include <string_view>

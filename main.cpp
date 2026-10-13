@@ -1,11 +1,15 @@
+#include "evaluator.hpp"
+#include "object.hpp"
 #include "lexxer.hpp"
 #include <format>
 #include <assert.h>
 #include "parser.hpp"
 #include "token.hpp"
 #include <ios>
+#include <iostream>
 #include <istream>
 #include <stdexcept>
+#include <string>
 #include <unistd.h>
 #include <utility>
 #include <vector>
@@ -1207,5 +1211,17 @@ int main(){
 				declaration->TokenLiteral(),name, one->TokenLiteral(), addition->TokenLiteral(), two->TokenLiteral(), multiplication->TokenLiteral(),negative->TokenLiteral(),three->TokenLiteral()) 
 				<< std::endl;
 */
+		Evaluator eval;
+		std::string source;
+		std::cout << "Feel free to type your input: " << std::endl;
+		while (std::getline(std::cin, source)){
+				// source now contains one line of input, ready for the lexer.
+				lexxer n(source);
+				Parser parser1(n);
+				auto program = parser1.ParseProgram();
+				auto ev = eval.eval(*program);
+				std::cout << Inspect(ev) << '\n';
+		}
+
 		return 0;
 }

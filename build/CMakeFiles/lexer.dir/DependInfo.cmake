@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/riccardo/compiler/main.cpp" "CMakeFiles/lexer.dir/main.cpp.o" "gcc" "CMakeFiles/lexer.dir/main.cpp.o.d"
+  "/home/riccardo/compiler/object.cpp" "CMakeFiles/lexer.dir/object.cpp.o" "gcc" "CMakeFiles/lexer.dir/object.cpp.o.d"
   "" "lexer" "gcc" "CMakeFiles/lexer.dir/link.d"
   )
 

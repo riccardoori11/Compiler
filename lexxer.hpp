@@ -18,7 +18,9 @@ private:
 				{"double", TokenType::DOUBLE},
 				{"return", TokenType::RETURN},
 				{"if", TokenType::IF},
-				{"else", TokenType::ELSE}
+				{"else", TokenType::ELSE},
+				{"true", TokenType::TRUE},
+				{"false", TokenType::FALSE}
 		};
 		
 		

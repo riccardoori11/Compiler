@@ -29,7 +29,9 @@ enum class TokenType{
 		IF,
 		ELSE,
 		COMMA,
-		FLOAT
+		FLOAT,
+		TRUE,
+		FALSE,
 };
 
 

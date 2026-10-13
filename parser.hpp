@@ -1,3 +1,5 @@
+#pragma once
+
 #include "lexxer.hpp"
 #include <assert.h>
 #include "ast.hpp"
@@ -12,6 +14,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 
 
 enum Precedence{
@@ -113,6 +116,13 @@ private:
 				int value2{};
 				std::from_chars(begin,end,value2);
 				return std::make_unique<Integer_Liter>(curr_tok,value2);
+		}
+
+		std::unique_ptr<Expression> parseBoolean(){
+
+				bool value2 = curr_tok.tokentype == TokenType::TRUE;
+				return std::make_unique<Boolean>(curr_tok,value2);
+
 		}
 
 		std::unique_ptr<Expression> parseIdentifier(){
@@ -231,6 +241,10 @@ private:
 						case TokenType::LPARENT:
 								//std::cout << "Enterinf Parsed Group Expression" << std::endl;
 								left = ParseGroupedExpression();
+								break;
+						case TokenType::TRUE:
+						case TokenType::FALSE:
+								left = parseBoolean();
 								break;
 
 						default:

@@ -540,6 +540,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+object.o: object.cpp.o
+.PHONY : object.o
+
+# target to build an object file
+object.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/object.cpp.o
+.PHONY : object.cpp.o
+
+object.i: object.cpp.i
+.PHONY : object.i
+
+# target to preprocess a source file
+object.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/object.cpp.i
+.PHONY : object.cpp.i
+
+object.s: object.cpp.s
+.PHONY : object.s
+
+# target to generate assembly for a file
+object.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/object.cpp.s
+.PHONY : object.cpp.s
+
 tests/evaluator_tests.o: tests/evaluator_tests.cpp.o
 .PHONY : tests/evaluator_tests.o
 
@@ -606,6 +630,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... object.o"
+	@echo "... object.i"
+	@echo "... object.s"
 	@echo "... tests/evaluator_tests.o"
 	@echo "... tests/evaluator_tests.i"
 	@echo "... tests/evaluator_tests.s"

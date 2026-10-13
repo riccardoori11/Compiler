@@ -1,3 +1,5 @@
+#pragma once
+
 #include <memory>
 #include <iostream>
 #include <optional>
@@ -126,7 +128,7 @@ public:
 		Token token;
 		bool value;
 
-		Boolean(Token token,int value):token(token),value(value){};
+		Boolean(Token token,bool value):token(token),value(value){};
 
 		std::string TokenLiteral()const override{
 
