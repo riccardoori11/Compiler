@@ -65,11 +65,13 @@ CMAKE_BINARY_DIR = /home/riccardo/compiler/build
 # The main recursive "all" target.
 all: CMakeFiles/lexer.dir/all
 all: CMakeFiles/evaluator_tests.dir/all
+all: CMakeFiles/evaluator_operator_tests.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
 codegen: CMakeFiles/lexer.dir/codegen
 codegen: CMakeFiles/evaluator_tests.dir/codegen
+codegen: CMakeFiles/evaluator_operator_tests.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -107,6 +109,7 @@ clean: CMakeFiles/ContinuousCoverage.dir/clean
 clean: CMakeFiles/ContinuousMemCheck.dir/clean
 clean: CMakeFiles/ContinuousSubmit.dir/clean
 clean: CMakeFiles/evaluator_tests.dir/clean
+clean: CMakeFiles/evaluator_operator_tests.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -116,7 +119,7 @@ clean: CMakeFiles/evaluator_tests.dir/clean
 CMakeFiles/lexer.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=3,4,5 "Built target lexer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=5,6,7 "Built target lexer"
 .PHONY : CMakeFiles/lexer.dir/all
 
 # Build rule for subdir invocation for target.
@@ -133,7 +136,7 @@ lexer: CMakeFiles/lexer.dir/rule
 # codegen rule for target.
 CMakeFiles/lexer.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=3,4,5 "Finished codegen for target lexer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=5,6,7 "Finished codegen for target lexer"
 .PHONY : CMakeFiles/lexer.dir/codegen
 
 # clean rule for target.
@@ -1044,7 +1047,7 @@ CMakeFiles/ContinuousSubmit.dir/clean:
 CMakeFiles/evaluator_tests.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_tests.dir/build.make CMakeFiles/evaluator_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_tests.dir/build.make CMakeFiles/evaluator_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=1,2 "Built target evaluator_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=3,4 "Built target evaluator_tests"
 .PHONY : CMakeFiles/evaluator_tests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -1061,13 +1064,45 @@ evaluator_tests: CMakeFiles/evaluator_tests.dir/rule
 # codegen rule for target.
 CMakeFiles/evaluator_tests.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_tests.dir/build.make CMakeFiles/evaluator_tests.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=1,2 "Finished codegen for target evaluator_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=3,4 "Finished codegen for target evaluator_tests"
 .PHONY : CMakeFiles/evaluator_tests.dir/codegen
 
 # clean rule for target.
 CMakeFiles/evaluator_tests.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_tests.dir/build.make CMakeFiles/evaluator_tests.dir/clean
 .PHONY : CMakeFiles/evaluator_tests.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/evaluator_operator_tests.dir
+
+# All Build rule for target.
+CMakeFiles/evaluator_operator_tests.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=1,2 "Built target evaluator_operator_tests"
+.PHONY : CMakeFiles/evaluator_operator_tests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/evaluator_operator_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/riccardo/compiler/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/evaluator_operator_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/riccardo/compiler/build/CMakeFiles 0
+.PHONY : CMakeFiles/evaluator_operator_tests.dir/rule
+
+# Convenience name for target.
+evaluator_operator_tests: CMakeFiles/evaluator_operator_tests.dir/rule
+.PHONY : evaluator_operator_tests
+
+# codegen rule for target.
+CMakeFiles/evaluator_operator_tests.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/riccardo/compiler/build/CMakeFiles --progress-num=1,2 "Finished codegen for target evaluator_operator_tests"
+.PHONY : CMakeFiles/evaluator_operator_tests.dir/codegen
+
+# clean rule for target.
+CMakeFiles/evaluator_operator_tests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/clean
+.PHONY : CMakeFiles/evaluator_operator_tests.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

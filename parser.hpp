@@ -216,6 +216,15 @@ private:
 
 				return declaration;
 		}
+
+		std::unique_ptr<Expression> ParseFloat(){
+
+				char* begin = curr_tok.text.data();
+				char* end = begin + curr_tok.text.size();
+				float value2{};
+				std::from_chars(begin,end,value2);
+				return std::make_unique<FloatLiter>(curr_tok,value2);
+		}
 		
 		std::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
 
@@ -227,6 +236,9 @@ private:
 				
 						case TokenType::INTEGER:
 								left = parseInteger();
+								break;
+						case TokenType::FLOAT:
+								left = ParseFloat();
 								break;
 						case TokenType::IDENTIFIER:
 								//std::cout << "Entered Identifier" << std::endl;
@@ -613,7 +625,6 @@ private:
 								}
 						case TokenType::BOOL:
 								return parseTypedStatement();
-
 						case TokenType::RETURN:
 								return parseReturn();
 						case TokenType::IF:

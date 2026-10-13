@@ -122,6 +122,25 @@ void print() const override{
 
 };
 
+class FloatLiter: public Expression{
+
+		public:
+				Token token;
+				float value;
+
+				FloatLiter(Token token,float value):token(token),value(value){};
+
+				std::string TokenLiteral() const override{
+
+						return token.text;
+				}
+void print() const override{
+
+		std::cout << value << std::endl;
+};
+
+};
+
 class Boolean: public Expression{
 
 public:

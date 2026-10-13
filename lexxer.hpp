@@ -63,14 +63,24 @@ private:
 		}
 
 		Token readInteger(){
-
+				TokenType curr = TokenType::INTEGER;
 				std::size_t start = pos;
 				while(pos < input.size() && is_digit(input[pos])){
 
 						++pos;
 				}
 
-				return Token(TokenType::INTEGER, input.substr(start,pos-start));
+				if (pos < input.size() && input[pos] == '.'){
+
+						curr = TokenType::FLOAT;
+						++pos;
+						while(pos < input.size() && is_digit(input[pos])){
+
+						++pos;
+				}
+				}
+
+				return Token(curr, input.substr(start,pos-start));
 		}
 public:
 

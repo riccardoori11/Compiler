@@ -1,0 +1,53 @@
+Start testing: Oct 13 12:06 EDT
+----------------------------------------------------------
+1/2 Testing: evaluator_tests
+1/2 Test: evaluator_tests
+Command: "/home/riccardo/compiler/build/evaluator_tests"
+Directory: /home/riccardo/compiler/build
+"evaluator_tests" start time: Oct 13 12:06 EDT
+Output:
+----------------------------------------------------------
+PASS: integer literal returns 42
+PASS: zero remains an integer
+PASS: negative stored integer value
+PASS: true remains a boolean
+PASS: false remains a boolean
+PASS: expression statement returns its integer value
+PASS: expression statement preserves boolean type
+PASS: unsupported AST node is rejected
+PASS: expression statement propagates evaluation errors
+PASS: empty statement list is rejected
+PASS: single statement returns its value
+PASS: statement list returns the last value
+PASS: statement list preserves final boolean type
+PASS: statement list switches back to integer type
+PASS: first statement error is not skipped
+PASS: middle statement error propagates instead of returning the last value
+PASS: program evaluation returns the last statement value
+PASS: program evaluation rejects an empty statement list
+18/18 evaluator tests passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"evaluator_tests" end time: Oct 13 12:06 EDT
+"evaluator_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/2 Testing: evaluator_operator_tests
+2/2 Test: evaluator_operator_tests
+Command: "/home/riccardo/compiler/build/evaluator_operator_tests"
+Directory: /home/riccardo/compiler/build
+"evaluator_operator_tests" start time: Oct 13 12:06 EDT
+Output:
+----------------------------------------------------------
+116/116 evaluator operator checks passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"evaluator_operator_tests" end time: Oct 13 12:06 EDT
+"evaluator_operator_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 13 12:06 EDT

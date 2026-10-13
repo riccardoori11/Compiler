@@ -15,11 +15,18 @@ std::string Inspect(const Value& value){
 						},value);
 }
 
-std::string_view type(const Value& value){
+std::string_view type(const auto& value){
 
 		return std::visit([](const auto& item) -> std::string_view{
-				if constexpr (std::is_same_v<decltype(item), int>){
+						using TYPE_NORM = std::remove_cvref_t<decltype(item)>;
+				if constexpr (std::is_same_v<TYPE_NORM, int>){
 						return "int";
+				}
+				else if constexpr (std::is_same_v<TYPE_NORM, float>) {
+						return "float";
+				}
+				else if constexpr (std::is_same_v<TYPE_NORM, double>) {
+						return "double";
 				}
 				else{
 

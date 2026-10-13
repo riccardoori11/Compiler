@@ -28,6 +28,7 @@
 /home/riccardo/compiler/build/CMakeFiles/ContinuousMemCheck.dir
 /home/riccardo/compiler/build/CMakeFiles/ContinuousSubmit.dir
 /home/riccardo/compiler/build/CMakeFiles/evaluator_tests.dir
+/home/riccardo/compiler/build/CMakeFiles/evaluator_operator_tests.dir
 /home/riccardo/compiler/build/CMakeFiles/test.dir
 /home/riccardo/compiler/build/CMakeFiles/edit_cache.dir
 /home/riccardo/compiler/build/CMakeFiles/rebuild_cache.dir

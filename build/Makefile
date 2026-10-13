@@ -516,6 +516,19 @@ evaluator_tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_tests.dir/build.make CMakeFiles/evaluator_tests.dir/build
 .PHONY : evaluator_tests/fast
 
+#=============================================================================
+# Target rules for targets named evaluator_operator_tests
+
+# Build rule for target.
+evaluator_operator_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 evaluator_operator_tests
+.PHONY : evaluator_operator_tests
+
+# fast build rule for target.
+evaluator_operator_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/build
+.PHONY : evaluator_operator_tests/fast
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -563,6 +576,30 @@ object.s: object.cpp.s
 object.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/object.cpp.s
 .PHONY : object.cpp.s
+
+tests/evaluator_operator_tests.o: tests/evaluator_operator_tests.cpp.o
+.PHONY : tests/evaluator_operator_tests.o
+
+# target to build an object file
+tests/evaluator_operator_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/tests/evaluator_operator_tests.cpp.o
+.PHONY : tests/evaluator_operator_tests.cpp.o
+
+tests/evaluator_operator_tests.i: tests/evaluator_operator_tests.cpp.i
+.PHONY : tests/evaluator_operator_tests.i
+
+# target to preprocess a source file
+tests/evaluator_operator_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/tests/evaluator_operator_tests.cpp.i
+.PHONY : tests/evaluator_operator_tests.cpp.i
+
+tests/evaluator_operator_tests.s: tests/evaluator_operator_tests.cpp.s
+.PHONY : tests/evaluator_operator_tests.s
+
+# target to generate assembly for a file
+tests/evaluator_operator_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/tests/evaluator_operator_tests.cpp.s
+.PHONY : tests/evaluator_operator_tests.cpp.s
 
 tests/evaluator_tests.o: tests/evaluator_tests.cpp.o
 .PHONY : tests/evaluator_tests.o
@@ -625,6 +662,7 @@ help:
 	@echo "... NightlySubmit"
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
+	@echo "... evaluator_operator_tests"
 	@echo "... evaluator_tests"
 	@echo "... lexer"
 	@echo "... main.o"
@@ -633,6 +671,9 @@ help:
 	@echo "... object.o"
 	@echo "... object.i"
 	@echo "... object.s"
+	@echo "... tests/evaluator_operator_tests.o"
+	@echo "... tests/evaluator_operator_tests.i"
+	@echo "... tests/evaluator_operator_tests.s"
 	@echo "... tests/evaluator_tests.o"
 	@echo "... tests/evaluator_tests.i"
 	@echo "... tests/evaluator_tests.s"
