@@ -1,10 +1,10 @@
-Start testing: Oct 13 12:06 EDT
+Start testing: Oct 15 17:57 EDT
 ----------------------------------------------------------
 1/2 Testing: evaluator_tests
 1/2 Test: evaluator_tests
 Command: "/home/riccardo/compiler/build/evaluator_tests"
 Directory: /home/riccardo/compiler/build
-"evaluator_tests" start time: Oct 13 12:06 EDT
+"evaluator_tests" start time: Oct 15 17:57 EDT
 Output:
 ----------------------------------------------------------
 PASS: integer literal returns 42
@@ -30,7 +30,7 @@ PASS: program evaluation rejects an empty statement list
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"evaluator_tests" end time: Oct 13 12:06 EDT
+"evaluator_tests" end time: Oct 15 17:57 EDT
 "evaluator_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -38,16 +38,16 @@ Test Passed.
 2/2 Test: evaluator_operator_tests
 Command: "/home/riccardo/compiler/build/evaluator_operator_tests"
 Directory: /home/riccardo/compiler/build
-"evaluator_operator_tests" start time: Oct 13 12:06 EDT
+"evaluator_operator_tests" start time: Oct 15 17:57 EDT
 Output:
 ----------------------------------------------------------
-116/116 evaluator operator checks passed
+139/139 evaluator operator checks passed
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"evaluator_operator_tests" end time: Oct 13 12:06 EDT
+"evaluator_operator_tests" end time: Oct 15 17:57 EDT
 "evaluator_operator_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Oct 13 12:06 EDT
+End testing: Oct 15 17:57 EDT

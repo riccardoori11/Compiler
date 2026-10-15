@@ -33,7 +33,9 @@ bool same_value(const Value& actual, const Value& expected) {
 std::string describe(const Value& value) {
     return std::visit([](auto item) -> std::string {
         using T = decltype(item);
-        if constexpr (std::is_same_v<T, bool>) {
+        if constexpr (std::is_same_v<T, std::monostate>) {
+            return "null";
+        } else if constexpr (std::is_same_v<T, bool>) {
             return item ? "bool(true)" : "bool(false)";
         } else if constexpr (std::is_same_v<T, int>) {
             return "int(" + std::to_string(item) + ")";
@@ -68,13 +70,19 @@ public:
     }
 
     template <typename Evaluate>
-    void expect_runtime_error(std::string_view name, Evaluate evaluate) {
+    void expect_runtime_error(std::string_view name, Evaluate evaluate,
+                              std::string_view expected_message = {}) {
         ++checks;
         try {
             evaluate();
             std::cerr << "FAIL: " << name << ": expected std::runtime_error\n";
-        } catch (const std::runtime_error&) {
-            return;
+        } catch (const std::runtime_error& error) {
+            if (expected_message.empty()
+                || std::string_view{error.what()}.find(expected_message) != std::string_view::npos) {
+                return;
+            }
+            std::cerr << "FAIL: " << name << ": expected error containing \""
+                      << expected_message << "\", got \"" << error.what() << "\"\n";
         } catch (const std::exception& error) {
             std::cerr << "FAIL: " << name << ": unexpected exception: "
                       << error.what() << '\n';
@@ -110,6 +118,127 @@ std::unique_ptr<Expression> infix(TokenType op, std::unique_ptr<Expression> left
                                   std::unique_ptr<Expression> right) {
     return std::make_unique<InfixExpression>(
         Token{op, ""}, std::move(left), std::move(right));
+}
+
+std::unique_ptr<ExpressionStatement> statement(std::unique_ptr<Expression> expression) {
+    auto result = std::make_unique<ExpressionStatement>(Token{TokenType::SEMICOLON, ";"});
+    result->expr = std::move(expression);
+    return result;
+}
+
+template <typename... Statements>
+std::unique_ptr<BlockStatements> block(Statements... statements) {
+    auto result = std::make_unique<BlockStatements>();
+    (result->Block_Statements.push_back(std::move(statements)), ...);
+    return result;
+}
+
+std::unique_ptr<IfStatement> conditional(std::unique_ptr<Expression> condition,
+                                         std::unique_ptr<BlockStatements> consequence,
+                                         std::unique_ptr<BlockStatements> alternative = nullptr) {
+    auto result = std::make_unique<IfStatement>(Token{TokenType::IF, "if"});
+    result->condition = std::move(condition);
+    result->Consequence = std::move(consequence);
+    result->Alternative = std::move(alternative);
+    return result;
+}
+
+void check_if_else(Evaluator& evaluator, Checks& checks) {
+    // IfStatement is a Statement in this AST, so test it separately from the
+    // expression-only cases. Selected blocks return their last expression.
+    struct IfCase {
+        const char* name;
+        std::unique_ptr<IfStatement> node;
+        Value expected;
+    };
+    const IfCase cases[] = {
+        {"if: true selects consequence", conditional(boolean(true),
+            block(statement(integer(10))), block(statement(integer(20)))), 10},
+        {"if: false selects alternative", conditional(boolean(false),
+            block(statement(integer(10))), block(statement(integer(20)))), 20},
+        {"if: true works without else", conditional(boolean(true),
+            block(statement(integer(7)))), 7},
+        {"if: evaluates a true comparison", conditional(
+            infix(TokenType::LESS, integer(2), integer(3)),
+            block(statement(integer(10))), block(statement(integer(20)))), 10},
+        {"if: evaluates a false comparison", conditional(
+            infix(TokenType::GREATER, integer(2), integer(3)),
+            block(statement(integer(10))), block(statement(integer(20)))), 20},
+        {"if: evaluates a boolean prefix condition", conditional(
+            prefix(TokenType::NOT, boolean(true)),
+            block(statement(integer(10))), block(statement(integer(20)))), 20},
+        {"if: evaluates a mixed numeric comparison", conditional(
+            infix(TokenType::LESS, floating(1.25f), integer(2)),
+            block(statement(integer(10))), block(statement(integer(20)))), 10},
+        {"if: consequence preserves float type", conditional(boolean(true),
+            block(statement(floating(1.25f))), block(statement(integer(0)))), 1.25f},
+        {"if: alternative preserves float type", conditional(boolean(false),
+            block(statement(integer(0))), block(statement(floating(2.5f)))), 2.5f},
+        {"if: preserves a false boolean result", conditional(boolean(true),
+            block(statement(boolean(false))), block(statement(integer(0)))), false},
+        {"if: preserves an integer zero result", conditional(boolean(false),
+            block(statement(boolean(true))), block(statement(integer(0)))), 0},
+        {"if: skips an error in the alternative", conditional(boolean(true),
+            block(statement(integer(42))),
+            block(statement(prefix(TokenType::NOT, integer(1))))), 42},
+        {"if: skips an error in the consequence", conditional(boolean(false),
+            block(statement(prefix(TokenType::NOT, integer(1)))),
+            block(statement(integer(24)))), 24},
+        {"if: nested conditional in consequence", conditional(boolean(true),
+            block(conditional(boolean(false), block(statement(integer(10))),
+                block(statement(integer(20))))), block(statement(integer(30)))), 20},
+        {"if: nested conditional in alternative", conditional(boolean(false),
+            block(statement(integer(10))), block(conditional(boolean(true),
+                block(statement(integer(20))), block(statement(integer(30)))))), 20},
+        {"if: selected block returns its last result", conditional(boolean(true),
+            block(statement(integer(1)), statement(floating(2.5f))),
+            block(statement(integer(0)))), 2.5f},
+    };
+    for (const auto& test : cases) {
+        checks.expect_value(test.name, [&] { return evaluator.eval(*test.node); }, test.expected);
+    }
+
+    // Conditions must be boolean; numeric truthiness is not a language rule.
+    for (const int value : {0, 1}) {
+        checks.expect_runtime_error("if: rejects integer condition " + std::to_string(value), [&] {
+            const auto node = conditional(integer(value), block(statement(integer(10))),
+                block(statement(integer(20))));
+            return evaluator.eval(*node);
+        });
+    }
+    checks.expect_runtime_error("if: rejects float condition", [&] {
+        const auto node = conditional(floating(1.0f), block(statement(integer(10))),
+            block(statement(integer(20))));
+        return evaluator.eval(*node);
+    });
+
+    // Match the existing operand error so a generic unsupported-IfStatement
+    // error cannot accidentally satisfy these propagation checks.
+    constexpr std::string_view operand_error = "Invalid right expression for NOT";
+    checks.expect_runtime_error("if: propagates a condition evaluation error", [&] {
+        const auto node = conditional(prefix(TokenType::NOT, integer(1)),
+            block(statement(integer(10))), block(statement(integer(20))));
+        return evaluator.eval(*node);
+    }, operand_error);
+    checks.expect_runtime_error("if: propagates a selected alternative error", [&] {
+        const auto node = conditional(boolean(false), block(statement(integer(10))),
+            block(statement(prefix(TokenType::NOT, integer(1)))));
+        return evaluator.eval(*node);
+    }, operand_error);
+    checks.expect_runtime_error("if: selected block evaluates earlier statements", [&] {
+        const auto node = conditional(boolean(true),
+            block(statement(prefix(TokenType::NOT, integer(1))), statement(integer(42))),
+            block(statement(integer(20))));
+        return evaluator.eval(*node);
+    }, operand_error);
+
+    Program program;
+    program.statements.push_back(conditional(boolean(false), block(statement(integer(1))),
+        block(statement(integer(2)))));
+    program.statements.push_back(statement(integer(99)));
+    checks.expect_value("if: program continues after a conditional", [&] {
+        return evaluator.eval(program);
+    }, Value{99});
 }
 
 } // namespace
@@ -276,6 +405,8 @@ int main() {
     checks.expect_value("evaluator remains usable after errors", [&] {
         return evaluator.evalInfixExpression(Token{TokenType::PLUS, "+"}, Value{2}, Value{3});
     }, Value{5});
+
+    check_if_else(evaluator, checks);
 
     return checks.finish();
 }

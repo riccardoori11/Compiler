@@ -8,10 +8,17 @@
 
 std::string Inspect(const Value& value){
 
-		return std::visit([](const auto& item){
+		return std::visit([](const auto& item) -> std::string{
 
-						return std::format("{}",item);
+						using T = std::remove_cvref_t<decltype(item)>;
 
+						if constexpr(std::is_same_v<T, std::monostate>){
+
+								return "null";
+						}
+						else{
+								return std::format("{}",item);
+						}
 						},value);
 }
 
@@ -21,6 +28,9 @@ std::string_view type(const auto& value){
 						using TYPE_NORM = std::remove_cvref_t<decltype(item)>;
 				if constexpr (std::is_same_v<TYPE_NORM, int>){
 						return "int";
+				}
+				else if constexpr (std::is_same_v<TYPE_NORM, std::monostate>) {
+						return "NULL";
 				}
 				else if constexpr (std::is_same_v<TYPE_NORM, float>) {
 						return "float";

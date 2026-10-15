@@ -8,3 +8,6 @@ cmake --build build --target evaluator_tests
 ./build/evaluator_tests
 
 All tests were written by codex
+
+tests written in the test folder
+ctest --test-dir build -R '^evaluator_operator_tests$' --output-on-failure

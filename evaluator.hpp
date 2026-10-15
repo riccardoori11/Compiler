@@ -5,6 +5,7 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
@@ -43,6 +44,7 @@ bool IsNumericValue(const Value& left, const Value& right){
 	|| std::holds_alternative<double>(right)));
 }
 
+
 Value evalInfixExpression(const Token& op, const Value& left, const Value& right){
 		switch (op.tokentype){
 
@@ -53,9 +55,20 @@ Value evalInfixExpression(const Token& op, const Value& left, const Value& right
 										throw std::runtime_error("Wrong left and right input for addition");
 								}
 
+
 								return std::visit([](const auto& a, const auto& b) -> Value{
+
+												using LEFT_NORM = std::remove_cvref_t<decltype(a)>;
+												using RIGHT_NORM = std::remove_cvref_t<decltype(b)>;
+
+								if constexpr (std::is_same_v<LEFT_NORM, std::monostate> || std::is_same_v<RIGHT_NORM, std::monostate>) {
+												throw std::runtime_error("Invalid NULL operator");
+								}
+								else{
 												return Value(a + b);
-												},left,right);
+												}
+										},left,right);
+								
 						}
 				case TokenType::MINUS:
 						{
@@ -64,9 +77,20 @@ Value evalInfixExpression(const Token& op, const Value& left, const Value& right
 										throw std::runtime_error("Wrong left and right input for substraction");
 								}
 
+
 								return std::visit([](const auto& a, const auto& b) -> Value{
+
+												using LEFT_NORM = std::remove_cvref_t<decltype(a)>;
+												using RIGHT_NORM = std::remove_cvref_t<decltype(b)>;
+
+								if constexpr (std::is_same_v<LEFT_NORM, std::monostate> || std::is_same_v<RIGHT_NORM, std::monostate>) {
+												throw std::runtime_error("Invalid NULL operator");
+								}
+								else{
 												return Value(a - b);
-												},left,right);
+												}
+										},left,right);
+								
 						}
 
 				case TokenType::MULTIPLICATION:
@@ -75,9 +99,21 @@ Value evalInfixExpression(const Token& op, const Value& left, const Value& right
 
 										throw std::runtime_error("Wrong left and right input for multiplication");
 								}
+
+
 								return std::visit([](const auto& a, const auto& b) -> Value{
+
+												using LEFT_NORM = std::remove_cvref_t<decltype(a)>;
+												using RIGHT_NORM = std::remove_cvref_t<decltype(b)>;
+
+								if constexpr (std::is_same_v<LEFT_NORM, std::monostate> || std::is_same_v<RIGHT_NORM, std::monostate>) {
+												throw std::runtime_error("Invalid NULL operator");
+								}
+								else{
 												return Value(a * b);
-												},left,right);
+												}
+										},left,right);
+								
 						}
 				case TokenType::DIVISION:
 						{
@@ -86,38 +122,82 @@ Value evalInfixExpression(const Token& op, const Value& left, const Value& right
 										throw std::runtime_error("Wrong left and right input for division");
 								}
 
+
 								return std::visit([](const auto& a, const auto& b) -> Value{
+
+												using LEFT_NORM = std::remove_cvref_t<decltype(a)>;
+												using RIGHT_NORM = std::remove_cvref_t<decltype(b)>;
+
+								if constexpr (std::is_same_v<LEFT_NORM, std::monostate> || std::is_same_v<RIGHT_NORM, std::monostate>) {
+												throw std::runtime_error("Invalid NULL operator");
+								}
+								else{
 												return Value(a / b);
-												},left,right);
+												}
+										},left,right);
+								
 						}
+
 				case TokenType::LESS:
 						{
 								if (!IsNumericValue(left, right)){
 
-										throw std::runtime_error("Wrong left and right input for comparaison (less than)");
+										throw std::runtime_error("Wrong left and right input for comparaison (LESS THAN)");
 								}
 
+
 								return std::visit([](const auto& a, const auto& b) -> Value{
+
+												using LEFT_NORM = std::remove_cvref_t<decltype(a)>;
+												using RIGHT_NORM = std::remove_cvref_t<decltype(b)>;
+
+								if constexpr (std::is_same_v<LEFT_NORM, std::monostate> || std::is_same_v<RIGHT_NORM, std::monostate>) {
+												throw std::runtime_error("Invalid NULL operator");
+								}
+								else{
 												return Value(a < b);
-												},left,right);
+												}
+										},left,right);
+								
 						}
 				case TokenType::GREATER:
 						{
 								if (!IsNumericValue(left, right)){
 
-										throw std::runtime_error("Wrong left and right input for comparaison (less than)");
+										throw std::runtime_error("Wrong left and right input for comparaison (GREATER THAN)");
 								}
 
+
 								return std::visit([](const auto& a, const auto& b) -> Value{
+
+												using LEFT_NORM = std::remove_cvref_t<decltype(a)>;
+												using RIGHT_NORM = std::remove_cvref_t<decltype(b)>;
+
+								if constexpr (std::is_same_v<LEFT_NORM, std::monostate> || std::is_same_v<RIGHT_NORM, std::monostate>) {
+												throw std::runtime_error("Invalid NULL operator");
+								}
+								else{
 												return Value(a > b);
-												},left,right);
+												}
+										},left,right);
+								
 						}
 				case TokenType::COMPARE:
 						{
-
+								
 								return std::visit([](const auto& a, const auto& b) -> Value{
+
+												using LEFT_NORM = std::remove_cvref_t<decltype(a)>;
+												using RIGHT_NORM = std::remove_cvref_t<decltype(b)>;
+
+								if constexpr (std::is_same_v<LEFT_NORM, std::monostate> || std::is_same_v<RIGHT_NORM, std::monostate>) {
+												throw std::runtime_error("Invalid NULL operator");
+								}
+								else{
 												return Value(a == b);
-												},left,right);
+												}
+										},left,right);
+								
 						}
 				default:
 						throw std::runtime_error("Unknown operator for infix expression");
@@ -156,6 +236,39 @@ Value evalPrefixExpression(const Token& op, const Value& right){
 
 }
 
+bool isTruthy(const Value& value){
+
+		if (!std::holds_alternative<bool>(value)){
+
+				throw std::runtime_error("Condition of If/Else statement must be able to be evaluated to a boolean");
+		}
+
+		return std::get<bool>(value);
+
+}
+Value evalIf(const IfStatement& node){
+
+
+		const auto& condition = eval(*node.condition);
+
+		const auto& consequence = isTruthy(condition);
+
+		if (consequence){
+
+				return eval(*node.Consequence);
+		}
+		else if (node.Alternative){
+
+				return eval(*node.Alternative);
+		}
+
+		else{
+				return Value(std::monostate{});
+		}
+		
+
+}
+
 // need to add double
 
 Value eval(const Node& node){
@@ -184,6 +297,17 @@ Value eval(const Node& node){
 				const auto left = eval(*ptr->left);
 				const auto right = eval(*ptr->right);
 				return evalInfixExpression(ptr->token,left,right);
+		}
+		else if(const auto* ptr = dynamic_cast<const IfStatement*>(&node)){
+				return evalIf(*ptr);
+		}
+		else if(const auto* ptr = dynamic_cast<const BlockStatements*>(&node)){
+
+				if (ptr->Block_Statements.empty()){
+						return Value(std::monostate{});
+				}
+
+				return evalStatement(ptr->Block_Statements);
 		}
 		else{
 				throw std::runtime_error("Unrecognised ast");
