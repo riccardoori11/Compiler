@@ -3,6 +3,7 @@
 
 CMakeFiles/lexer.dir/main.cpp.o
  /home/riccardo/compiler/main.cpp
+ /home/riccardo/compiler/Environment.hpp
  /home/riccardo/compiler/ast.hpp
  /home/riccardo/compiler/evaluator.hpp
  /home/riccardo/compiler/lexxer.hpp

@@ -1219,7 +1219,8 @@ int main(){
 				lexxer n(source);
 				Parser parser1(n);
 				auto program = parser1.ParseProgram();
-				auto ev = eval.eval(*program);
+				Environment e{};
+				auto ev = eval.eval(*program,e);
 				std::cout << Inspect(ev) << '\n';
 		}
 

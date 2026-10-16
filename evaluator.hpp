@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 
@@ -20,6 +21,7 @@ private:
 
 		Environment env;
 
+
 public:
 
 Evaluator() = default;
@@ -27,6 +29,19 @@ Evaluator() = default;
 bool IsNumericValue(const Value& left, const Value& right){
  return((std::holds_alternative<int>(left) || std::holds_alternative<float>(left) || std::holds_alternative<double>(left)) && (std::holds_alternative<int>(right) || std::holds_alternative<float>(right)
 	|| std::holds_alternative<double>(right)));
+}
+
+bool MatchesType(TokenType type, const Value& val){
+
+		static const std::unordered_map<TokenType, std::size_t> map{
+				{TokenType::INT, Value{int{}}.index()},
+				{TokenType::DOUBLE, Value{double{}}.index()},
+				{TokenType::BOOL, Value{bool{}}.index()},
+				{TokenType::FLOAT, Value{float{}}.index()}
+		};
+
+		const auto it = map.find(type);
+		return it != map.end() && val.index() == it->second;
 }
 
 ExecutionResult evalStatement(const VectorStatement& statements, Environment& env){
@@ -71,7 +86,12 @@ ExecutionResult execute(const Statement& node, Environment& env){
 
 						var.value = eval(*ptr->value,env);
 				}
+				if (var.value && !MatchesType(var.type, *var.value )){
+						throw std::runtime_error("Wrong type mismatch");
+				}
 
+				env.define(ptr->name->value, var);
+				return ExecutionResult{};
 		}
 
 		else if(const auto *ptr = dynamic_cast<const Program*>(&node)){
@@ -331,6 +351,18 @@ Value eval(const Node& node, Environment& env){
 		}
 		else if(const auto* ptr = dynamic_cast<const FloatLiter*>(&node)){
 				return Value{ptr->value};
+		}
+		else if(const auto* ptr = dynamic_cast<const Identifier*>(&node)){
+				auto bind =	env.Get(ptr->value);
+
+				if (!bind){
+
+						throw std::runtime_error("could not find name");
+				}
+				else if(!bind->value){
+						throw std::runtime_error("no value associated with it");
+				}
+				return bind->value.value();
 		}
 		else if(const auto* ptr = dynamic_cast<const Program*>(&node)){
 				const auto result = evalStatement(ptr->statements,env);
