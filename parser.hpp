@@ -602,10 +602,12 @@ private:
 						throw std::runtime_error("Could not parse expression of expressionStatement");
 				}
 
-				if (next_type_is(TokenType::SEMICOLON)){
+				if (!next_type_is(TokenType::SEMICOLON)){
 
-						nextToken();
+						throw std::runtime_error("Missing Semicolon");
 				}
+
+				nextToken();
 
 				return statement;
 				

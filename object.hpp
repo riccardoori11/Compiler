@@ -1,5 +1,8 @@
 #pragma once
 
+#include "token.hpp"
+#include <optional>
+#include <unordered_map>
 #include <variant>
 #include <format>
 #include <string>
@@ -12,11 +15,19 @@
 
 
 
+
 using Value = std::variant<std::monostate,int,float,double,bool>;
 struct ExecutionResult{
 
 		Value value{std::monostate{}};
 		bool is_return{false};
+
+};
+
+struct Binding{
+
+		TokenType type;
+		std::optional<Value> value;
 
 };
 

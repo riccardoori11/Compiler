@@ -2,7 +2,7 @@
 #include "ast.hpp"
 #include "object.hpp"
 #include "token.hpp"
-#include <limits>
+#include "Environment.hpp"
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
@@ -11,12 +11,11 @@
 
 
 using VectorStatement = std::vector<std::unique_ptr<Statement>>;
-
 class Evaluator{
 
 private:
 
-
+		Environment env;
 
 public:
 
@@ -313,7 +312,7 @@ ExecutionResult evalIf(const IfStatement& node){
 
 // need to add double
 
-Value eval(const Node& node){
+Value eval(const Node& node ){
 
 		if (const auto* ptr = dynamic_cast<const Integer_Liter*>(&node)){
 				return Value{ptr->value};
@@ -326,7 +325,12 @@ Value eval(const Node& node){
 		}
 		else if(const auto* ptr = dynamic_cast<const Program*>(&node)){
 				const auto result = evalStatement(ptr->statements);
-				
+
+				if (result.is_return){
+
+						throw std::runtime_error("Return should be in function");
+				}
+
 				return result.value;
 				
 		}
