@@ -22,27 +22,69 @@ public:
 
 Evaluator() = default;
 
-Value evalStatement(const VectorStatement& statements){
+bool IsNumericValue(const Value& left, const Value& right){
+ return((std::holds_alternative<int>(left) || std::holds_alternative<float>(left) || std::holds_alternative<double>(left)) && (std::holds_alternative<int>(right) || std::holds_alternative<float>(right)
+	|| std::holds_alternative<double>(right)));
+}
+
+ExecutionResult evalStatement(const VectorStatement& statements){
 
 		if (statements.empty()){
 
 				throw std::runtime_error("Empty statements");
 		}
 
-		Value result;
+		ExecutionResult result{};
 
 		for (const auto& statement: statements){
 
-				result = eval(*statement);
+				result = execute(*statement);
+
+				if (result.is_return){
+
+						return result;
+				}
 		}
 
 		return result;
 }
 
-bool IsNumericValue(const Value& left, const Value& right){
- return((std::holds_alternative<int>(left) || std::holds_alternative<float>(left) || std::holds_alternative<double>(left)) && (std::holds_alternative<int>(right) || std::holds_alternative<float>(right)
-	|| std::holds_alternative<double>(right)));
+ExecutionResult execute(const Statement& node){
+
+		if (const auto *ptr = dynamic_cast<const Return*>(&node)){
+
+				if (!ptr->Returnvalue){
+
+						throw std::runtime_error("Return must have value associated with it");
+				}
+				return ExecutionResult(eval(*ptr->Returnvalue),true);
+		}
+		else if(const auto *ptr = dynamic_cast<const ExpressionStatement*>(&node)){
+				return ExecutionResult(eval(*ptr->expr),false);
+		}
+
+		else if(const auto *ptr = dynamic_cast<const Program*>(&node)){
+
+				return evalStatement(ptr->statements);
+		}
+
+		else if(const auto *ptr = dynamic_cast<const BlockStatements*>(&node)){
+				if (ptr->Block_Statements.empty()){
+						return ExecutionResult{};
+				}
+				return ExecutionResult(evalStatement(ptr->Block_Statements));
+		}
+		else if(const auto *ptr = dynamic_cast<const IfStatement*>(&node)){
+				return evalIf(*ptr);
+		}
+
+		else{
+				throw std::runtime_error("Unrecognised AST");
+		}
+
 }
+
+
 
 
 Value evalInfixExpression(const Token& op, const Value& left, const Value& right){
@@ -246,7 +288,7 @@ bool isTruthy(const Value& value){
 		return std::get<bool>(value);
 
 }
-Value evalIf(const IfStatement& node){
+ExecutionResult evalIf(const IfStatement& node){
 
 
 		const auto& condition = eval(*node.condition);
@@ -255,15 +297,15 @@ Value evalIf(const IfStatement& node){
 
 		if (consequence){
 
-				return eval(*node.Consequence);
+				return execute(*node.Consequence);
 		}
 		else if (node.Alternative){
 
-				return eval(*node.Alternative);
+				return execute(*node.Alternative);
 		}
 
 		else{
-				return Value(std::monostate{});
+				return ExecutionResult{};
 		}
 		
 
@@ -283,8 +325,10 @@ Value eval(const Node& node){
 				return Value{ptr->value};
 		}
 		else if(const auto* ptr = dynamic_cast<const Program*>(&node)){
-
-				return evalStatement(ptr->statements);
+				const auto result = evalStatement(ptr->statements);
+				
+				return result.value;
+				
 		}
 		else if(const auto* ptr = dynamic_cast<const ExpressionStatement*>(&node)){
 				return eval(*ptr->expr);
@@ -295,19 +339,10 @@ Value eval(const Node& node){
 		}
 		else if (const auto* ptr = dynamic_cast<const InfixExpression*>(&node)){
 				const auto left = eval(*ptr->left);
+
 				const auto right = eval(*ptr->right);
+
 				return evalInfixExpression(ptr->token,left,right);
-		}
-		else if(const auto* ptr = dynamic_cast<const IfStatement*>(&node)){
-				return evalIf(*ptr);
-		}
-		else if(const auto* ptr = dynamic_cast<const BlockStatements*>(&node)){
-
-				if (ptr->Block_Statements.empty()){
-						return Value(std::monostate{});
-				}
-
-				return evalStatement(ptr->Block_Statements);
 		}
 		else{
 				throw std::runtime_error("Unrecognised ast");

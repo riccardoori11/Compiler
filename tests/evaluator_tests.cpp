@@ -19,7 +19,11 @@ Value evaluate_for_test(Evaluator& evaluator, const Node& node) {
 }
 
 Value evaluate_for_test(Evaluator& evaluator, const VectorStatement& statements) {
-    return evaluator.evalStatement(statements);
+    const ExecutionResult result = evaluator.evalStatement(statements);
+    if (result.is_return) {
+        throw std::logic_error("Ordinary statement list unexpectedly produced a return signal");
+    }
+    return result.value;
 }
 
 std::unique_ptr<Statement> make_integer_statement(int value) {

@@ -39,7 +39,6 @@ std::string_view type(const auto& value){
 						return "double";
 				}
 				else{
-
 						return "bool";
 				}
 						},value);

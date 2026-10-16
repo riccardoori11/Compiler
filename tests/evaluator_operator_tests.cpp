@@ -126,6 +126,12 @@ std::unique_ptr<ExpressionStatement> statement(std::unique_ptr<Expression> expre
     return result;
 }
 
+std::unique_ptr<Return> return_statement(std::unique_ptr<Expression> expression) {
+    auto result = std::make_unique<Return>(Token{TokenType::RETURN, "return"});
+    result->Returnvalue = std::move(expression);
+    return result;
+}
+
 template <typename... Statements>
 std::unique_ptr<BlockStatements> block(Statements... statements) {
     auto result = std::make_unique<BlockStatements>();
@@ -141,6 +147,14 @@ std::unique_ptr<IfStatement> conditional(std::unique_ptr<Expression> condition,
     result->Consequence = std::move(consequence);
     result->Alternative = std::move(alternative);
     return result;
+}
+
+Value execute_ordinary_statement(Evaluator& evaluator, const Statement& node) {
+    const ExecutionResult result = evaluator.execute(node);
+    if (result.is_return) {
+        throw std::logic_error("Ordinary statement unexpectedly produced a return signal");
+    }
+    return result.value;
 }
 
 void check_if_else(Evaluator& evaluator, Checks& checks) {
@@ -195,22 +209,26 @@ void check_if_else(Evaluator& evaluator, Checks& checks) {
             block(statement(integer(0)))), 2.5f},
     };
     for (const auto& test : cases) {
-        checks.expect_value(test.name, [&] { return evaluator.eval(*test.node); }, test.expected);
+        checks.expect_value(test.name, [&] {
+            return execute_ordinary_statement(evaluator, *test.node);
+        }, test.expected);
     }
 
     // Conditions must be boolean; numeric truthiness is not a language rule.
+    constexpr std::string_view condition_error =
+        "Condition of If/Else statement must be able to be evaluated to a boolean";
     for (const int value : {0, 1}) {
         checks.expect_runtime_error("if: rejects integer condition " + std::to_string(value), [&] {
             const auto node = conditional(integer(value), block(statement(integer(10))),
                 block(statement(integer(20))));
-            return evaluator.eval(*node);
-        });
+            return execute_ordinary_statement(evaluator, *node);
+        }, condition_error);
     }
     checks.expect_runtime_error("if: rejects float condition", [&] {
         const auto node = conditional(floating(1.0f), block(statement(integer(10))),
             block(statement(integer(20))));
-        return evaluator.eval(*node);
-    });
+        return execute_ordinary_statement(evaluator, *node);
+    }, condition_error);
 
     // Match the existing operand error so a generic unsupported-IfStatement
     // error cannot accidentally satisfy these propagation checks.
@@ -218,18 +236,18 @@ void check_if_else(Evaluator& evaluator, Checks& checks) {
     checks.expect_runtime_error("if: propagates a condition evaluation error", [&] {
         const auto node = conditional(prefix(TokenType::NOT, integer(1)),
             block(statement(integer(10))), block(statement(integer(20))));
-        return evaluator.eval(*node);
+        return execute_ordinary_statement(evaluator, *node);
     }, operand_error);
     checks.expect_runtime_error("if: propagates a selected alternative error", [&] {
         const auto node = conditional(boolean(false), block(statement(integer(10))),
             block(statement(prefix(TokenType::NOT, integer(1)))));
-        return evaluator.eval(*node);
+        return execute_ordinary_statement(evaluator, *node);
     }, operand_error);
     checks.expect_runtime_error("if: selected block evaluates earlier statements", [&] {
         const auto node = conditional(boolean(true),
             block(statement(prefix(TokenType::NOT, integer(1))), statement(integer(42))),
             block(statement(integer(20))));
-        return evaluator.eval(*node);
+        return execute_ordinary_statement(evaluator, *node);
     }, operand_error);
 
     Program program;
@@ -239,6 +257,121 @@ void check_if_else(Evaluator& evaluator, Checks& checks) {
     checks.expect_value("if: program continues after a conditional", [&] {
         return evaluator.eval(program);
     }, Value{99});
+}
+
+Value evaluate_returning_function(std::unique_ptr<BlockStatements> body,
+                                  TokenType return_type,
+                                  std::unique_ptr<Statement> after_call = nullptr) {
+    // Each case gets a fresh evaluator so future environments do not retain
+    // another case's function declaration. Return is only valid in a function.
+    Evaluator evaluator;
+    Program program;
+    const Token name{TokenType::IDENTIFIER, "return_test"};
+    auto function = std::make_unique<FunctionLiteral>(name);
+    function->name = std::make_unique<Identifier>(name, name.text);
+    function->type = return_type;
+    function->FunctionBody = std::move(body);
+    program.statements.push_back(std::move(function));
+
+    auto call = std::make_unique<CallExpression>(
+        Token{TokenType::LPARENT, "("}, std::make_unique<Identifier>(name, name.text));
+    call->arguments.emplace();
+    program.statements.push_back(statement(std::move(call)));
+    if (after_call) {
+        program.statements.push_back(std::move(after_call));
+    }
+    return evaluator.eval(program);
+}
+
+void check_returns(Checks& checks) {
+    // Follow todo.md:95-96: evaluate returns inside functions, propagate them
+    // through blocks/conditionals, and reject returns outside a function.
+    struct ReturnCase {
+        const char* name;
+        std::unique_ptr<BlockStatements> body;
+        TokenType return_type;
+        Value expected;
+    };
+    ReturnCase cases[] = {
+        {"return: integer literal", block(return_statement(integer(42))),
+            TokenType::INT, 42},
+        {"return: zero stops execution", block(return_statement(integer(0)),
+            statement(integer(99))), TokenType::INT, 0},
+        {"return: boolean true retains its type", block(return_statement(boolean(true))),
+            TokenType::BOOL, true},
+        {"return: false stops execution", block(return_statement(boolean(false)),
+            statement(boolean(true))), TokenType::BOOL, false},
+        {"return: evaluates arithmetic expression", block(return_statement(
+            infix(TokenType::PLUS, integer(2),
+                infix(TokenType::MULTIPLICATION, integer(3), integer(4))))),
+            TokenType::INT, 14},
+        {"return: evaluates comparison expression", block(return_statement(
+            infix(TokenType::LESS, integer(2), integer(3)))), TokenType::BOOL, true},
+        {"return: skips an unreachable operand error", block(return_statement(integer(7)),
+            statement(prefix(TokenType::NOT, integer(1)))), TokenType::INT, 7},
+        {"return: follows earlier statements and skips later ones", block(
+            statement(integer(1)), return_statement(integer(7)), statement(integer(99))),
+            TokenType::INT, 7},
+        {"return: exits nested blocks", block(block(return_statement(integer(7)),
+            statement(prefix(TokenType::NOT, integer(1)))), statement(integer(99))),
+            TokenType::INT, 7},
+        {"return: exits from consequence", block(conditional(boolean(true),
+            block(return_statement(integer(7))), block(statement(integer(8)))),
+            statement(integer(99))), TokenType::INT, 7},
+        {"return: exits from alternative", block(conditional(boolean(false),
+            block(statement(integer(7))), block(return_statement(integer(8)))),
+            statement(integer(99))), TokenType::INT, 8},
+        {"return: propagates through nested conditionals", block(conditional(boolean(true),
+            block(conditional(boolean(false), block(return_statement(integer(7))),
+                block(return_statement(integer(8))))), block(statement(integer(9)))),
+            statement(integer(99))), TokenType::INT, 8},
+        {"return: ignores a return in an unselected branch", block(
+            conditional(boolean(false), block(return_statement(integer(1)))),
+            return_statement(integer(2))), TokenType::INT, 2},
+    };
+    for (auto& test : cases) {
+        checks.expect_value(test.name, [&] {
+            return evaluate_returning_function(std::move(test.body), test.return_type);
+        }, test.expected);
+    }
+
+    checks.expect_value("return: caller continues after function returns", [] {
+        return evaluate_returning_function(block(return_statement(integer(7))),
+            TokenType::INT, statement(integer(99)));
+    }, Value{99});
+
+    constexpr std::string_view operand_error = "Invalid right expression for NOT";
+    checks.expect_runtime_error("return: propagates an error in its expression", [] {
+        return evaluate_returning_function(
+            block(return_statement(prefix(TokenType::NOT, integer(1)))), TokenType::BOOL);
+    }, operand_error);
+    checks.expect_runtime_error("return: does not skip an earlier error", [] {
+        return evaluate_returning_function(block(statement(prefix(TokenType::NOT, integer(1))),
+            return_statement(integer(7))), TokenType::INT);
+    }, operand_error);
+
+    // Require a context error rather than accepting today's generic
+    // unsupported-node exception as successful return validation.
+    constexpr std::string_view context_error = "outside";
+    checks.expect_runtime_error("return: rejects a standalone return outside a function", [] {
+        Evaluator evaluator;
+        Program program;
+        program.statements.push_back(return_statement(integer(7)));
+        return evaluator.eval(program);
+    }, context_error);
+    checks.expect_runtime_error("return: rejects a block return outside a function", [] {
+        Evaluator evaluator;
+        Program program;
+        program.statements.push_back(block(return_statement(integer(7))));
+        return evaluator.eval(program);
+    }, context_error);
+    checks.expect_runtime_error("return: rejects a program return outside a function", [] {
+        Evaluator evaluator;
+        Program program;
+        program.statements.push_back(statement(integer(1)));
+        program.statements.push_back(return_statement(integer(7)));
+        return evaluator.eval(program);
+    }, context_error);
 }
 
 } // namespace
@@ -407,6 +540,7 @@ int main() {
     }, Value{5});
 
     check_if_else(evaluator, checks);
+    check_returns(checks);
 
     return checks.finish();
 }
