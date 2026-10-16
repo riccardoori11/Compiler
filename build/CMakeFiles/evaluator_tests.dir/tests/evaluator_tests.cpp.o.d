@@ -179,7 +179,13 @@ CMakeFiles/evaluator_tests.dir/tests/evaluator_tests.cpp.o: \
  /usr/include/c++/15/bits/stl_vector.h \
  /usr/include/c++/15/bits/stl_bvector.h \
  /usr/include/c++/15/bits/vector.tcc /home/riccardo/compiler/object.hpp \
- /usr/include/c++/15/variant /usr/include/c++/15/bits/monostate.h \
+ /usr/include/c++/15/unordered_map \
+ /usr/include/c++/15/bits/unordered_map.h \
+ /usr/include/c++/15/bits/hashtable.h \
+ /usr/include/c++/15/bits/hashtable_policy.h \
+ /usr/include/c++/15/bits/node_handle.h \
+ /usr/include/c++/15/bits/erase_if.h /usr/include/c++/15/variant \
+ /usr/include/c++/15/bits/monostate.h \
  /usr/include/c++/15/bits/parse_numbers.h /usr/include/c++/15/format \
  /usr/include/c++/15/array /usr/include/c++/15/charconv \
  /usr/include/c++/15/limits /usr/include/c++/15/locale \
@@ -194,4 +200,5 @@ CMakeFiles/evaluator_tests.dir/tests/evaluator_tests.cpp.o: \
  /usr/include/c++/15/bits/algorithmfwd.h \
  /usr/include/c++/15/bits/stl_heap.h \
  /usr/include/c++/15/bits/uniform_int_dist.h \
- /usr/include/c++/15/bits/unicode-data.h
+ /usr/include/c++/15/bits/unicode-data.h \
+ /home/riccardo/compiler/Environment.hpp

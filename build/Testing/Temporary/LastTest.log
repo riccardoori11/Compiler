@@ -1,10 +1,10 @@
-Start testing: Oct 16 10:28 EDT
+Start testing: Oct 16 13:27 EDT
 ----------------------------------------------------------
 1/2 Testing: evaluator_tests
 1/2 Test: evaluator_tests
 Command: "/home/riccardo/compiler/build/evaluator_tests"
 Directory: /home/riccardo/compiler/build
-"evaluator_tests" start time: Oct 16 10:28 EDT
+"evaluator_tests" start time: Oct 16 13:27 EDT
 Output:
 ----------------------------------------------------------
 PASS: integer literal returns 42
@@ -30,7 +30,7 @@ PASS: program evaluation rejects an empty statement list
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"evaluator_tests" end time: Oct 16 10:28 EDT
+"evaluator_tests" end time: Oct 16 13:27 EDT
 "evaluator_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -38,7 +38,7 @@ Test Passed.
 2/2 Test: evaluator_operator_tests
 Command: "/home/riccardo/compiler/build/evaluator_operator_tests"
 Directory: /home/riccardo/compiler/build
-"evaluator_operator_tests" start time: Oct 16 10:28 EDT
+"evaluator_operator_tests" start time: Oct 16 13:27 EDT
 Output:
 ----------------------------------------------------------
 FAIL: return: integer literal: unexpected exception: Unrecognised AST
@@ -57,16 +57,13 @@ FAIL: return: ignores a return in an unselected branch: unexpected exception: Un
 FAIL: return: caller continues after function returns: unexpected exception: Unrecognised AST
 FAIL: return: propagates an error in its expression: expected error containing "Invalid right expression for NOT", got "Unrecognised AST"
 FAIL: return: does not skip an earlier error: expected error containing "Invalid right expression for NOT", got "Unrecognised AST"
-FAIL: return: rejects a standalone return outside a function: expected std::runtime_error
-FAIL: return: rejects a block return outside a function: expected std::runtime_error
-FAIL: return: rejects a program return outside a function: expected std::runtime_error
-139/158 evaluator operator checks passed
+142/158 evaluator operator checks passed
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Failed.
-"evaluator_operator_tests" end time: Oct 16 10:28 EDT
+"evaluator_operator_tests" end time: Oct 16 13:27 EDT
 "evaluator_operator_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Oct 16 10:28 EDT
+End testing: Oct 16 13:27 EDT

@@ -1,4 +1,5 @@
 #include "evaluator.hpp"
+#include "Environment.hpp"
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -14,12 +15,14 @@ public:
     void print() const override {}
 };
 
-Value evaluate_for_test(Evaluator& evaluator, const Node& node) {
-    return evaluator.eval(node);
+Value evaluate_for_test(Evaluator& evaluator, const Node& node,
+                        Environment& environment) {
+    return evaluator.eval(node, environment);
 }
 
-Value evaluate_for_test(Evaluator& evaluator, const VectorStatement& statements) {
-    const ExecutionResult result = evaluator.evalStatement(statements);
+Value evaluate_for_test(Evaluator& evaluator, const VectorStatement& statements,
+                        Environment& environment) {
+    const ExecutionResult result = evaluator.evalStatement(statements, environment);
     if (result.is_return) {
         throw std::logic_error("Ordinary statement list unexpectedly produced a return signal");
     }
@@ -50,13 +53,14 @@ std::unique_ptr<Statement> make_unsupported_statement() {
 
 int main() {
     Evaluator evaluator;
+    Environment environment;
     int checks = 0;
     int failures = 0;
 
     auto expect_value = [&](const char* name, const auto& input, const Value& expected) {
         ++checks;
         try {
-            const Value actual = evaluate_for_test(evaluator, input);
+            const Value actual = evaluate_for_test(evaluator, input, environment);
             // Variant equality checks the held type as well as the value.
             if (actual == expected) {
                 std::cout << "PASS: " << name << '\n';
@@ -72,7 +76,7 @@ int main() {
     auto expect_runtime_error = [&](const char* name, const auto& input) {
         ++checks;
         try {
-            evaluate_for_test(evaluator, input);
+            evaluate_for_test(evaluator, input, environment);
             std::cerr << "FAIL: " << name << ": expected std::runtime_error\n";
         } catch (const std::runtime_error&) {
             std::cout << "PASS: " << name << '\n';

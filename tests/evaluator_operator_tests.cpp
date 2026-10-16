@@ -1,4 +1,5 @@
 #include "evaluator.hpp"
+#include "Environment.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -149,15 +150,16 @@ std::unique_ptr<IfStatement> conditional(std::unique_ptr<Expression> condition,
     return result;
 }
 
-Value execute_ordinary_statement(Evaluator& evaluator, const Statement& node) {
-    const ExecutionResult result = evaluator.execute(node);
+Value execute_ordinary_statement(Evaluator& evaluator, const Statement& node,
+                                 Environment& environment) {
+    const ExecutionResult result = evaluator.execute(node, environment);
     if (result.is_return) {
         throw std::logic_error("Ordinary statement unexpectedly produced a return signal");
     }
     return result.value;
 }
 
-void check_if_else(Evaluator& evaluator, Checks& checks) {
+void check_if_else(Evaluator& evaluator, Environment& environment, Checks& checks) {
     // IfStatement is a Statement in this AST, so test it separately from the
     // expression-only cases. Selected blocks return their last expression.
     struct IfCase {
@@ -210,7 +212,7 @@ void check_if_else(Evaluator& evaluator, Checks& checks) {
     };
     for (const auto& test : cases) {
         checks.expect_value(test.name, [&] {
-            return execute_ordinary_statement(evaluator, *test.node);
+            return execute_ordinary_statement(evaluator, *test.node, environment);
         }, test.expected);
     }
 
@@ -221,13 +223,13 @@ void check_if_else(Evaluator& evaluator, Checks& checks) {
         checks.expect_runtime_error("if: rejects integer condition " + std::to_string(value), [&] {
             const auto node = conditional(integer(value), block(statement(integer(10))),
                 block(statement(integer(20))));
-            return execute_ordinary_statement(evaluator, *node);
+            return execute_ordinary_statement(evaluator, *node, environment);
         }, condition_error);
     }
     checks.expect_runtime_error("if: rejects float condition", [&] {
         const auto node = conditional(floating(1.0f), block(statement(integer(10))),
             block(statement(integer(20))));
-        return execute_ordinary_statement(evaluator, *node);
+        return execute_ordinary_statement(evaluator, *node, environment);
     }, condition_error);
 
     // Match the existing operand error so a generic unsupported-IfStatement
@@ -236,18 +238,18 @@ void check_if_else(Evaluator& evaluator, Checks& checks) {
     checks.expect_runtime_error("if: propagates a condition evaluation error", [&] {
         const auto node = conditional(prefix(TokenType::NOT, integer(1)),
             block(statement(integer(10))), block(statement(integer(20))));
-        return execute_ordinary_statement(evaluator, *node);
+        return execute_ordinary_statement(evaluator, *node, environment);
     }, operand_error);
     checks.expect_runtime_error("if: propagates a selected alternative error", [&] {
         const auto node = conditional(boolean(false), block(statement(integer(10))),
             block(statement(prefix(TokenType::NOT, integer(1)))));
-        return execute_ordinary_statement(evaluator, *node);
+        return execute_ordinary_statement(evaluator, *node, environment);
     }, operand_error);
     checks.expect_runtime_error("if: selected block evaluates earlier statements", [&] {
         const auto node = conditional(boolean(true),
             block(statement(prefix(TokenType::NOT, integer(1))), statement(integer(42))),
             block(statement(integer(20))));
-        return execute_ordinary_statement(evaluator, *node);
+        return execute_ordinary_statement(evaluator, *node, environment);
     }, operand_error);
 
     Program program;
@@ -255,16 +257,17 @@ void check_if_else(Evaluator& evaluator, Checks& checks) {
         block(statement(integer(2)))));
     program.statements.push_back(statement(integer(99)));
     checks.expect_value("if: program continues after a conditional", [&] {
-        return evaluator.eval(program);
+        return evaluator.eval(program, environment);
     }, Value{99});
 }
 
 Value evaluate_returning_function(std::unique_ptr<BlockStatements> body,
                                   TokenType return_type,
                                   std::unique_ptr<Statement> after_call = nullptr) {
-    // Each case gets a fresh evaluator so future environments do not retain
+    // Each case gets a fresh evaluator and environment so they do not retain
     // another case's function declaration. Return is only valid in a function.
     Evaluator evaluator;
+    Environment environment;
     Program program;
     const Token name{TokenType::IDENTIFIER, "return_test"};
     auto function = std::make_unique<FunctionLiteral>(name);
@@ -280,7 +283,7 @@ Value evaluate_returning_function(std::unique_ptr<BlockStatements> body,
     if (after_call) {
         program.statements.push_back(std::move(after_call));
     }
-    return evaluator.eval(program);
+    return evaluator.eval(program, environment);
 }
 
 void check_returns(Checks& checks) {
@@ -352,25 +355,28 @@ void check_returns(Checks& checks) {
 
     // Require a context error rather than accepting today's generic
     // unsupported-node exception as successful return validation.
-    constexpr std::string_view context_error = "outside";
+    constexpr std::string_view context_error = "Return should be in function";
     checks.expect_runtime_error("return: rejects a standalone return outside a function", [] {
         Evaluator evaluator;
+        Environment environment;
         Program program;
         program.statements.push_back(return_statement(integer(7)));
-        return evaluator.eval(program);
+        return evaluator.eval(program, environment);
     }, context_error);
     checks.expect_runtime_error("return: rejects a block return outside a function", [] {
         Evaluator evaluator;
+        Environment environment;
         Program program;
         program.statements.push_back(block(return_statement(integer(7))));
-        return evaluator.eval(program);
+        return evaluator.eval(program, environment);
     }, context_error);
     checks.expect_runtime_error("return: rejects a program return outside a function", [] {
         Evaluator evaluator;
+        Environment environment;
         Program program;
         program.statements.push_back(statement(integer(1)));
         program.statements.push_back(return_statement(integer(7)));
-        return evaluator.eval(program);
+        return evaluator.eval(program, environment);
     }, context_error);
 }
 
@@ -378,6 +384,7 @@ void check_returns(Checks& checks) {
 
 int main() {
     Evaluator evaluator;
+    Environment environment;
     Checks checks;
 
     // Check literal types and recursive evaluation through the actual AST.
@@ -408,7 +415,7 @@ int main() {
             infix(TokenType::LESS, integer(2), floating(3.5f))), false},
     };
     for (const auto& test : ast_cases) {
-        checks.expect_value(test.name, [&] { return evaluator.eval(*test.expression); },
+        checks.expect_value(test.name, [&] { return evaluator.eval(*test.expression, environment); },
                             test.expected);
     }
 
@@ -506,7 +513,7 @@ int main() {
 
     checks.expect_runtime_error("unary minus rejects bool", [&] {
         const auto expression = prefix(TokenType::MINUS, boolean(true));
-        return evaluator.eval(*expression);
+        return evaluator.eval(*expression, environment);
     });
     for (const Value operand : {Value{1}, Value{1.0f}, Value{1.0}}) {
         checks.expect_runtime_error("logical negation rejects " + describe(operand), [&] {
@@ -522,7 +529,7 @@ int main() {
     checks.expect_runtime_error("nested operand error propagates", [&] {
         const auto expression = infix(TokenType::PLUS, integer(2),
             prefix(TokenType::NOT, integer(3)));
-        return evaluator.eval(*expression);
+        return evaluator.eval(*expression, environment);
     });
 
     Program program;
@@ -530,16 +537,16 @@ int main() {
     statement->expr = floating(1.25f);
     program.statements.push_back(std::move(statement));
     checks.expect_value("program preserves a float result", [&] {
-        return evaluator.eval(program);
+        return evaluator.eval(program, environment);
     }, Value{1.25f});
     checks.expect_value("evaluating the same AST again preserves its value", [&] {
-        return evaluator.eval(program);
+        return evaluator.eval(program, environment);
     }, Value{1.25f});
     checks.expect_value("evaluator remains usable after errors", [&] {
         return evaluator.evalInfixExpression(Token{TokenType::PLUS, "+"}, Value{2}, Value{3});
     }, Value{5});
 
-    check_if_else(evaluator, checks);
+    check_if_else(evaluator, environment, checks);
     check_returns(checks);
 
     return checks.finish();

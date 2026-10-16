@@ -18,6 +18,9 @@ The tests check runtime types as well as values. Float and double results allow
 a small rounding tolerance. AST nodes are constructed directly to keep these
 tests independent from the lexer and parser. Double operands are passed to
 `evalInfixExpression()` directly because there is no double-literal AST node.
+Calls to `eval()`, `execute()`, and `evalStatement()` pass an explicit
+`Environment&`. Shared evaluator cases reuse the same environment; isolated
+function and outside-function return cases create a fresh environment.
 
 From the project root (`/home/riccardo/compiler`), run:
 
@@ -30,12 +33,13 @@ ctest --test-dir build -R '^evaluator(_operator)?_tests$' --output-on-failure
 The two executables contain 176 checks. Build again after changing the evaluator
 or tests.
 
-Both test executables build. All 157 non-return checks pass, including the
-conditional cases. The 16 function-based return checks currently fail with
+Both test executables build. All 157 non-return checks and the three
+outside-function return checks pass. The 16 function-based return checks fail with
 `Unrecognised AST` because function declaration/call evaluation is not
-implemented. The three outside-function return checks fail because program
-evaluation discards the return flag instead of rejecting it. These checks
-define the remaining behavior to implement; they do not change the evaluator.
+implemented. These checks define the remaining behavior to implement; they do
+not change the evaluator. The compiler currently warns that `evalIf()` does not
+use its supplied environment parameter; the literal-only conditional cases do
+not verify variable lookup through that environment.
 
 To see every check's result, run the executable directly after building:
 
@@ -45,7 +49,7 @@ To see every check's result, run the executable directly after building:
 ```
 
 The basic suite reports `18/18 evaluator tests passed`. The current operator
-summary is `139/158 evaluator operator checks passed`; the target is `158/158`
+summary is `142/158 evaluator operator checks passed`; the target is `158/158`
 after implementing functions and returns. A failed check prints `FAIL` and
 makes the executable return a nonzero exit status. The checks run in both Debug
 and Release builds.
@@ -61,13 +65,14 @@ as those behaviors are completed.
 
 Return tests follow `todo.md`: `return` is only valid inside a function. Success
 cases declare and call a zero-argument `int` or `bool` function using AST nodes
-and a fresh evaluator per case. They check that returning zero or false still
-stops execution, returns escape nested blocks and conditionals, unselected
-returns have no effect, and a function return does not terminate its caller.
+and a fresh evaluator and environment per case. They check that returning zero
+or false still stops execution, returns escape nested blocks and conditionals,
+unselected returns have no effect, and a function return does not terminate its
+caller.
 Outside-function cases execute their statements through a `Program`; their
-errors must contain `outside`. Operand-error cases preserve the existing
-operand diagnostic. This prevents the current generic unsupported AST error
-from incorrectly satisfying these error checks.
+errors must contain `Return should be in function`. Operand-error cases preserve
+the existing operand diagnostic. This prevents the current generic unsupported
+AST error from incorrectly satisfying these error checks.
 
 The active suite does not test the REPL or parser, floating unary minus, or
 boolean/numeric equality rejection.

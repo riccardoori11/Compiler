@@ -9,6 +9,9 @@
 #include <variant>
 #include <vector>
 
+/*
+ * for now having one global env for single scopes
+ * */
 
 using VectorStatement = std::vector<std::unique_ptr<Statement>>;
 class Evaluator{
@@ -26,7 +29,7 @@ bool IsNumericValue(const Value& left, const Value& right){
 	|| std::holds_alternative<double>(right)));
 }
 
-ExecutionResult evalStatement(const VectorStatement& statements){
+ExecutionResult evalStatement(const VectorStatement& statements, Environment& env){
 
 		if (statements.empty()){
 
@@ -37,7 +40,7 @@ ExecutionResult evalStatement(const VectorStatement& statements){
 
 		for (const auto& statement: statements){
 
-				result = execute(*statement);
+				result = execute(*statement,env);
 
 				if (result.is_return){
 
@@ -48,7 +51,7 @@ ExecutionResult evalStatement(const VectorStatement& statements){
 		return result;
 }
 
-ExecutionResult execute(const Statement& node){
+ExecutionResult execute(const Statement& node, Environment& env){
 
 		if (const auto *ptr = dynamic_cast<const Return*>(&node)){
 
@@ -56,25 +59,34 @@ ExecutionResult execute(const Statement& node){
 
 						throw std::runtime_error("Return must have value associated with it");
 				}
-				return ExecutionResult(eval(*ptr->Returnvalue),true);
+				return ExecutionResult(eval(*ptr->Returnvalue,env),true);
 		}
 		else if(const auto *ptr = dynamic_cast<const ExpressionStatement*>(&node)){
-				return ExecutionResult(eval(*ptr->expr),false);
+				return ExecutionResult(eval(*ptr->expr,env),false);
+		}
+		else if(const auto *ptr = dynamic_cast<const VariableDeclaration*>(&node)){
+				Binding var{};
+				var.type = ptr->token.tokentype;
+				if (ptr->value){
+
+						var.value = eval(*ptr->value,env);
+				}
+
 		}
 
 		else if(const auto *ptr = dynamic_cast<const Program*>(&node)){
 
-				return evalStatement(ptr->statements);
+				return evalStatement(ptr->statements,env);
 		}
 
 		else if(const auto *ptr = dynamic_cast<const BlockStatements*>(&node)){
 				if (ptr->Block_Statements.empty()){
 						return ExecutionResult{};
 				}
-				return ExecutionResult(evalStatement(ptr->Block_Statements));
+				return ExecutionResult(evalStatement(ptr->Block_Statements,env));
 		}
 		else if(const auto *ptr = dynamic_cast<const IfStatement*>(&node)){
-				return evalIf(*ptr);
+				return evalIf(*ptr, env);
 		}
 
 		else{
@@ -287,32 +299,29 @@ bool isTruthy(const Value& value){
 		return std::get<bool>(value);
 
 }
-ExecutionResult evalIf(const IfStatement& node){
+ExecutionResult evalIf(const IfStatement& node, Environment& env){
 
-
-		const auto& condition = eval(*node.condition);
+		const auto& condition = eval(*node.condition,env);
 
 		const auto& consequence = isTruthy(condition);
 
 		if (consequence){
 
-				return execute(*node.Consequence);
+				return execute(*node.Consequence, env);
 		}
 		else if (node.Alternative){
 
-				return execute(*node.Alternative);
+				return execute(*node.Alternative,env);
 		}
 
 		else{
 				return ExecutionResult{};
 		}
-		
-
 }
 
 // need to add double
 
-Value eval(const Node& node ){
+Value eval(const Node& node, Environment& env){
 
 		if (const auto* ptr = dynamic_cast<const Integer_Liter*>(&node)){
 				return Value{ptr->value};
@@ -324,7 +333,7 @@ Value eval(const Node& node ){
 				return Value{ptr->value};
 		}
 		else if(const auto* ptr = dynamic_cast<const Program*>(&node)){
-				const auto result = evalStatement(ptr->statements);
+				const auto result = evalStatement(ptr->statements,env);
 
 				if (result.is_return){
 
@@ -335,16 +344,16 @@ Value eval(const Node& node ){
 				
 		}
 		else if(const auto* ptr = dynamic_cast<const ExpressionStatement*>(&node)){
-				return eval(*ptr->expr);
+				return eval(*ptr->expr,env);
 		}
 		else if(const auto* ptr = dynamic_cast<const PrefixExpression*>(&node)){
-				const auto right = eval(*ptr->right);
+				const auto right = eval(*ptr->right,env);
 				return evalPrefixExpression(ptr->token,right);
 		}
 		else if (const auto* ptr = dynamic_cast<const InfixExpression*>(&node)){
-				const auto left = eval(*ptr->left);
+				const auto left = eval(*ptr->left,env);
 
-				const auto right = eval(*ptr->right);
+				const auto right = eval(*ptr->right,env);
 
 				return evalInfixExpression(ptr->token,left,right);
 		}
