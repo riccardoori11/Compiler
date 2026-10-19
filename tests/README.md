@@ -21,6 +21,9 @@ tests independent from the lexer and parser. Double operands are passed to
 Calls to `eval()`, `execute()`, and `evalStatement()` pass an explicit
 `Environment&`. Shared evaluator cases reuse the same environment; isolated
 function and outside-function return cases create a fresh environment.
+Numeric-pair checks exercise addition directly, including mixed result types
+and rejection of boolean operands, instead of calling a numeric-check helper.
+Failure diagnostics also handle function values in `Value`.
 
 From the project root (`/home/riccardo/compiler`), run:
 
@@ -33,13 +36,13 @@ ctest --test-dir build -R '^evaluator(_operator)?_tests$' --output-on-failure
 The two executables contain 176 checks. Build again after changing the evaluator
 or tests.
 
-Both test executables build. All 157 non-return checks and the three
-outside-function return checks pass. The 16 function-based return checks fail with
-`Unrecognised AST` because function declaration/call evaluation is not
-implemented. These checks define the remaining behavior to implement; they do
-not change the evaluator. The compiler currently warns that `evalIf()` does not
-use its supplied environment parameter; the literal-only conditional cases do
-not verify variable lookup through that environment.
+Both test executables build. All 18 basic checks pass, and 155 of the 158
+operator checks pass. The three failures are boolean equality cases:
+`true == true`, `false == false`, and `true == false`. The evaluator's numeric
+guard currently rejects boolean operands before handling equality. All 19
+return checks pass, including the zero-argument function calls and rejection of
+returns outside functions. These checks do not yet establish support for
+function parameters, local call scopes, or return-type validation.
 
 To see every check's result, run the executable directly after building:
 
@@ -49,8 +52,8 @@ To see every check's result, run the executable directly after building:
 ```
 
 The basic suite reports `18/18 evaluator tests passed`. The current operator
-summary is `142/158 evaluator operator checks passed`; the target is `158/158`
-after implementing functions and returns. A failed check prints `FAIL` and
+summary is `155/158 evaluator operator checks passed`; the target is `158/158`
+after restoring boolean equality. A failed check prints `FAIL` and
 makes the executable return a nonzero exit status. The checks run in both Debug
 and Release builds.
 
@@ -85,8 +88,9 @@ returns, and return-type mismatch checks remain outside the active suite.
 
 `language_rules_tests.hpp` contains 65 cases for section 1 of `todo.md`, including
 arithmetic, runtime type checks, overflow, bindings, and function calls. This
-broader suite still needs environments, statement/function execution, and
-runtime error checks before it can run against the interpreter.
+broader suite is not registered with CTest. It still needs an interpreter
+adapter and the remaining runtime checks, argument binding, return-type
+validation, and scope behavior before it can pass against the interpreter.
 
 Later, connect it with a function passed to `language_rules_tests::run()`. That
 function accepts a source string, executes it in a fresh environment, and

@@ -42,8 +42,10 @@ std::string describe(const Value& value) {
             return "int(" + std::to_string(item) + ")";
         } else if constexpr (std::is_same_v<T, float>) {
             return "float(" + std::to_string(item) + ")";
-        } else {
+        } else if constexpr (std::is_same_v<T, double>) {
             return "double(" + std::to_string(item) + ")";
+        } else {
+            return item ? "function" : "function(null)";
         }
     }, value);
 }
@@ -481,15 +483,26 @@ int main() {
         }, test.expected);
     }
 
-    // A boolean on either side must not count as a numeric pair.
+    // Check numeric pairs through addition; booleans must be rejected on either side.
     const Value numeric_inputs[] = {2, 2.5f, 4.0, true};
+    const Value expected_sums[3][3] = {
+        {4, 4.5f, 6.0},
+        {4.5f, 5.0f, 6.5},
+        {6.0, 6.5, 8.0},
+    };
     for (int left = 0; left < 4; ++left) {
         for (int right = 0; right < 4; ++right) {
             const std::string name = "numeric pair " + describe(numeric_inputs[left])
                 + ", " + describe(numeric_inputs[right]);
-            checks.expect_value(name, [&] {
-                return Value{evaluator.IsNumericValue(numeric_inputs[left], numeric_inputs[right])};
-            }, Value{left != 3 && right != 3});
+            const auto add_pair = [&] {
+                return evaluator.evalInfixExpression(Token{TokenType::PLUS, "+"},
+                    numeric_inputs[left], numeric_inputs[right]);
+            };
+            if (left == 3 || right == 3) {
+                checks.expect_runtime_error(name, add_pair);
+            } else {
+                checks.expect_value(name, add_pair, expected_sums[left][right]);
+            }
         }
     }
 
@@ -515,7 +528,7 @@ int main() {
         const auto expression = prefix(TokenType::MINUS, boolean(true));
         return evaluator.eval(*expression, environment);
     });
-    for (const Value operand : {Value{1}, Value{1.0f}, Value{1.0}}) {
+    for (const Value& operand : {Value{1}, Value{1.0f}, Value{1.0}}) {
         checks.expect_runtime_error("logical negation rejects " + describe(operand), [&] {
             return evaluator.evalPrefixExpression(Token{TokenType::NOT, "!"}, operand);
         });

@@ -26,6 +26,7 @@ enum class TokenType{
 		RPARENT,
 		LBRAC,
 		RBRAC,
+		FUNCTION,
 		IF,
 		ELSE,
 		COMMA,

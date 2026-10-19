@@ -2,6 +2,7 @@
 
 #include "object.hpp"
 #include <format>
+#include <memory>
 #include <string_view>
 #include <type_traits>
 #include <variant>
@@ -16,6 +17,10 @@ std::string Inspect(const Value& value){
 
 								return "null";
 						}
+
+						else if constexpr (std::is_same_v<T, std::shared_ptr<FunctionObj>>) {
+								return "function";
+						}
 						else{
 								return std::format("{}",item);
 						}
@@ -24,7 +29,7 @@ std::string Inspect(const Value& value){
 
 std::string_view type(const auto& value){
 
-		return std::visit([](const auto& item) -> std::string_view{
+		return std::visit([](const auto& item){
 						using TYPE_NORM = std::remove_cvref_t<decltype(item)>;
 				if constexpr (std::is_same_v<TYPE_NORM, int>){
 						return "int";

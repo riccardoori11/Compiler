@@ -583,87 +583,87 @@ private:
 						return parseFunctionLit(returnType);
 				}
 
-				return parseVariableDeclaration(returnType);
+						return parseVariableDeclaration(returnType);
 
-		}
-
-		std::unique_ptr<Statement> parseExpressionStatement(){
-
-				//std::cout << "Parsing Expression Statement" << std::endl;
-
-				auto statement = std::make_unique<ExpressionStatement>(curr_tok);
-
-				statement->expr = ParseExpression();
-				/*add(1,2);
-				 * after parsing add(1,2) take over ;
-				 * */
-
-				if (!statement->expr){
-						throw std::runtime_error("Could not parse expression of expressionStatement");
 				}
 
-				if (!next_type_is(TokenType::SEMICOLON)){
+				std::unique_ptr<Statement> parseExpressionStatement(){
 
-						throw std::runtime_error("Missing Semicolon");
-				}
+						//std::cout << "Parsing Expression Statement" << std::endl;
 
-				nextToken();
+						auto statement = std::make_unique<ExpressionStatement>(curr_tok);
 
-				return statement;
-				
-		}
-		std::unique_ptr<Statement> parseStatement(){
+						statement->expr = ParseExpression();
+						/*add(1,2);
+						 * after parsing add(1,2) take over ;
+						 * */
 
-				switch (curr_tok.tokentype){
-
-						case TokenType::INT:
-								if (next_type_is(TokenType::IDENTIFIER)){
-										return parseTypedStatement();
-								}
-								
-						case TokenType::DOUBLE:
-								if (next_type_is(TokenType::IDENTIFIER)){
-										return parseTypedStatement();
-								}
-						case TokenType::BOOL:
-								return parseTypedStatement();
-						case TokenType::RETURN:
-								return parseReturn();
-						case TokenType::IF:
-								return parseIfStatement();
-						default:
-								return parseExpressionStatement();
-				}
-		}
-
-public:
-
-
-		Parser(lexxer lexer):l(std::move(lexer)),curr_tok(l.nextToken()),next_tok(l.nextToken())
-		{
-
-		}
-		std::unique_ptr<Program> ParseProgram(){
-
-				auto program = std::make_unique<Program>();
-
-				while (!current_type_is(TokenType::ENDOFFILE)){
-
-						auto statement = parseStatement(); 
-						if (statement){
-
-								program->statements.push_back(std::move(statement));
-								
+						if (!statement->expr){
+								throw std::runtime_error("Could not parse expression of expressionStatement");
 						}
+
+						if (!next_type_is(TokenType::SEMICOLON)){
+
+								throw std::runtime_error("Missing Semicolon");
+						}
+
 						nextToken();
+
+						return statement;
+						
+				}
+				std::unique_ptr<Statement> parseStatement(){
+
+						switch (curr_tok.tokentype){
+
+								case TokenType::INT:
+										if (next_type_is(TokenType::IDENTIFIER)){
+												return parseTypedStatement();
+										}
+										
+								case TokenType::DOUBLE:
+										if (next_type_is(TokenType::IDENTIFIER)){
+												return parseTypedStatement();
+										}
+								case TokenType::BOOL:
+										return parseTypedStatement();
+								case TokenType::RETURN:
+										return parseReturn();
+								case TokenType::IF:
+										return parseIfStatement();
+								default:
+										return parseExpressionStatement();
+						}
 				}
 
-				return program;
+		public:
+
+
+				Parser(lexxer lexer):l(std::move(lexer)),curr_tok(l.nextToken()),next_tok(l.nextToken())
+				{
+
+				}
+				std::unique_ptr<Program> ParseProgram(){
+
+						auto program = std::make_unique<Program>();
+
+						while (!current_type_is(TokenType::ENDOFFILE)){
+
+								auto statement = parseStatement(); 
+								if (statement){
+
+										program->statements.push_back(std::move(statement));
+										
+								}
+								nextToken();
+						}
+
+						return program;
+
+				};
+
+
 
 		};
-
-
-
-};
 
 

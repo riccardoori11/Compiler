@@ -1,10 +1,10 @@
-Start testing: Oct 16 13:27 EDT
+Start testing: Oct 19 07:46 EDT
 ----------------------------------------------------------
 1/2 Testing: evaluator_tests
 1/2 Test: evaluator_tests
 Command: "/home/riccardo/compiler/build/evaluator_tests"
 Directory: /home/riccardo/compiler/build
-"evaluator_tests" start time: Oct 16 13:27 EDT
+"evaluator_tests" start time: Oct 19 07:46 EDT
 Output:
 ----------------------------------------------------------
 PASS: integer literal returns 42
@@ -30,7 +30,7 @@ PASS: program evaluation rejects an empty statement list
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"evaluator_tests" end time: Oct 16 13:27 EDT
+"evaluator_tests" end time: Oct 19 07:46 EDT
 "evaluator_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -38,32 +38,19 @@ Test Passed.
 2/2 Test: evaluator_operator_tests
 Command: "/home/riccardo/compiler/build/evaluator_operator_tests"
 Directory: /home/riccardo/compiler/build
-"evaluator_operator_tests" start time: Oct 16 13:27 EDT
+"evaluator_operator_tests" start time: Oct 19 07:46 EDT
 Output:
 ----------------------------------------------------------
-FAIL: return: integer literal: unexpected exception: Unrecognised AST
-FAIL: return: zero stops execution: unexpected exception: Unrecognised AST
-FAIL: return: boolean true retains its type: unexpected exception: Unrecognised AST
-FAIL: return: false stops execution: unexpected exception: Unrecognised AST
-FAIL: return: evaluates arithmetic expression: unexpected exception: Unrecognised AST
-FAIL: return: evaluates comparison expression: unexpected exception: Unrecognised AST
-FAIL: return: skips an unreachable operand error: unexpected exception: Unrecognised AST
-FAIL: return: follows earlier statements and skips later ones: unexpected exception: Unrecognised AST
-FAIL: return: exits nested blocks: unexpected exception: Unrecognised AST
-FAIL: return: exits from consequence: unexpected exception: Unrecognised AST
-FAIL: return: exits from alternative: unexpected exception: Unrecognised AST
-FAIL: return: propagates through nested conditionals: unexpected exception: Unrecognised AST
-FAIL: return: ignores a return in an unselected branch: unexpected exception: Unrecognised AST
-FAIL: return: caller continues after function returns: unexpected exception: Unrecognised AST
-FAIL: return: propagates an error in its expression: expected error containing "Invalid right expression for NOT", got "Unrecognised AST"
-FAIL: return: does not skip an earlier error: expected error containing "Invalid right expression for NOT", got "Unrecognised AST"
-142/158 evaluator operator checks passed
+FAIL: true equals true: unexpected exception: Invalid numeric value for infix expression
+FAIL: false equals false: unexpected exception: Invalid numeric value for infix expression
+FAIL: unequal booleans: unexpected exception: Invalid numeric value for infix expression
+155/158 evaluator operator checks passed
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Failed.
-"evaluator_operator_tests" end time: Oct 16 13:27 EDT
+"evaluator_operator_tests" end time: Oct 19 07:46 EDT
 "evaluator_operator_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Oct 16 13:27 EDT
+End testing: Oct 19 07:46 EDT
