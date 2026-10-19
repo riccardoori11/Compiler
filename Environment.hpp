@@ -12,20 +12,30 @@ class Environment{
 
 private:
 		std::unordered_map<std::string, Binding> map;
+		Environment* parent;
 
 public:
 
-Environment() = default;
+Environment(Environment* parent = nullptr): parent(parent)
+		{}
+
 
 std::optional<Binding> Get(const std::string& name) const{
 
-		auto it = map.find(name);
 
-		if (it == map.end()){
-				return std::nullopt;
+		auto it = map.find(name);
+		if (it != map.end()){
+
+				return it->second;
 		}
 
-		return it->second;
+		if (parent){
+
+				return parent->Get(name);
+		}
+
+		return std::nullopt;
+
 }
 
 void define(const std::string& name, const Binding& binding){

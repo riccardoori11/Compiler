@@ -227,7 +227,6 @@ Value evalPrefixExpression(const Token& op, const Value& right){
 bool isTruthy(const Value& value){
 
 		if (!std::holds_alternative<bool>(value)){
-
 				throw std::runtime_error("Condition of If/Else statement must be able to be evaluated to a boolean");
 		}
 
@@ -272,13 +271,17 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 				throw std::runtime_error("callee must have the same number of arguments as the function it is calling");
 		}
 
-		Environment call_env;
+		Environment call_env(function->env);
 
 		for (std::size_t i{}; i < function->parameters.size(); ++i){
 
 				const auto& arg = function->parameters[i];
 
 				Value val = eval(*node->arguments->at(i), env);
+
+				if (!MatchesType(arg.parameter_type,val)){
+						throw std::runtime_error("Wrong Call parameter type");
+				}
 
 				call_env.define(arg.name,
 								Binding{arg.parameter_type,val}
@@ -289,6 +292,10 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 
 		if (!res.is_return){
 				throw std::runtime_error("nothing was returned");
+		}
+
+		if (!MatchesType(function->function_type, res.value)){
+				throw std::runtime_error("Wrong return type");
 		}
 
 		return res.value;
