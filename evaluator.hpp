@@ -272,7 +272,20 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 				throw std::runtime_error("callee must have the same number of arguments as the function it is calling");
 		}
 
-		ExecutionResult res = execute(*function->Body,env);
+		Environment call_env;
+
+		for (std::size_t i{}; i < function->parameters.size(); ++i){
+
+				const auto& arg = function->parameters[i];
+
+				Value val = eval(*node->arguments->at(i), env);
+
+				call_env.define(arg.name,
+								Binding{arg.parameter_type,val}
+								);
+		}
+
+		ExecutionResult res = execute(*function->Body,call_env);
 
 		if (!res.is_return){
 				throw std::runtime_error("nothing was returned");
@@ -301,7 +314,6 @@ Value eval(const Node& node, Environment& env){
 		}
 		else if(const auto* ptr = dynamic_cast<const Identifier*>(&node)){
 				auto bind =	env.Get(ptr->value);
-
 				if (!bind){
 
 						throw std::runtime_error("could not find name");
