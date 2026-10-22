@@ -139,21 +139,15 @@ private:
 			//	std::cout << "Eneterd" << std::endl;
 			//	std::cout << curr_tok.text << std::endl;
 				nextToken();
-
 				auto right = ParseExpression(Precedence::LOWEST);
-				
-
 				if (!right){
-
 						//std::cout << "Entered ParseGroupedExpression" << std::endl;
 						return nullptr;
 				}
-
 				if (!next_type_is(TokenType::RPARENT)){
 
 						return nullptr;
 				}
-
 				nextToken();
 				//std::cout << curr_tok.text << std::endl;
 				return right;
@@ -265,6 +259,10 @@ private:
 
 				/*Keep extending the left*/
 
+				if (!left){
+						throw std::runtime_error("Failed to parse ");
+				}
+
 		while(!next_type_is(TokenType::SEMICOLON) && precedence < getPeekPrecedence()){
 				switch (next_tok.tokentype){
 						case TokenType::LPARENT:
@@ -283,7 +281,6 @@ private:
 						nextToken();
 						left = parseInfix(std::move(left));
 						if (!left){
-
 								return nullptr;
 						}
 						break;

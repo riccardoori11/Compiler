@@ -1,5 +1,6 @@
 #include "evaluator.hpp"
 #include "Environment.hpp"
+#include "parser.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -159,6 +160,191 @@ Value execute_ordinary_statement(Evaluator& evaluator, const Statement& node,
         throw std::logic_error("Ordinary statement unexpectedly produced a return signal");
     }
     return result.value;
+}
+
+void check_integer_arithmetic(Evaluator& evaluator, Environment& environment, Checks& checks) {
+    constexpr int minimum = std::numeric_limits<int>::min();
+    constexpr int maximum = std::numeric_limits<int>::max();
+
+    struct IntegerCase {
+        const char* name;
+        TokenType op;
+        int left;
+        int right;
+        int expected;
+    };
+    const IntegerCase valid_cases[] = {
+        {"addition reaches maximum", TokenType::PLUS, maximum - 1, 1, maximum},
+        {"addition reaches minimum", TokenType::PLUS, minimum + 1, -1, minimum},
+        {"maximum plus zero", TokenType::PLUS, maximum, 0, maximum},
+        {"minimum plus zero", TokenType::PLUS, minimum, 0, minimum},
+        {"opposite bounds cancel", TokenType::PLUS, maximum, minimum, -1},
+        {"subtraction reaches maximum", TokenType::MINUS, maximum - 1, -1, maximum},
+        {"subtraction reaches minimum", TokenType::MINUS, minimum + 1, 1, minimum},
+        {"maximum minus zero", TokenType::MINUS, maximum, 0, maximum},
+        {"minimum minus zero", TokenType::MINUS, minimum, 0, minimum},
+        {"minus one minus maximum", TokenType::MINUS, -1, maximum, minimum},
+        {"minimum minus minimum", TokenType::MINUS, minimum, minimum, 0},
+        {"maximum minus maximum", TokenType::MINUS, maximum, maximum, 0},
+        {"positive times positive", TokenType::MULTIPLICATION, 7, 3, 21},
+        {"positive times negative", TokenType::MULTIPLICATION, 7, -3, -21},
+        {"negative times positive", TokenType::MULTIPLICATION, -7, 3, -21},
+        {"negative times negative", TokenType::MULTIPLICATION, -7, -3, 21},
+        {"minimum times one", TokenType::MULTIPLICATION, minimum, 1, minimum},
+        {"one times minimum", TokenType::MULTIPLICATION, 1, minimum, minimum},
+        {"maximum times one", TokenType::MULTIPLICATION, maximum, 1, maximum},
+        {"one times maximum", TokenType::MULTIPLICATION, 1, maximum, maximum},
+        {"maximum times minus one", TokenType::MULTIPLICATION, maximum, -1, -maximum},
+        {"minus one times maximum", TokenType::MULTIPLICATION, -1, maximum, -maximum},
+        {"multiplication reaches minimum", TokenType::MULTIPLICATION,
+            minimum / 2, 2, minimum},
+        {"positive product near maximum", TokenType::MULTIPLICATION,
+            maximum / 2, 2, maximum - 1},
+        {"negative product near minimum", TokenType::MULTIPLICATION,
+            -(maximum / 2), 2, -maximum + 1},
+        {"two negatives near maximum", TokenType::MULTIPLICATION,
+            -(maximum / 2), -2, maximum - 1},
+        {"minimum times zero", TokenType::MULTIPLICATION, minimum, 0, 0},
+        {"zero times minimum", TokenType::MULTIPLICATION, 0, minimum, 0},
+        {"maximum times zero", TokenType::MULTIPLICATION, maximum, 0, 0},
+        {"zero times maximum", TokenType::MULTIPLICATION, 0, maximum, 0},
+        {"minimum divided by one", TokenType::DIVISION, minimum, 1, minimum},
+        {"maximum divided by one", TokenType::DIVISION, maximum, 1, maximum},
+        {"maximum divided by minus one", TokenType::DIVISION, maximum, -1, -maximum},
+        {"minimum divided by minimum", TokenType::DIVISION, minimum, minimum, 1},
+        {"positive quotient truncates", TokenType::DIVISION, 7, 3, 2},
+        {"negative numerator truncates toward zero", TokenType::DIVISION, -7, 3, -2},
+        {"negative denominator truncates toward zero", TokenType::DIVISION, 7, -3, -2},
+        {"two negatives truncate toward zero", TokenType::DIVISION, -7, -3, 2},
+        {"zero divided by minimum", TokenType::DIVISION, 0, minimum, 0},
+    };
+    for (const auto& test : valid_cases) {
+        checks.expect_value(test.name, [&] {
+            return evaluator.evalInfixExpression(Token{test.op, ""},
+                Value{test.left}, Value{test.right});
+        }, Value{test.expected});
+    }
+
+    // Integer bounds apply only when both operands are integers. Keep the
+    // existing floating-point result types and promotion at those bounds.
+    struct NumericCase {
+        const char* name;
+        TokenType op;
+        Value left;
+        Value right;
+        Value expected;
+    };
+    const NumericCase promoted_cases[] = {
+        {"float sum exceeds integer maximum", TokenType::PLUS,
+            float(maximum), float(maximum), float(maximum) * 2.0f},
+        {"double sum exceeds integer maximum", TokenType::PLUS,
+            double(maximum), double(maximum), double(maximum) * 2.0},
+        {"int minus float exceeds integer bounds", TokenType::MINUS,
+            minimum, float(maximum), float(minimum) - float(maximum)},
+        {"double minus int exceeds integer bounds", TokenType::MINUS,
+            double(minimum), maximum, double(minimum) - double(maximum)},
+        {"float times int exceeds integer bounds", TokenType::MULTIPLICATION,
+            2.0f, maximum, 2.0f * float(maximum)},
+        {"int times double exceeds integer bounds", TokenType::MULTIPLICATION,
+            minimum, -1.0, -double(minimum)},
+        {"minimum divided by float minus one", TokenType::DIVISION,
+            minimum, -1.0f, -float(minimum)},
+        {"double minimum divided by int minus one", TokenType::DIVISION,
+            double(minimum), -1, -double(minimum)},
+    };
+    for (const auto& test : promoted_cases) {
+        checks.expect_value(test.name, [&] {
+            return evaluator.evalInfixExpression(Token{test.op, ""}, test.left, test.right);
+        }, test.expected);
+    }
+
+    struct ZeroDivisionCase { Value left; Value right; };
+    const ZeroDivisionCase floating_zero_cases[] = {
+        {1.0f, 0.0f}, {1.0, -0.0}, {1, -0.0f}, {1.0f, 0},
+        {1, 0.0}, {1.0, 0}, {1.0f, -0.0}, {1.0, 0.0f},
+    };
+    for (const auto& test : floating_zero_cases) {
+        checks.expect_runtime_error("floating or mixed division by zero: "
+            + describe(test.left) + ", " + describe(test.right), [&] {
+            return evaluator.evalInfixExpression(Token{TokenType::DIVISION, "/"},
+                test.left, test.right);
+        }, "divide by zero");
+    }
+
+    struct OverflowCase {
+        const char* name;
+        TokenType op;
+        int left;
+        int right;
+    };
+    const OverflowCase overflow_cases[] = {
+        {"maximum plus one overflows", TokenType::PLUS, maximum, 1},
+        {"one plus maximum overflows", TokenType::PLUS, 1, maximum},
+        {"minimum plus minus one overflows", TokenType::PLUS, minimum, -1},
+        {"minus one plus minimum overflows", TokenType::PLUS, -1, minimum},
+        {"maximum plus maximum overflows", TokenType::PLUS, maximum, maximum},
+        {"minimum plus minimum overflows", TokenType::PLUS, minimum, minimum},
+        {"minimum minus one overflows", TokenType::MINUS, minimum, 1},
+        {"maximum minus minus one overflows", TokenType::MINUS, maximum, -1},
+        {"zero minus minimum overflows", TokenType::MINUS, 0, minimum},
+        {"maximum minus minimum overflows", TokenType::MINUS, maximum, minimum},
+        {"minimum minus maximum overflows", TokenType::MINUS, minimum, maximum},
+        {"maximum times two overflows", TokenType::MULTIPLICATION, maximum, 2},
+        {"two times maximum overflows", TokenType::MULTIPLICATION, 2, maximum},
+        {"minimum times two overflows", TokenType::MULTIPLICATION, minimum, 2},
+        {"two times minimum overflows", TokenType::MULTIPLICATION, 2, minimum},
+        {"maximum times minus two overflows", TokenType::MULTIPLICATION, maximum, -2},
+        {"minus two times maximum overflows", TokenType::MULTIPLICATION, -2, maximum},
+        {"minimum times minus one overflows", TokenType::MULTIPLICATION, minimum, -1},
+        {"minus one times minimum overflows", TokenType::MULTIPLICATION, -1, minimum},
+        {"minimum times minimum overflows", TokenType::MULTIPLICATION, minimum, minimum},
+        {"maximum times maximum overflows", TokenType::MULTIPLICATION, maximum, maximum},
+        {"minimum divided by minus one overflows", TokenType::DIVISION, minimum, -1},
+    };
+    for (const auto& test : overflow_cases) {
+        checks.expect_runtime_error(test.name, [&] {
+            return evaluator.evalInfixExpression(Token{test.op, ""},
+                Value{test.left}, Value{test.right});
+        }, "Integer overflow");
+    }
+    for (const int numerator : {minimum, -1, 0, 1, maximum}) {
+        checks.expect_runtime_error("integer division by zero: " + std::to_string(numerator), [&] {
+            return evaluator.evalInfixExpression(Token{TokenType::DIVISION, "/"},
+                Value{numerator}, Value{0});
+        }, "divide by zero");
+    }
+
+    for (const int operand : {minimum + 1, maximum, 0}) {
+        checks.expect_value("unary minus at valid bound: " + std::to_string(operand), [&] {
+            const auto expression = prefix(TokenType::MINUS, integer(operand));
+            return evaluator.eval(*expression, environment);
+        }, Value{-operand});
+    }
+    checks.expect_runtime_error("unary minus rejects minimum", [&] {
+        const auto expression = prefix(TokenType::MINUS, integer(minimum));
+        return evaluator.eval(*expression, environment);
+    }, "Integer overflow");
+
+    // Exercise the six source-level reproductions without requiring an
+    // out-of-range positive literal to represent the minimum integer.
+    const std::string maximum_source = std::to_string(maximum);
+    const std::string minimum_source = "(" + std::to_string(minimum + 1) + " - 1)";
+    struct SourceCase { std::string source; std::string_view message; };
+    const SourceCase source_cases[] = {
+        {"1 / 0;", "divide by zero"},
+        {maximum_source + " + 1;", "Integer overflow"},
+        {minimum_source + " - 1;", "Integer overflow"},
+        {maximum_source + " * 2;", "Integer overflow"},
+        {"-" + minimum_source + ";", "Integer overflow"},
+        {minimum_source + " / -1;", "Integer overflow"},
+    };
+    for (const auto& test : source_cases) {
+        checks.expect_runtime_error("source: " + test.source, [&] {
+            Parser parser(lexxer{test.source});
+            const auto program = parser.ParseProgram();
+            return evaluator.eval(*program, environment);
+        }, test.message);
+    }
 }
 
 void check_if_else(Evaluator& evaluator, Environment& environment, Checks& checks) {
@@ -559,6 +745,7 @@ int main() {
         return evaluator.evalInfixExpression(Token{TokenType::PLUS, "+"}, Value{2}, Value{3});
     }, Value{5});
 
+    check_integer_arithmetic(evaluator, environment, checks);
     check_if_else(evaluator, environment, checks);
     check_returns(checks);
 

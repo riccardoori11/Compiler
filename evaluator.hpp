@@ -3,6 +3,7 @@
 #include "object.hpp"
 #include "token.hpp"
 #include "Environment.hpp"
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
@@ -26,6 +27,39 @@ class Evaluator{
 private:
 
 		Environment env;
+
+    static void validateIntegerInfix(TokenType op, int a, int b){
+        constexpr int minimum = std::numeric_limits<int>::min();
+        constexpr int maximum = std::numeric_limits<int>::max();
+        bool overflow = false;
+
+        // Check bounds before evaluating an operation that could overflow.
+        switch (op){
+            case TokenType::PLUS:
+                overflow = (b > 0 && a > maximum - b)
+                    || (b < 0 && a < minimum - b);
+                break;
+            case TokenType::MINUS:
+                overflow = (b > 0 && a < minimum + b)
+                    || (b < 0 && a > maximum + b);
+                break;
+            case TokenType::MULTIPLICATION:
+                overflow = (a > 0 && b > 0 && a > maximum / b)
+                    || (a > 0 && b < 0 && b < minimum / a)
+                    || (a < 0 && b > 0 && a < minimum / b)
+                    || (a < 0 && b < 0 && a < maximum / b);
+                break;
+            case TokenType::DIVISION:
+                overflow = a == minimum && b == -1;
+                break;
+            default:
+                return;
+        }
+
+        if (overflow){
+            throw std::runtime_error("Integer overflow");
+        }
+    }
 
 
 public:
@@ -151,20 +185,23 @@ Value evalInfixExpression(const Token& op, const Value& left, const Value& right
 				using B = std::remove_cvref_t<decltype(b)>;
 
 				if constexpr (is_numeric<A> && is_numeric<B>) {
-						
+						if constexpr (std::is_same_v<A, int> && std::is_same_v<B, int>){
+								validateIntegerInfix(op.tokentype, a, b);
+						}
+
 						switch (op.tokentype){
 
 								case TokenType::PLUS:
 										return Value(a+b);
-								
 								case TokenType::MINUS:
 										return Value(a-b);
-
 								case TokenType::MULTIPLICATION:
 										return Value(a*b);
 								case TokenType::DIVISION:
+										if (b == 0){
+												throw std::runtime_error("Can't divide by zero");
+										}
 										return Value(a / b);
-
 								case TokenType::COMPARE:
 										return Value(a == b);
 
@@ -204,6 +241,9 @@ Value evalPrefixExpression(const Token& op, const Value& right){
 						}
 
 						int val = std::get<int>(right);
+						if (val == std::numeric_limits<int>::min()){
+								throw std::runtime_error("Integer overflow");
+						}
 
 						return Value{-val};
 				 }

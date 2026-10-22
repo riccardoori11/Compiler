@@ -4,7 +4,7 @@ Two executables test the current `evaluator.hpp`:
 
 - `evaluator_tests.cpp` runs 18 checks for integer and boolean literals,
   expression statements, statement lists, programs, and unsupported nodes.
-- `evaluator_operator_tests.cpp` runs 158 checks for float literals, recursive
+- `evaluator_operator_tests.cpp` runs 250 checks for float literals, recursive
   prefix/infix evaluation, all seven infix operators, integer division,
   float/double arithmetic, mixed numeric operands, boolean equality, numeric
   operand validation, error propagation, and reuse after an error. This includes
@@ -13,10 +13,15 @@ Two executables test the current `evaluator.hpp`:
   blocks, invalid condition types, and continued program execution. Another 19
   checks cover return values, early exits, nested returns, skipped statements,
   error propagation, and rejection of returns outside functions.
+  Another 92 checks cover checked integer arithmetic, exact bounds, multiplication
+  signs and zero operands, division truncation, zero divisors, and preservation
+  of float/double/mixed arithmetic beyond integer bounds. Six of these parse
+  and evaluate the source examples from finding 2 in `error.md`.
 
 The tests check runtime types as well as values. Float and double results allow
-a small rounding tolerance. AST nodes are constructed directly to keep these
-tests independent from the lexer and parser. Double operands are passed to
+a small rounding tolerance. Most AST nodes are constructed directly to keep
+evaluation tests independent from the lexer and parser; six arithmetic
+regressions also exercise the source-to-value path. Double operands are passed to
 `evalInfixExpression()` directly because there is no double-literal AST node.
 Calls to `eval()`, `execute()`, and `evalStatement()` pass an explicit
 `Environment&`. Shared evaluator cases reuse the same environment; isolated
@@ -33,16 +38,14 @@ cmake --build build --target evaluator_tests evaluator_operator_tests
 ctest --test-dir build -R '^evaluator(_operator)?_tests$' --output-on-failure
 ```
 
-The two executables contain 176 checks. Build again after changing the evaluator
+The two executables contain 268 checks. Build again after changing the evaluator
 or tests.
 
-Both test executables build. All 18 basic checks pass, and 155 of the 158
-operator checks pass. The three failures are boolean equality cases:
-`true == true`, `false == false`, and `true == false`. The evaluator's numeric
-guard currently rejects boolean operands before handling equality. All 19
-return checks pass, including the zero-argument function calls and rejection of
-returns outside functions. These checks do not yet establish support for
-function parameters, local call scopes, or return-type validation.
+Both test executables build. All 18 basic checks and all 250 operator checks pass
+in Debug and UndefinedBehaviorSanitizer builds. All 19 return checks pass,
+including the zero-argument function calls and rejection of returns outside
+functions. These checks do not yet establish support for function parameters,
+local call scopes, or return-type validation.
 
 To see every check's result, run the executable directly after building:
 
@@ -52,8 +55,7 @@ To see every check's result, run the executable directly after building:
 ```
 
 The basic suite reports `18/18 evaluator tests passed`. The current operator
-summary is `155/158 evaluator operator checks passed`; the target is `158/158`
-after restoring boolean equality. A failed check prints `FAIL` and
+summary is `250/250 evaluator operator checks passed`. A failed check prints `FAIL` and
 makes the executable return a nonzero exit status. The checks run in both Debug
 and Release builds.
 
@@ -77,20 +79,20 @@ errors must contain `Return should be in function`. Operand-error cases preserve
 the existing operand diagnostic. This prevents the current generic unsupported
 AST error from incorrectly satisfying these error checks.
 
-The active suite does not test the REPL or parser, floating unary minus, or
-boolean/numeric equality rejection.
-Division by zero and integer overflow need evaluator guards before adding
-in-process rejection tests, since the current operations can crash or invoke
-undefined behavior. General bindings, function parameters, recursion, missing
-returns, and return-type mismatch checks remain outside the active suite.
+The active suite does not test the REPL, general parser validation, floating
+unary minus, or boolean/numeric equality rejection. Division-by-zero and signed
+integer overflow checks require the evaluator's guards to throw before the
+underlying arithmetic executes. General bindings, function parameters, recursion,
+missing returns, and return-type mismatch checks remain outside the active suite.
 
 ## Planned language rule tests
 
 `language_rules_tests.hpp` contains 65 cases for section 1 of `todo.md`, including
 arithmetic, runtime type checks, overflow, bindings, and function calls. This
 broader suite is not registered with CTest. It still needs an interpreter
-adapter and the remaining runtime checks, argument binding, return-type
-validation, and scope behavior before it can pass against the interpreter.
+adapter and the remaining language and scope behavior before it can pass against
+the interpreter. The active operator suite covers integer arithmetic rejection
+independently.
 
 Later, connect it with a function passed to `language_rules_tests::run()`. That
 function accepts a source string, executes it in a fresh environment, and
