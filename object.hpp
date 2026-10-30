@@ -16,7 +16,7 @@
  * */
 
 
-class Environment;
+struct EnvironmentFrame;
 
 struct Parameter{
 		std::string name;
@@ -24,11 +24,11 @@ struct Parameter{
 };
 
 struct FunctionObj{
-
 		std::vector<Parameter> parameters;
 		TokenType function_type{TokenType::ILLEGAL};
-		BlockStatements* Body;
-		Environment* env;
+		std::shared_ptr<BlockStatements> block;
+		std::weak_ptr<EnvironmentFrame> env;
+
 };
 
 using Value = std::variant<std::monostate,int,float,double,bool,std::shared_ptr<FunctionObj>>;

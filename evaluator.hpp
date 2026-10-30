@@ -8,12 +8,9 @@
 #include <stdexcept>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
-
-/*
- * for now having one global env for single scopes
- * */
 
 using VectorStatement = std::vector<std::unique_ptr<Statement>>;
 template<typename T>
@@ -26,7 +23,9 @@ class Evaluator{
 
 private:
 
-		Environment env;
+		// This evaluator is the runtime owner of scopes captured by functions.
+		// Weak function captures avoid cycles through a scope's own bindings.
+		std::unordered_set<std::shared_ptr<EnvironmentFrame>> captured_environments;
 
     static void validateIntegerInfix(TokenType op, int a, int b){
         constexpr int minimum = std::numeric_limits<int>::min();
@@ -116,9 +115,11 @@ ExecutionResult execute(const Statement& node, Environment& env){
 				return ExecutionResult(eval(*ptr->expr,env),false);
 		}
 		else if(const auto *ptr = dynamic_cast<const FunctionLiteral*>(&node)){
+
 				FunctionObj func{};
 				func.function_type = ptr->type; 
-				func.env = &env;
+				captured_environments.insert(env.frame);
+				func.env = env.frame;
 
 				for (const auto& param: ptr->Parameters){
 						func.parameters.push_back(Parameter(
@@ -127,7 +128,7 @@ ExecutionResult execute(const Statement& node, Environment& env){
 												));
 				}
 
-				func.Body = ptr->FunctionBody.get();
+				func.block = ptr->FunctionBody;
 
 				Binding binding{
 						TokenType::FUNCTION,
@@ -311,7 +312,11 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 				throw std::runtime_error("callee must have the same number of arguments as the function it is calling");
 		}
 
-		Environment call_env(function->env);
+		auto defining_env = function->env.lock();
+		if (!defining_env){
+				throw std::runtime_error("Function environment has expired");
+		}
+		Environment call_env(std::move(defining_env));
 
 		for (std::size_t i{}; i < function->parameters.size(); ++i){
 
@@ -328,7 +333,7 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 								);
 		}
 
-		ExecutionResult res = execute(*function->Body,call_env);
+		ExecutionResult res = execute(*function->block,call_env);
 
 		if (!res.is_return){
 				throw std::runtime_error("nothing was returned");

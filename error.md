@@ -10,9 +10,6 @@ come from additional source-level probes, direct API calls, AddressSanitizer,
 UndefinedBehaviorSanitizer, standard-library assertions, and a linker probe.
 Passing the existing suites does not cover these cases.
 
-Update: finding 2 is now fixed. The expanded suites pass **18/18 basic checks
-and 250/250 operator checks** in both Debug and UndefinedBehaviorSanitizer builds.
-
 This replaces the older review, whose build status and some findings were
 outdated. Include guards, boolean literal parsing, decimal tokenization, function
 return types, and the repeated-input loop are now implemented. Plain EOF exits
@@ -44,35 +41,37 @@ error handling, or an unusable public API. Locations refer to this working tree.
    parse fails, and require both operands before constructing an infix node.
    Apply the same validation before constructing a call from a failed callee.
 
-2. **Resolved — Integer division and arithmetic reject invalid operations.**
+2. **High — Integer division and arithmetic execute undefined operations.**
 
-   Implementation: `validateIntegerInfix()` and the unary-minus case in
-   `evaluator.hpp`. Regression tests: `check_integer_arithmetic()` in
-   `tests/evaluator_operator_tests.cpp`.
+   Locations: `evaluator.hpp:157–166, 200–208`.
 
-   The original UBSan reproductions on the current 32-bit `int` platform now
-   throw interpreter runtime errors:
+   Confirmed with UBSan on the current platform, which uses 32-bit `int`:
 
-   | Source | Runtime error |
+   | Source | Observed sanitizer error |
    |---|---|
-   | `1 / 0;` | `Can't divide by zero` |
-   | `2147483647 + 1;` | `Integer overflow` |
-   | `(-2147483647 - 1) - 1;` | `Integer overflow` |
-   | `2147483647 * 2;` | `Integer overflow` |
-   | `-(-2147483647 - 1);` | `Integer overflow` |
-   | `(-2147483647 - 1) / -1;` | `Integer overflow` |
+   | `1 / 0;` | Division by zero |
+   | `2147483647 + 1;` | Signed addition overflow |
+   | `(-2147483647 - 1) - 1;` | Signed subtraction overflow |
+   | `2147483647 * 2;` | Signed multiplication overflow |
+   | `-(-2147483647 - 1);` | Negation of the minimum integer |
+   | `(-2147483647 - 1) / -1;` | Integer division overflow |
 
-   Integer bounds are checked before addition, subtraction, multiplication,
-   division by `-1`, and unary negation. The existing zero-divisor check and
-   floating-point/mixed arithmetic behavior are preserved.
+   These operations do not throw interpreter errors. Integer division can
+   terminate the process, and signed overflow has undefined behavior.
 
-   Added 92 regression checks covering the six source examples, valid boundary
-   values, multiplication signs and zero operands, division truncation, and
-   floating-point/mixed operands. All 268 checks pass in isolated Debug and UBSan
-   builds, with no undefined-behavior diagnostics. REPL exception recovery remains
-   a separate issue under finding 9.
+   Suggested fix: validate operands and bounds before performing each operation,
+   including the minimum-integer divided by `-1` case.
 
 3. **High — A stored function can outlive its AST or defining environment.**
+
+   **Resolved — 2026-10-30.** Function bodies now have shared ownership, and
+   the evaluator retains heap frames captured by functions. Frames retain their
+   parent scopes; function captures are weak references to avoid ownership cycles.
+   A call after the last frame owner is destroyed reports
+   `Function environment has expired`. The lifetime suite covers these cases
+   and passes with address, undefined-behavior, and leak sanitizers.
+
+   Original finding, before the lifetime fixes:
 
    Locations: `object.hpp:26–31`; `evaluator.hpp:84–103, 274, 291`.
 
@@ -93,7 +92,6 @@ error handling, or an unusable public API. Locations refer to this working tree.
    auto program = parser.ParseProgram();
    evaluator.eval(*program, env); // accesses the destroyed body
    ```
-
    This crashes under ASan during dispatch on the freed function body. A second
    direct API probe retained a function value after destroying its defining
    environment, kept its AST alive, and then called it. ASan reports

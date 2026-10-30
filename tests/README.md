@@ -1,6 +1,6 @@
 # Evaluator tests
 
-Two executables test the current `evaluator.hpp`:
+Three executables test the current `evaluator.hpp`:
 
 - `evaluator_tests.cpp` runs 18 checks for integer and boolean literals,
   expression statements, statement lists, programs, and unsupported nodes.
@@ -17,6 +17,10 @@ Two executables test the current `evaluator.hpp`:
   signs and zero operands, division truncation, zero divisors, and preservation
   of float/double/mixed arithmetic beyond integer bounds. Six of these parse
   and evaluate the source examples from finding 2 in `error.md`.
+- `evaluator_lifetime_tests.cpp` runs 13 checks for retained function bodies and
+  captured environments, ancestor scope retention, live binding updates, lexical
+  lookup, independent captures, repeated and recursive calls, nested functions,
+  environment handle copies, cleanup, and expired-capture diagnostics.
 
 The tests check runtime types as well as values. Float and double results allow
 a small rounding tolerance. Most AST nodes are constructed directly to keep
@@ -34,17 +38,17 @@ From the project root (`/home/riccardo/compiler`), run:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
-cmake --build build --target evaluator_tests evaluator_operator_tests
-ctest --test-dir build -R '^evaluator(_operator)?_tests$' --output-on-failure
+cmake --build build --target evaluator_tests evaluator_operator_tests evaluator_lifetime_tests
+ctest --test-dir build -R '^evaluator(_operator|_lifetime)?_tests$' --output-on-failure
 ```
 
-The two executables contain 268 checks. Build again after changing the evaluator
+The three executables contain 281 checks. Build again after changing the evaluator
 or tests.
 
-Both test executables build. All 18 basic checks and all 250 operator checks pass
+The basic and operator executables build. All 18 basic checks and all 250 operator checks pass
 in Debug and UndefinedBehaviorSanitizer builds. All 19 return checks pass,
 including the zero-argument function calls and rejection of returns outside
-functions. These checks do not yet establish support for function parameters,
+functions. These return checks do not yet establish support for function parameters,
 local call scopes, or return-type validation.
 
 To see every check's result, run the executable directly after building:
@@ -52,12 +56,24 @@ To see every check's result, run the executable directly after building:
 ```sh
 ./build/evaluator_tests
 ./build/evaluator_operator_tests
+./build/evaluator_lifetime_tests
 ```
 
 The basic suite reports `18/18 evaluator tests passed`. The current operator
 summary is `250/250 evaluator operator checks passed`. A failed check prints `FAIL` and
 makes the executable return a nonzero exit status. The checks run in both Debug
 and Release builds.
+
+The lifetime suite reports `13/13 evaluator lifetime checks passed`. It destroys
+ASTs and stack environment handles before calling retained functions, and checks
+that runtime teardown releases captured scopes without an ownership cycle. If a
+function survives every owner of its defining scope, calling it must report
+`Function environment has expired`. A surviving environment handle can still
+keep that scope available after the original evaluator is destroyed.
+Nested function escape is exercised through the body execution API because
+source function return types currently exclude function values.
+The lifetime suite also passes with AddressSanitizer, UndefinedBehaviorSanitizer,
+and LeakSanitizer enabled.
 
 Conditional blocks are expected to return their last evaluated value and to
 require boolean conditions. Direct conditional checks call `execute()` and
@@ -82,8 +98,9 @@ AST error from incorrectly satisfying these error checks.
 The active suite does not test the REPL, general parser validation, floating
 unary minus, or boolean/numeric equality rejection. Division-by-zero and signed
 integer overflow checks require the evaluator's guards to throw before the
-underlying arithmetic executes. General bindings, function parameters, recursion,
-missing returns, and return-type mismatch checks remain outside the active suite.
+underlying arithmetic executes. The lifetime suite covers bindings, parameters,
+and recursion in retained-function cases; broader binding validation, missing
+returns, and return-type mismatch checks remain outside the active suite.
 
 ## Planned language rule tests
 
