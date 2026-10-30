@@ -1,6 +1,11 @@
-# Evaluator tests
+# Interpreter tests
 
-Three executables test the current `evaluator.hpp`:
+Regression cases for all 13 numbered findings in `error.md` are documented in
+[ERROR_REGRESSIONS.md](ERROR_REGRESSIONS.md), with file locations, an error-to-test
+mapping, and run commands. They are registered under the `error_regression`
+CTest label and intentionally fail for defects that remain unfixed.
+
+Four core test executables exercise the parser and evaluator:
 
 - `evaluator_tests.cpp` runs 18 checks for integer and boolean literals,
   expression statements, statement lists, programs, and unsupported nodes.
@@ -21,6 +26,11 @@ Three executables test the current `evaluator.hpp`:
   captured environments, ancestor scope retention, live binding updates, lexical
   lookup, independent captures, repeated and recursive calls, nested functions,
   environment handle copies, cleanup, and expired-capture diagnostics.
+- `parser_statement_tests.cpp` runs 32 checks for rejection of malformed
+  declarations, conditionals, and returns at program and block boundaries.
+  Invalid statements in unselected branches and uncalled functions must still
+  fail parsing. Positive cases preserve empty programs and blocks, uninitialized
+  declarations, and valid statement execution.
 
 The tests check runtime types as well as values. Float and double results allow
 a small rounding tolerance. Most AST nodes are constructed directly to keep
@@ -38,12 +48,22 @@ From the project root (`/home/riccardo/compiler`), run:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
-cmake --build build --target evaluator_tests evaluator_operator_tests evaluator_lifetime_tests
-ctest --test-dir build -R '^evaluator(_operator|_lifetime)?_tests$' --output-on-failure
+cmake --build build -j2
+ctest --test-dir build -LE excluded_error_04 --output-on-failure
 ```
 
-The three executables contain 281 checks. Build again after changing the evaluator
+The four core executables contain 313 checks. Build again after changing the parser, evaluator,
 or tests.
+
+The numbered findings have an additional [regression suite](ERROR_REGRESSIONS.md).
+Run the requested fixes with:
+
+```sh
+ctest --test-dir build -L error_regression --output-on-failure
+```
+
+Its 34 labeled cases pass. The original error 4 assertions remain registered
+under `excluded_error_04`, outside this requested fix and both commands above.
 
 The basic and operator executables build. All 18 basic checks and all 250 operator checks pass
 in Debug and UndefinedBehaviorSanitizer builds. All 19 return checks pass,
@@ -57,6 +77,7 @@ To see every check's result, run the executable directly after building:
 ./build/evaluator_tests
 ./build/evaluator_operator_tests
 ./build/evaluator_lifetime_tests
+./build/parser_statement_tests
 ```
 
 The basic suite reports `18/18 evaluator tests passed`. The current operator
@@ -74,6 +95,13 @@ Nested function escape is exercised through the body execution API because
 source function return types currently exclude function values.
 The lifetime suite also passes with AddressSanitizer, UndefinedBehaviorSanitizer,
 and LeakSanitizer enabled.
+
+The statement suite reports `32/32 parser statement checks passed`. Rejection
+cases call `ParseProgram()` without evaluating its output, so a runtime error
+during evaluation cannot conceal a parser accepting invalid source. Integration
+checks also verify that parsing failure prevents execution of earlier statements
+and that existing bindings remain usable. This suite does not define general
+parser recovery or REPL exception handling.
 
 Conditional blocks are expected to return their last evaluated value and to
 require boolean conditions. Direct conditional checks call `execute()` and
@@ -95,7 +123,7 @@ errors must contain `Return should be in function`. Operand-error cases preserve
 the existing operand diagnostic. This prevents the current generic unsupported
 AST error from incorrectly satisfying these error checks.
 
-The active suite does not test the REPL, general parser validation, floating
+The four core suites do not test the REPL, parser validation beyond statement failures, floating
 unary minus, or boolean/numeric equality rejection. Division-by-zero and signed
 integer overflow checks require the evaluator's guards to throw before the
 underlying arithmetic executes. The lifetime suite covers bindings, parameters,

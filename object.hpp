@@ -8,6 +8,7 @@
 #include <variant>
 #include <format>
 #include <string>
+#include <string_view>
 #include <iostream>
 #include <vector>
 
@@ -50,6 +51,6 @@ struct Binding{
 
 std::string Inspect(const Value& value); 
 
-std::string_view type(const auto& value);
+std::string_view type(const Value& value);
 
 

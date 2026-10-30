@@ -1212,16 +1212,23 @@ int main(){
 				<< std::endl;
 */
 		Evaluator eval;
+		Environment e{};
 		std::string source;
 		std::cout << "Feel free to type your input: " << std::endl;
 		while (std::getline(std::cin, source)){
-				// source now contains one line of input, ready for the lexer.
-				lexxer n(source);
-				Parser parser1(n);
-				auto program = parser1.ParseProgram();
-				Environment e{};
-				auto ev = eval.eval(*program,e);
-				std::cout << Inspect(ev) << '\n';
+				try{
+						lexxer n(source);
+						Parser parser1(n);
+						auto program = parser1.ParseProgram();
+						if (program->statements.empty()){
+								continue;
+						}
+						auto ev = eval.eval(*program,e);
+						std::cout << Inspect(ev) << '\n';
+				}
+				catch (const std::exception& error){
+						std::cerr << "Error: " << error.what() << '\n';
+				}
 		}
 
 		return 0;

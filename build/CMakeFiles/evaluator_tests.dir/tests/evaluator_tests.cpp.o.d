@@ -201,4 +201,6 @@ CMakeFiles/evaluator_tests.dir/tests/evaluator_tests.cpp.o: \
  /usr/include/c++/15/bits/stl_heap.h \
  /usr/include/c++/15/bits/uniform_int_dist.h \
  /usr/include/c++/15/bits/unicode-data.h \
- /home/riccardo/compiler/Environment.hpp
+ /home/riccardo/compiler/Environment.hpp /usr/include/c++/15/utility \
+ /usr/include/c++/15/bits/stl_relops.h /usr/include/c++/15/unordered_set \
+ /usr/include/c++/15/bits/unordered_set.h

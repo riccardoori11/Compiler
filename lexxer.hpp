@@ -1,4 +1,5 @@
 #include <ios>
+#include <cctype>
 #include <utility>
 #include <iostream>
 #include "token.hpp"
@@ -38,7 +39,8 @@ private:
 
 		void skip_whiteSpace(){
 
-				while (input[pos] == ' '){
+				while (pos < input.size()
+						&& std::isspace(static_cast<unsigned char>(input[pos]))){
 
 						++pos;
 				}
@@ -110,7 +112,7 @@ Token nextToken(){
 				
 				switch (input[start]){
 						case '=':
-								if (input[pos] == '='){
+								if (pos < input.size() && input[pos] == '='){
 										pos++;
 										return {Token(TokenType::COMPARE, input.substr(start,2))}; 
 								}

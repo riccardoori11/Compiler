@@ -8,6 +8,7 @@
 #include <charconv>
 #include <execution>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -111,10 +112,16 @@ private:
 
 		std::unique_ptr<Expression> parseInteger(){
 
-				char* begin = curr_tok.text.data();
-				char* end = begin + curr_tok.text.size();
+				const char* begin = curr_tok.text.data();
+				const char* end = begin + curr_tok.text.size();
 				int value2{};
-				std::from_chars(begin,end,value2);
+				const auto result = std::from_chars(begin,end,value2);
+				if (result.ec == std::errc::result_out_of_range){
+						throw std::runtime_error("Integer literal out of range");
+				}
+				if (result.ec != std::errc{} || result.ptr != end){
+						throw std::runtime_error("Invalid integer literal");
+				}
 				return std::make_unique<Integer_Liter>(curr_tok,value2);
 		}
 
@@ -142,11 +149,11 @@ private:
 				auto right = ParseExpression(Precedence::LOWEST);
 				if (!right){
 						//std::cout << "Entered ParseGroupedExpression" << std::endl;
-						return nullptr;
+						throw std::runtime_error("Expected expression inside parentheses");
 				}
 				if (!next_type_is(TokenType::RPARENT)){
 
-						return nullptr;
+						throw std::runtime_error("Expected ')' after grouped expression");
 				}
 				nextToken();
 				//std::cout << curr_tok.text << std::endl;
@@ -175,7 +182,11 @@ private:
 						return args;
 				}
 				while (true){
+
 						nextToken();
+						if (!current_type_is(TokenType::COMMA)){
+								throw std::runtime_error("Wrong Token");
+						}
 						nextToken();
 						callExpre = ParseExpression();
 						if (!callExpre){
@@ -199,6 +210,9 @@ private:
 
 		std::unique_ptr<Expression> parseCallEXpression(std::unique_ptr<Expression> function){
 				//std::cout << "Parsing call expression" << std::endl;
+				if (!function){
+						throw std::runtime_error("Expected a callee before '('");
+				}
 				auto declaration = std::make_unique<CallExpression>(curr_tok,std::move(function));
 
 				declaration ->arguments = parseCallExpressionArguments();
@@ -213,10 +227,16 @@ private:
 
 		std::unique_ptr<Expression> ParseFloat(){
 
-				char* begin = curr_tok.text.data();
-				char* end = begin + curr_tok.text.size();
+				const char* begin = curr_tok.text.data();
+				const char* end = begin + curr_tok.text.size();
 				float value2{};
-				std::from_chars(begin,end,value2);
+				const auto result = std::from_chars(begin,end,value2);
+				if (result.ec == std::errc::result_out_of_range){
+						throw std::runtime_error("Float literal out of range");
+				}
+				if (result.ec != std::errc{} || result.ptr != end){
+						throw std::runtime_error("Invalid float literal");
+				}
 				return std::make_unique<FloatLiter>(curr_tok,value2);
 		}
 		
@@ -254,7 +274,7 @@ private:
 								break;
 
 						default:
-								return nullptr;
+								throw std::runtime_error("Expected expression");
 				}
 
 				/*Keep extending the left*/
@@ -281,7 +301,7 @@ private:
 						nextToken();
 						left = parseInfix(std::move(left));
 						if (!left){
-								return nullptr;
+								throw std::runtime_error("Failed to parse infix expression");
 						}
 						break;
 						default:
@@ -308,13 +328,13 @@ private:
 
 						if (next_type_is(TokenType::SEMICOLON)){
 
-								declaration->value = 0;
+								declaration->value = nullptr;
 								nextToken();
 								return declaration;
 						}
 						else{
 
-								return nullptr;
+								throw std::runtime_error("Expected '=' or ';' after variable name");
 						}
 						
 				}
@@ -339,6 +359,9 @@ private:
 
 		std::unique_ptr<Expression> parseInfix(std::unique_ptr<Expression> left){
 
+				if (!left){
+						throw std::runtime_error("Expected left operand");
+				}
 				Token op = curr_tok;
 
 				Precedence p = getCurrentPrecedence();
@@ -349,7 +372,7 @@ private:
 
 				if (!right){
 
-						return nullptr;
+						throw std::runtime_error("Expected right operand");
 				}
 				return std::make_unique<InfixExpression>(std::move(op),std::move(left),std::move(right));
 		}
@@ -358,6 +381,21 @@ private:
 				//std::cout << curr_tok.text << std::endl;
 				Token op = curr_tok;
 				nextToken();
+				// The minimum signed value has no representable positive int magnitude.
+				// Recognize its directly negated literal before ordinary int conversion.
+				if (op.tokentype == TokenType::MINUS && current_type_is(TokenType::INTEGER)
+						&& getPeekPrecedence() <= Precedence::PREFIX){
+						unsigned int magnitude{};
+						const char* begin = curr_tok.text.data();
+						const char* end = begin + curr_tok.text.size();
+						const auto result = std::from_chars(begin,end,magnitude);
+						constexpr unsigned int minimum_magnitude =
+								static_cast<unsigned int>(std::numeric_limits<int>::max()) + 1U;
+						if (result.ec == std::errc{} && result.ptr == end && magnitude == minimum_magnitude){
+								Token literal{TokenType::INTEGER, op.text + curr_tok.text};
+								return std::make_unique<Integer_Liter>(std::move(literal), std::numeric_limits<int>::min());
+						}
+				}
 				/*
 				 * So we dont treat - as sum
 				 * */
@@ -376,7 +414,7 @@ private:
 				auto declaration = std::make_unique<Return>(curr_tok);
 				if (next_type_is(TokenType::SEMICOLON)){
 
-						return nullptr;
+						throw std::runtime_error("Expected expression after 'return'");
 				}
 				nextToken();
 
@@ -404,10 +442,10 @@ private:
 						 
 						auto statement = parseStatement();
 
-						if (statement){
-
-								block_statement->Block_Statements.push_back(std::move(statement));
+						if (!statement){
+								throw std::runtime_error("Failed to parse statement in block");
 						}
+						block_statement->Block_Statements.push_back(std::move(statement));
 						nextToken();
 				}
 				if (!current_type_is(TokenType::RBRAC)){
@@ -424,7 +462,7 @@ private:
 
 				if (!next_type_is(TokenType::LPARENT)){
 
-						return nullptr;
+						throw std::runtime_error("Expected '(' after 'if'");
 				}
 
 				nextToken();
@@ -444,7 +482,7 @@ private:
 				nextToken();
 				if (!current_type_is(TokenType::LBRAC)){
 						//std::cout << "Nullpointer" << std::endl;
-						return nullptr;
+						throw std::runtime_error("Expected '{' after if condition");
 				}
 				declaration->Consequence = parseBlockStatement();
 				if (!declaration->Consequence){
@@ -456,7 +494,7 @@ private:
 
 						if (!next_type_is(TokenType::LBRAC)){
 						
-								return nullptr;
+								throw std::runtime_error("Expected '{' after 'else'");
 						}
 						//std::cout << "parsing Alternative" << std::endl;
 						//std::cout << curr_tok.text << std::endl;
@@ -534,7 +572,7 @@ private:
 
 				if (!current_type_is(TokenType::LPARENT)){
 
-						return nullptr;
+						throw std::runtime_error("Expected '(' after function name");
 				}
 
 				assert(curr_tok.tokentype == TokenType::LPARENT);
@@ -571,7 +609,7 @@ private:
 
 				if (!next_type_is(TokenType::IDENTIFIER)){
 
-						return nullptr;
+						throw std::runtime_error("Expected an identifier after type");
 				}
 				Token returnType = curr_tok;
 				nextToken();
@@ -614,14 +652,7 @@ private:
 						switch (curr_tok.tokentype){
 
 								case TokenType::INT:
-										if (next_type_is(TokenType::IDENTIFIER)){
-												return parseTypedStatement();
-										}
-										
 								case TokenType::DOUBLE:
-										if (next_type_is(TokenType::IDENTIFIER)){
-												return parseTypedStatement();
-										}
 								case TokenType::BOOL:
 										return parseTypedStatement();
 								case TokenType::RETURN:
@@ -647,11 +678,10 @@ private:
 						while (!current_type_is(TokenType::ENDOFFILE)){
 
 								auto statement = parseStatement(); 
-								if (statement){
-
-										program->statements.push_back(std::move(statement));
-										
+								if (!statement){
+										throw std::runtime_error("Failed to parse statement");
 								}
+								program->statements.push_back(std::move(statement));
 								nextToken();
 						}
 

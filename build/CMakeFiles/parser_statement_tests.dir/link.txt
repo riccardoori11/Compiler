@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -Wl,--dependency-file=CMakeFiles/parser_statement_tests.dir/link.d CMakeFiles/parser_statement_tests.dir/tests/parser_statement_tests.cpp.o -o parser_statement_tests

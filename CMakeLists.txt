@@ -40,4 +40,11 @@ if(BUILD_TESTING)
     target_include_directories(evaluator_lifetime_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_compile_options(evaluator_lifetime_tests PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME evaluator_lifetime_tests COMMAND evaluator_lifetime_tests)
+
+    add_executable(parser_statement_tests tests/parser_statement_tests.cpp)
+    target_include_directories(parser_statement_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_options(parser_statement_tests PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME parser_statement_tests COMMAND parser_statement_tests)
+
+    include(tests/error_regressions.cmake)
 endif()

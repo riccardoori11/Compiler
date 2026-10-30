@@ -10,6 +10,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/riccardo/compiler/CMakeLists.txt"
   "CMakeFiles/3.31.11/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.31.11/CMakeSystem.cmake"
+  "/home/riccardo/compiler/tests/error_regressions.cmake"
   "/usr/share/cmake/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake/Modules/CMakeCommonLanguageInclude.cmake"
   "/usr/share/cmake/Modules/CMakeGenericSystem.cmake"
@@ -83,4 +84,9 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/ContinuousSubmit.dir/DependInfo.cmake"
   "CMakeFiles/evaluator_tests.dir/DependInfo.cmake"
   "CMakeFiles/evaluator_operator_tests.dir/DependInfo.cmake"
+  "CMakeFiles/evaluator_lifetime_tests.dir/DependInfo.cmake"
+  "CMakeFiles/parser_statement_tests.dir/DependInfo.cmake"
+  "CMakeFiles/error_regression_tests.dir/DependInfo.cmake"
+  "CMakeFiles/error_type_link_probe.dir/DependInfo.cmake"
+  "CMakeFiles/error_extended_tests.dir/DependInfo.cmake"
   )

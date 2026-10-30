@@ -1,0 +1,6 @@
+int x = 7;
+int f(int n) { return x + n; }
+!1;
+int bad 1;
+	
+ f(2);

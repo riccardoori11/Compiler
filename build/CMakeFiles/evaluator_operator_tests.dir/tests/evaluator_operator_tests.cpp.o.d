@@ -201,9 +201,35 @@ CMakeFiles/evaluator_operator_tests.dir/tests/evaluator_operator_tests.cpp.o: \
  /usr/include/c++/15/bits/stl_heap.h \
  /usr/include/c++/15/bits/uniform_int_dist.h \
  /usr/include/c++/15/bits/unicode-data.h \
- /home/riccardo/compiler/Environment.hpp /usr/include/c++/15/algorithm \
+ /home/riccardo/compiler/Environment.hpp /usr/include/c++/15/utility \
+ /usr/include/c++/15/bits/stl_relops.h /usr/include/c++/15/unordered_set \
+ /usr/include/c++/15/bits/unordered_set.h \
+ /home/riccardo/compiler/parser.hpp /home/riccardo/compiler/lexxer.hpp \
+ /usr/include/assert.h /usr/include/c++/15/algorithm \
  /usr/include/c++/15/bits/ranges_algo.h \
- /usr/include/c++/15/pstl/glue_algorithm_defs.h /usr/include/c++/15/cmath \
+ /usr/include/c++/15/pstl/glue_algorithm_defs.h \
+ /usr/include/c++/15/execution \
+ /usr/include/c++/15/pstl/glue_execution_defs.h \
+ /usr/include/c++/15/pstl/algorithm_impl.h /usr/include/c++/15/iterator \
+ /usr/include/c++/15/bits/stream_iterator.h \
+ /usr/include/c++/15/functional /usr/include/c++/15/bits/std_function.h \
+ /usr/include/c++/15/pstl/execution_impl.h \
+ /usr/include/c++/15/pstl/memory_impl.h \
+ /usr/include/c++/15/pstl/unseq_backend_simd.h \
+ /usr/include/c++/15/pstl/utils.h \
+ /usr/include/c++/15/pstl/parallel_backend_utils.h \
+ /usr/include/c++/15/pstl/parallel_backend.h \
+ /usr/include/c++/15/pstl/parallel_backend_serial.h \
+ /usr/include/c++/15/numeric /usr/include/c++/15/bits/stl_numeric.h \
+ /usr/include/c++/15/pstl/glue_numeric_defs.h \
+ /usr/include/c++/15/pstl/parallel_impl.h /usr/include/c++/15/atomic \
+ /usr/include/c++/15/pstl/numeric_impl.h \
+ /usr/include/c++/15/pstl/pstl_config.h \
+ /usr/include/c++/15/pstl/algorithm_fwd.h \
+ /usr/include/c++/15/pstl/glue_algorithm_impl.h \
+ /usr/include/c++/15/pstl/numeric_fwd.h \
+ /usr/include/c++/15/pstl/glue_numeric_impl.h \
+ /usr/include/c++/15/pstl/glue_memory_impl.h /usr/include/c++/15/cmath \
  /usr/include/math.h /usr/include/bits/math-vector.h \
  /usr/include/bits/libm-simd-decl-stubs.h \
  /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \

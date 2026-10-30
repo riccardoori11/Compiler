@@ -22,5 +22,47 @@
   "command": "/usr/bin/c++  -I/home/riccardo/compiler -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/evaluator_operator_tests.dir/tests/evaluator_operator_tests.cpp.o -c /home/riccardo/compiler/tests/evaluator_operator_tests.cpp",
   "file": "/home/riccardo/compiler/tests/evaluator_operator_tests.cpp",
   "output": "CMakeFiles/evaluator_operator_tests.dir/tests/evaluator_operator_tests.cpp.o"
+},
+{
+  "directory": "/home/riccardo/compiler/build",
+  "command": "/usr/bin/c++  -I/home/riccardo/compiler -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/evaluator_lifetime_tests.dir/tests/evaluator_lifetime_tests.cpp.o -c /home/riccardo/compiler/tests/evaluator_lifetime_tests.cpp",
+  "file": "/home/riccardo/compiler/tests/evaluator_lifetime_tests.cpp",
+  "output": "CMakeFiles/evaluator_lifetime_tests.dir/tests/evaluator_lifetime_tests.cpp.o"
+},
+{
+  "directory": "/home/riccardo/compiler/build",
+  "command": "/usr/bin/c++  -I/home/riccardo/compiler -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/parser_statement_tests.dir/tests/parser_statement_tests.cpp.o -c /home/riccardo/compiler/tests/parser_statement_tests.cpp",
+  "file": "/home/riccardo/compiler/tests/parser_statement_tests.cpp",
+  "output": "CMakeFiles/parser_statement_tests.dir/tests/parser_statement_tests.cpp.o"
+},
+{
+  "directory": "/home/riccardo/compiler/build",
+  "command": "/usr/bin/c++ -D_GLIBCXX_ASSERTIONS -I/home/riccardo/compiler -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/error_regression_tests.dir/tests/error_regression_tests.cpp.o -c /home/riccardo/compiler/tests/error_regression_tests.cpp",
+  "file": "/home/riccardo/compiler/tests/error_regression_tests.cpp",
+  "output": "CMakeFiles/error_regression_tests.dir/tests/error_regression_tests.cpp.o"
+},
+{
+  "directory": "/home/riccardo/compiler/build",
+  "command": "/usr/bin/c++  -I/home/riccardo/compiler -g -std=c++20 -o CMakeFiles/error_type_link_probe.dir/tests/error_type_link_probe.cpp.o -c /home/riccardo/compiler/tests/error_type_link_probe.cpp",
+  "file": "/home/riccardo/compiler/tests/error_type_link_probe.cpp",
+  "output": "CMakeFiles/error_type_link_probe.dir/tests/error_type_link_probe.cpp.o"
+},
+{
+  "directory": "/home/riccardo/compiler/build",
+  "command": "/usr/bin/c++  -I/home/riccardo/compiler -g -std=c++20 -o CMakeFiles/error_type_link_probe.dir/object.cpp.o -c /home/riccardo/compiler/object.cpp",
+  "file": "/home/riccardo/compiler/object.cpp",
+  "output": "CMakeFiles/error_type_link_probe.dir/object.cpp.o"
+},
+{
+  "directory": "/home/riccardo/compiler/build",
+  "command": "/usr/bin/c++ -D_GLIBCXX_ASSERTIONS -I/home/riccardo/compiler -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/error_extended_tests.dir/tests/error_extended_tests.cpp.o -c /home/riccardo/compiler/tests/error_extended_tests.cpp",
+  "file": "/home/riccardo/compiler/tests/error_extended_tests.cpp",
+  "output": "CMakeFiles/error_extended_tests.dir/tests/error_extended_tests.cpp.o"
+},
+{
+  "directory": "/home/riccardo/compiler/build",
+  "command": "/usr/bin/c++ -D_GLIBCXX_ASSERTIONS -I/home/riccardo/compiler -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/error_extended_tests.dir/object.cpp.o -c /home/riccardo/compiler/object.cpp",
+  "file": "/home/riccardo/compiler/object.cpp",
+  "output": "CMakeFiles/error_extended_tests.dir/object.cpp.o"
 }
 ]

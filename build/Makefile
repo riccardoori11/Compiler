@@ -529,6 +529,71 @@ evaluator_operator_tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_operator_tests.dir/build.make CMakeFiles/evaluator_operator_tests.dir/build
 .PHONY : evaluator_operator_tests/fast
 
+#=============================================================================
+# Target rules for targets named evaluator_lifetime_tests
+
+# Build rule for target.
+evaluator_lifetime_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 evaluator_lifetime_tests
+.PHONY : evaluator_lifetime_tests
+
+# fast build rule for target.
+evaluator_lifetime_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_lifetime_tests.dir/build.make CMakeFiles/evaluator_lifetime_tests.dir/build
+.PHONY : evaluator_lifetime_tests/fast
+
+#=============================================================================
+# Target rules for targets named parser_statement_tests
+
+# Build rule for target.
+parser_statement_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 parser_statement_tests
+.PHONY : parser_statement_tests
+
+# fast build rule for target.
+parser_statement_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser_statement_tests.dir/build.make CMakeFiles/parser_statement_tests.dir/build
+.PHONY : parser_statement_tests/fast
+
+#=============================================================================
+# Target rules for targets named error_regression_tests
+
+# Build rule for target.
+error_regression_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 error_regression_tests
+.PHONY : error_regression_tests
+
+# fast build rule for target.
+error_regression_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_regression_tests.dir/build.make CMakeFiles/error_regression_tests.dir/build
+.PHONY : error_regression_tests/fast
+
+#=============================================================================
+# Target rules for targets named error_type_link_probe
+
+# Build rule for target.
+error_type_link_probe: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 error_type_link_probe
+.PHONY : error_type_link_probe
+
+# fast build rule for target.
+error_type_link_probe/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_type_link_probe.dir/build.make CMakeFiles/error_type_link_probe.dir/build
+.PHONY : error_type_link_probe/fast
+
+#=============================================================================
+# Target rules for targets named error_extended_tests
+
+# Build rule for target.
+error_extended_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 error_extended_tests
+.PHONY : error_extended_tests
+
+# fast build rule for target.
+error_extended_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_extended_tests.dir/build.make CMakeFiles/error_extended_tests.dir/build
+.PHONY : error_extended_tests/fast
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -559,6 +624,8 @@ object.o: object.cpp.o
 # target to build an object file
 object.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/object.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_type_link_probe.dir/build.make CMakeFiles/error_type_link_probe.dir/object.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_extended_tests.dir/build.make CMakeFiles/error_extended_tests.dir/object.cpp.o
 .PHONY : object.cpp.o
 
 object.i: object.cpp.i
@@ -567,6 +634,8 @@ object.i: object.cpp.i
 # target to preprocess a source file
 object.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/object.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_type_link_probe.dir/build.make CMakeFiles/error_type_link_probe.dir/object.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_extended_tests.dir/build.make CMakeFiles/error_extended_tests.dir/object.cpp.i
 .PHONY : object.cpp.i
 
 object.s: object.cpp.s
@@ -575,7 +644,105 @@ object.s: object.cpp.s
 # target to generate assembly for a file
 object.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/object.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_type_link_probe.dir/build.make CMakeFiles/error_type_link_probe.dir/object.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_extended_tests.dir/build.make CMakeFiles/error_extended_tests.dir/object.cpp.s
 .PHONY : object.cpp.s
+
+tests/error_extended_tests.o: tests/error_extended_tests.cpp.o
+.PHONY : tests/error_extended_tests.o
+
+# target to build an object file
+tests/error_extended_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_extended_tests.dir/build.make CMakeFiles/error_extended_tests.dir/tests/error_extended_tests.cpp.o
+.PHONY : tests/error_extended_tests.cpp.o
+
+tests/error_extended_tests.i: tests/error_extended_tests.cpp.i
+.PHONY : tests/error_extended_tests.i
+
+# target to preprocess a source file
+tests/error_extended_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_extended_tests.dir/build.make CMakeFiles/error_extended_tests.dir/tests/error_extended_tests.cpp.i
+.PHONY : tests/error_extended_tests.cpp.i
+
+tests/error_extended_tests.s: tests/error_extended_tests.cpp.s
+.PHONY : tests/error_extended_tests.s
+
+# target to generate assembly for a file
+tests/error_extended_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_extended_tests.dir/build.make CMakeFiles/error_extended_tests.dir/tests/error_extended_tests.cpp.s
+.PHONY : tests/error_extended_tests.cpp.s
+
+tests/error_regression_tests.o: tests/error_regression_tests.cpp.o
+.PHONY : tests/error_regression_tests.o
+
+# target to build an object file
+tests/error_regression_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_regression_tests.dir/build.make CMakeFiles/error_regression_tests.dir/tests/error_regression_tests.cpp.o
+.PHONY : tests/error_regression_tests.cpp.o
+
+tests/error_regression_tests.i: tests/error_regression_tests.cpp.i
+.PHONY : tests/error_regression_tests.i
+
+# target to preprocess a source file
+tests/error_regression_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_regression_tests.dir/build.make CMakeFiles/error_regression_tests.dir/tests/error_regression_tests.cpp.i
+.PHONY : tests/error_regression_tests.cpp.i
+
+tests/error_regression_tests.s: tests/error_regression_tests.cpp.s
+.PHONY : tests/error_regression_tests.s
+
+# target to generate assembly for a file
+tests/error_regression_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_regression_tests.dir/build.make CMakeFiles/error_regression_tests.dir/tests/error_regression_tests.cpp.s
+.PHONY : tests/error_regression_tests.cpp.s
+
+tests/error_type_link_probe.o: tests/error_type_link_probe.cpp.o
+.PHONY : tests/error_type_link_probe.o
+
+# target to build an object file
+tests/error_type_link_probe.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_type_link_probe.dir/build.make CMakeFiles/error_type_link_probe.dir/tests/error_type_link_probe.cpp.o
+.PHONY : tests/error_type_link_probe.cpp.o
+
+tests/error_type_link_probe.i: tests/error_type_link_probe.cpp.i
+.PHONY : tests/error_type_link_probe.i
+
+# target to preprocess a source file
+tests/error_type_link_probe.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_type_link_probe.dir/build.make CMakeFiles/error_type_link_probe.dir/tests/error_type_link_probe.cpp.i
+.PHONY : tests/error_type_link_probe.cpp.i
+
+tests/error_type_link_probe.s: tests/error_type_link_probe.cpp.s
+.PHONY : tests/error_type_link_probe.s
+
+# target to generate assembly for a file
+tests/error_type_link_probe.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/error_type_link_probe.dir/build.make CMakeFiles/error_type_link_probe.dir/tests/error_type_link_probe.cpp.s
+.PHONY : tests/error_type_link_probe.cpp.s
+
+tests/evaluator_lifetime_tests.o: tests/evaluator_lifetime_tests.cpp.o
+.PHONY : tests/evaluator_lifetime_tests.o
+
+# target to build an object file
+tests/evaluator_lifetime_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_lifetime_tests.dir/build.make CMakeFiles/evaluator_lifetime_tests.dir/tests/evaluator_lifetime_tests.cpp.o
+.PHONY : tests/evaluator_lifetime_tests.cpp.o
+
+tests/evaluator_lifetime_tests.i: tests/evaluator_lifetime_tests.cpp.i
+.PHONY : tests/evaluator_lifetime_tests.i
+
+# target to preprocess a source file
+tests/evaluator_lifetime_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_lifetime_tests.dir/build.make CMakeFiles/evaluator_lifetime_tests.dir/tests/evaluator_lifetime_tests.cpp.i
+.PHONY : tests/evaluator_lifetime_tests.cpp.i
+
+tests/evaluator_lifetime_tests.s: tests/evaluator_lifetime_tests.cpp.s
+.PHONY : tests/evaluator_lifetime_tests.s
+
+# target to generate assembly for a file
+tests/evaluator_lifetime_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_lifetime_tests.dir/build.make CMakeFiles/evaluator_lifetime_tests.dir/tests/evaluator_lifetime_tests.cpp.s
+.PHONY : tests/evaluator_lifetime_tests.cpp.s
 
 tests/evaluator_operator_tests.o: tests/evaluator_operator_tests.cpp.o
 .PHONY : tests/evaluator_operator_tests.o
@@ -625,6 +792,30 @@ tests/evaluator_tests.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/evaluator_tests.dir/build.make CMakeFiles/evaluator_tests.dir/tests/evaluator_tests.cpp.s
 .PHONY : tests/evaluator_tests.cpp.s
 
+tests/parser_statement_tests.o: tests/parser_statement_tests.cpp.o
+.PHONY : tests/parser_statement_tests.o
+
+# target to build an object file
+tests/parser_statement_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser_statement_tests.dir/build.make CMakeFiles/parser_statement_tests.dir/tests/parser_statement_tests.cpp.o
+.PHONY : tests/parser_statement_tests.cpp.o
+
+tests/parser_statement_tests.i: tests/parser_statement_tests.cpp.i
+.PHONY : tests/parser_statement_tests.i
+
+# target to preprocess a source file
+tests/parser_statement_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser_statement_tests.dir/build.make CMakeFiles/parser_statement_tests.dir/tests/parser_statement_tests.cpp.i
+.PHONY : tests/parser_statement_tests.cpp.i
+
+tests/parser_statement_tests.s: tests/parser_statement_tests.cpp.s
+.PHONY : tests/parser_statement_tests.s
+
+# target to generate assembly for a file
+tests/parser_statement_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/parser_statement_tests.dir/build.make CMakeFiles/parser_statement_tests.dir/tests/parser_statement_tests.cpp.s
+.PHONY : tests/parser_statement_tests.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -662,21 +853,41 @@ help:
 	@echo "... NightlySubmit"
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
+	@echo "... error_extended_tests"
+	@echo "... error_regression_tests"
+	@echo "... error_type_link_probe"
+	@echo "... evaluator_lifetime_tests"
 	@echo "... evaluator_operator_tests"
 	@echo "... evaluator_tests"
 	@echo "... lexer"
+	@echo "... parser_statement_tests"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
 	@echo "... object.o"
 	@echo "... object.i"
 	@echo "... object.s"
+	@echo "... tests/error_extended_tests.o"
+	@echo "... tests/error_extended_tests.i"
+	@echo "... tests/error_extended_tests.s"
+	@echo "... tests/error_regression_tests.o"
+	@echo "... tests/error_regression_tests.i"
+	@echo "... tests/error_regression_tests.s"
+	@echo "... tests/error_type_link_probe.o"
+	@echo "... tests/error_type_link_probe.i"
+	@echo "... tests/error_type_link_probe.s"
+	@echo "... tests/evaluator_lifetime_tests.o"
+	@echo "... tests/evaluator_lifetime_tests.i"
+	@echo "... tests/evaluator_lifetime_tests.s"
 	@echo "... tests/evaluator_operator_tests.o"
 	@echo "... tests/evaluator_operator_tests.i"
 	@echo "... tests/evaluator_operator_tests.s"
 	@echo "... tests/evaluator_tests.o"
 	@echo "... tests/evaluator_tests.i"
 	@echo "... tests/evaluator_tests.s"
+	@echo "... tests/parser_statement_tests.o"
+	@echo "... tests/parser_statement_tests.i"
+	@echo "... tests/parser_statement_tests.s"
 .PHONY : help
 
 

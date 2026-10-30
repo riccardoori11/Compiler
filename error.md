@@ -1,4 +1,32 @@
-# Current code review — 2026-10-22
+# Fix status — 2026-10-30
+
+Numbered findings **1–3 and 5–13 are resolved**. Finding **4 is intentionally
+excluded** from this change; its AST printing defects remain.
+
+Expression and statement failures stop parsing. Numeric literals validate their
+conversion and range, including exact parsing of the minimum signed integer.
+Arithmetic is checked, function bodies and captured scopes have managed lifetimes,
+and lexical blocks allow shadowing without leaking names. The REPL preserves
+bindings and continues after input errors. Whitespace, non-callable diagnostics,
+and the public `type(const Value&)` helper are also fixed.
+
+Validation in the repository's Debug build:
+
+```sh
+ctest --test-dir build -L error_regression --output-on-failure
+```
+
+**34/34 labeled cases pass**, including the additional scope, numeric-boundary,
+type, and REPL recovery checks. The four existing evaluator/parser suites also
+pass. The two original error 4 tests retain their assertions and are separately
+registered with the label `excluded_error_04`.
+
+All **38 in-scope CTest cases** also pass in an isolated build with
+AddressSanitizer, UndefinedBehaviorSanitizer, and LeakSanitizer enabled.
+
+The original review below is preserved as historical context.
+
+# Original code review — 2026-10-22
 
 Reviewed the current lexer, parser, AST, evaluator, environment, runtime objects,
 REPL, and test setup. Only this report was changed; implementation fixes are
@@ -105,6 +133,8 @@ error handling, or an unusable public API. Locations refer to this working tree.
    Suggested fix: define ownership for retained ASTs and captured environments
    before enabling persistent functions or escaping closures.
 
+
+
 4. **High — AST printing crashes on valid uninitialized declarations and empty programs.**
 
    Locations: `ast.hpp:50–51, 95–99`.
@@ -121,6 +151,8 @@ error handling, or an unusable public API. Locations refer to this working tree.
 
    Suggested fix: handle missing initializers and empty statement lists before
    dereferencing them.
+
+
 
 5. **Medium — The first call-argument separator is never checked.**
 
@@ -139,6 +171,10 @@ error handling, or an unusable public API. Locations refer to this working tree.
    Suggested fix: require `COMMA` before advancing to each additional argument,
    including the second argument.
 
+
+
+
+
 6. **Medium — Failed statements can be discarded while the remaining input executes.**
 
    Locations: `parser.hpp:310–320, 428–430, 408–414, 650–658`.
@@ -155,6 +191,14 @@ error handling, or an unusable public API. Locations refer to this working tree.
 
    Suggested fix: propagate a parse error for a failed statement. An intentionally
    empty construct needs a distinct representation from failed parsing.
+
+
+
+
+
+
+
+
 
 7. **Medium — Blocks share their caller's bindings, leaking names and preventing shadowing.**
 
@@ -181,6 +225,15 @@ error handling, or an unusable public API. Locations refer to this working tree.
    Suggested fix: execute lexical blocks in a child environment, preserve return
    propagation, and explicitly decide whether a function body's outermost block
    shares its parameter scope.
+
+
+
+
+
+
+
+
+
 
 8. **Medium — REPL bindings are discarded after every input line.**
 

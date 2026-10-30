@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -Wl,--dependency-file=CMakeFiles/error_extended_tests.dir/link.d CMakeFiles/error_extended_tests.dir/tests/error_extended_tests.cpp.o CMakeFiles/error_extended_tests.dir/object.cpp.o -o error_extended_tests

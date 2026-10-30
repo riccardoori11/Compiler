@@ -23,8 +23,6 @@ class Evaluator{
 
 private:
 
-		// This evaluator is the runtime owner of scopes captured by functions.
-		// Weak function captures avoid cycles through a scope's own bindings.
 		std::unordered_set<std::shared_ptr<EnvironmentFrame>> captured_environments;
 
     static void validateIntegerInfix(TokenType op, int a, int b){
@@ -32,7 +30,6 @@ private:
         constexpr int maximum = std::numeric_limits<int>::max();
         bool overflow = false;
 
-        // Check bounds before evaluating an operation that could overflow.
         switch (op){
             case TokenType::PLUS:
                 overflow = (b > 0 && a > maximum - b)
@@ -90,6 +87,9 @@ ExecutionResult evalStatement(const VectorStatement& statements, Environment& en
 
 		for (const auto& statement: statements){
 
+				if (!statement){
+						throw std::runtime_error("Invalid null statement");
+				}
 				result = execute(*statement,env);
 
 				if (result.is_return){
@@ -112,16 +112,25 @@ ExecutionResult execute(const Statement& node, Environment& env){
 				return ExecutionResult(eval(*ptr->Returnvalue,env),true);
 		}
 		else if(const auto *ptr = dynamic_cast<const ExpressionStatement*>(&node)){
+				if (!ptr->expr){
+						throw std::runtime_error("Invalid expression statement");
+				}
 				return ExecutionResult(eval(*ptr->expr,env),false);
 		}
 		else if(const auto *ptr = dynamic_cast<const FunctionLiteral*>(&node)){
 
+				if (!ptr->name || !ptr->FunctionBody){
+						throw std::runtime_error("Invalid function declaration");
+				}
 				FunctionObj func{};
 				func.function_type = ptr->type; 
 				captured_environments.insert(env.frame);
 				func.env = env.frame;
 
 				for (const auto& param: ptr->Parameters){
+						if (!param || !param->name){
+								throw std::runtime_error("Invalid function parameter");
+						}
 						func.parameters.push_back(Parameter(
 												param->name->value,
 												param->binding_type.tokentype
@@ -140,6 +149,9 @@ ExecutionResult execute(const Statement& node, Environment& env){
 
 		}
 		else if(const auto *ptr = dynamic_cast<const VariableDeclaration*>(&node)){
+				if (!ptr->name){
+						throw std::runtime_error("Invalid variable declaration");
+				}
 				Binding var{};
 				var.type = ptr->token.tokentype;
 				if (ptr->value){
@@ -163,7 +175,8 @@ ExecutionResult execute(const Statement& node, Environment& env){
 				if (ptr->Block_Statements.empty()){
 						return ExecutionResult{};
 				}
-				return ExecutionResult(evalStatement(ptr->Block_Statements,env));
+				Environment block_env(&env);
+				return evalStatement(ptr->Block_Statements,block_env);
 		}
 		else if(const auto *ptr = dynamic_cast<const IfStatement*>(&node)){
 				return evalIf(*ptr, env);
@@ -278,6 +291,9 @@ bool isTruthy(const Value& value){
 
 ExecutionResult evalIf(const IfStatement& node, Environment& env){
 
+		if (!node.condition || !node.Consequence){
+				throw std::runtime_error("Invalid if statement");
+		}
 		const auto& condition = eval(*node.condition,env);
 
 		const auto& consequence = isTruthy(condition);
@@ -298,13 +314,23 @@ ExecutionResult evalIf(const IfStatement& node, Environment& env){
 
 Value evalCallExpression(const CallExpression* node, Environment& env){
 
+		if (!node || !node->function_name || !node->arguments){
+				throw std::runtime_error("Invalid call expression");
+		}
 		Value callee = eval(*node->function_name,env);
 
-		auto function = std::get<std::shared_ptr<FunctionObj>>(callee);
+		const auto* callable = std::get_if<std::shared_ptr<FunctionObj>>(&callee);
+		if (!callable){
+				throw std::runtime_error("Value is not callable");
+		}
+		auto function = *callable;
 
 		if (!function){
 
 				throw std::runtime_error("null function");
+		}
+		if (!function->block){
+				throw std::runtime_error("Function has no body");
 		}
 
 		if ((node->arguments->size() != function->parameters.size())){
@@ -322,6 +348,9 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 
 				const auto& arg = function->parameters[i];
 
+				if (!node->arguments->at(i)){
+						throw std::runtime_error("Invalid call argument");
+				}
 				Value val = eval(*node->arguments->at(i), env);
 
 				if (!MatchesType(arg.parameter_type,val)){
@@ -333,7 +362,12 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 								);
 		}
 
-		ExecutionResult res = execute(*function->block,call_env);
+		// The outer function body shares the parameter scope. Nested lexical
+		// blocks still create child scopes through execute().
+		ExecutionResult res{};
+		if (!function->block->Block_Statements.empty()){
+				res = evalStatement(function->block->Block_Statements,call_env);
+		}
 
 		if (!res.is_return){
 				throw std::runtime_error("nothing was returned");
@@ -387,13 +421,22 @@ Value eval(const Node& node, Environment& env){
 				
 		}
 		else if(const auto* ptr = dynamic_cast<const ExpressionStatement*>(&node)){
+				if (!ptr->expr){
+						throw std::runtime_error("Invalid expression statement");
+				}
 				return eval(*ptr->expr,env);
 		}
 		else if(const auto* ptr = dynamic_cast<const PrefixExpression*>(&node)){
+				if (!ptr->right){
+						throw std::runtime_error("Invalid prefix operand");
+				}
 				const auto right = eval(*ptr->right,env);
 				return evalPrefixExpression(ptr->token,right);
 		}
 		else if (const auto* ptr = dynamic_cast<const InfixExpression*>(&node)){
+				if (!ptr->left || !ptr->right){
+						throw std::runtime_error("Invalid infix operands");
+				}
 				const auto left = eval(*ptr->left,env);
 
 				const auto right = eval(*ptr->right,env);
