@@ -7,6 +7,7 @@
 #include <string_view>
 #include <variant>
 #include <vector>
+#include "vector.hpp"
 
 // Behavioral tests for todo.md section 1. The interpreter adapter runs each
 // source in a fresh environment and returns its last expression's value.
@@ -29,7 +30,7 @@ struct TestCase {
     Outcome expected;
 };
 
-inline std::vector<TestCase> cases() {
+inline ricc::Vector<TestCase> cases() {
     const std::string maximum = std::to_string(std::numeric_limits<int>::max());
     // Avoid a positive magnitude larger than int can hold when parsing INT_MIN.
     const std::string minimum = "(-" + maximum + " - 1)";
