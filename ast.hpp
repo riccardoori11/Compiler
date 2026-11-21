@@ -3,6 +3,7 @@
 #include <memory>
 #include "unique_ptr.hpp"
 #include "vector.hpp"
+#include "optional.hpp"
 #include <iostream>
 #include <optional>
 #include "token.hpp"
@@ -319,7 +320,7 @@ public:
 
 		Token token;
 		ricc::unique_ptr<Expression> function_name;
-		std::optional<ricc::Vector<ricc::unique_ptr<Expression>>> arguments;
+		ricc::optional<ricc::Vector<ricc::unique_ptr<Expression>>> arguments;
 
 		CallExpression(Token token, ricc::unique_ptr<Expression> function):token(token),function_name(std::move(function))
 		{}

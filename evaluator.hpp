@@ -143,7 +143,7 @@ ExecutionResult execute(const Statement& node, Environment& env){
 
 				Binding binding{
 						TokenType::FUNCTION,
-						std::make_shared<FunctionObj>(std::move(func))
+						Value(std::make_shared<FunctionObj>(std::move(func)))
 				};
 
 				env.define(ptr->name->value, binding);
