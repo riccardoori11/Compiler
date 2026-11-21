@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "unique_ptr.hpp"
 #include <iostream>
 #include <optional>
 #include "token.hpp"
@@ -36,7 +37,7 @@ class Program: public Node{
 
 public:
 
-		std::vector<std::unique_ptr<Statement>> statements;
+		std::vector<ricc::unique_ptr<Statement>> statements;
 
 		std::string TokenLiteral()const override{
 
@@ -79,8 +80,8 @@ class VariableDeclaration: public Statement{
 		
 		public:
 		Token token;
-		std::unique_ptr<Identifier> name;
-		std::unique_ptr<Expression> value;		
+		ricc::unique_ptr<Identifier> name;
+		ricc::unique_ptr<Expression> value;		
 
 
 		VariableDeclaration(Token token):token(std::move(token)){
@@ -164,7 +165,7 @@ class Return: public Statement{
 
 		public:
 				Token token;
-				std::unique_ptr<Expression> Returnvalue;
+				ricc::unique_ptr<Expression> Returnvalue;
 
 				Return(Token token):token(std::move(token)){}
 
@@ -186,10 +187,10 @@ class InfixExpression: public Expression{
 public:
 
 		Token token;
-		std::unique_ptr<Expression> left;
-		std::unique_ptr<Expression> right;
+		ricc::unique_ptr<Expression> left;
+		ricc::unique_ptr<Expression> right;
 
-		InfixExpression(Token token,std::unique_ptr<Expression> left,std::unique_ptr<Expression> right):
+		InfixExpression(Token token,ricc::unique_ptr<Expression> left,ricc::unique_ptr<Expression> right):
 				token(token),left(std::move(left)),right(std::move(right))
 		{
 		}
@@ -213,9 +214,9 @@ class PrefixExpression: public Expression{
 public:
 
 		Token token;
-		std::unique_ptr<Expression> right;
+		ricc::unique_ptr<Expression> right;
 
-		PrefixExpression(Token token,std::unique_ptr<Expression> right):token(std::move(token)),right(std::move(right))
+		PrefixExpression(Token token,ricc::unique_ptr<Expression> right):token(std::move(token)),right(std::move(right))
 		{
 		};
 
@@ -238,7 +239,7 @@ class BlockStatements: public Statement{
 
 public:
 
-		std::vector<std::unique_ptr<Statement>> Block_Statements;
+		std::vector<ricc::unique_ptr<Statement>> Block_Statements;
 
 
 		std::string TokenLiteral() const override{
@@ -259,9 +260,9 @@ class IfStatement: public Statement{
 public:
 
 		Token token;
-		std::unique_ptr<Expression> condition;
-		std::unique_ptr<BlockStatements> Consequence;
-		std::unique_ptr<BlockStatements> Alternative;
+		ricc::unique_ptr<Expression> condition;
+		ricc::unique_ptr<BlockStatements> Consequence;
+		ricc::unique_ptr<BlockStatements> Alternative;
 
 
 		IfStatement(Token token): token(std::move(token)){};
@@ -277,9 +278,9 @@ void print() const override{};
 class FunctionParameters: public Node{
 		public:
 				Token binding_type;
-				std::unique_ptr<Identifier> name;
+				ricc::unique_ptr<Identifier> name;
 
-		FunctionParameters(Token token,std::unique_ptr<Identifier> name):binding_type(std::move(token)),name(std::move(name)){};
+		FunctionParameters(Token token,ricc::unique_ptr<Identifier> name):binding_type(std::move(token)),name(std::move(name)){};
 
 		std::string TokenLiteral() const override{
 
@@ -294,8 +295,8 @@ class FunctionLiteral: public Statement{
 public:
 
 		Token token;
-		std::unique_ptr<Identifier> name;
-		std::vector<std::unique_ptr<FunctionParameters>> Parameters;
+		ricc::unique_ptr<Identifier> name;
+		std::vector<ricc::unique_ptr<FunctionParameters>> Parameters;
 		std::shared_ptr<BlockStatements> FunctionBody;
 			TokenType type{TokenType::ILLEGAL};
 
@@ -316,10 +317,10 @@ class CallExpression: public Expression{
 public:
 
 		Token token;
-		std::unique_ptr<Expression> function_name;
-		std::optional<std::vector<std::unique_ptr<Expression>>> arguments;
+		ricc::unique_ptr<Expression> function_name;
+		std::optional<std::vector<ricc::unique_ptr<Expression>>> arguments;
 
-		CallExpression(Token token, std::unique_ptr<Expression> function):token(token),function_name(std::move(function))
+		CallExpression(Token token, ricc::unique_ptr<Expression> function):token(token),function_name(std::move(function))
 		{}
 
 		std::string TokenLiteral() const override{
@@ -335,7 +336,7 @@ class ExpressionStatement: public Statement{
 
 public:
 		Token token;
-		std::unique_ptr<Expression> expr;
+		ricc::unique_ptr<Expression> expr;
 
 		ExpressionStatement(Token token):token(std::move(token)) {
 		}

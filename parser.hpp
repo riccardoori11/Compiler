@@ -10,6 +10,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include "unique_ptr.hpp"
 #include <optional>
 #include <stdexcept>
 #include <unordered_map>
@@ -110,7 +111,7 @@ private:
 				return next_tok.tokentype == type;
 		}
 
-		std::unique_ptr<Expression> parseInteger(){
+		ricc::unique_ptr<Expression> parseInteger(){
 
 				const char* begin = curr_tok.text.data();
 				const char* end = begin + curr_tok.text.size();
@@ -122,25 +123,25 @@ private:
 				if (result.ec != std::errc{} || result.ptr != end){
 						throw std::runtime_error("Invalid integer literal");
 				}
-				return std::make_unique<Integer_Liter>(curr_tok,value2);
+				return ricc::make_unique<Integer_Liter>(curr_tok,value2);
 		}
 
-		std::unique_ptr<Expression> parseBoolean(){
+		ricc::unique_ptr<Expression> parseBoolean(){
 
 				bool value2 = curr_tok.tokentype == TokenType::TRUE;
-				return std::make_unique<Boolean>(curr_tok,value2);
+				return ricc::make_unique<Boolean>(curr_tok,value2);
 
 		}
 
-		std::unique_ptr<Expression> parseIdentifier(){
+		ricc::unique_ptr<Expression> parseIdentifier(){
 
 				std::string value = curr_tok.text;
 
 
-				return std::make_unique<Identifier>(curr_tok,value);
+				return ricc::make_unique<Identifier>(curr_tok,value);
 		}
 
-		std::unique_ptr<Expression> ParseGroupedExpression(){
+		ricc::unique_ptr<Expression> ParseGroupedExpression(){
 
 				
 			//	std::cout << "Eneterd" << std::endl;
@@ -161,9 +162,9 @@ private:
 				
 		}
 
-		std::optional<std::vector<std::unique_ptr<Expression>>> parseCallExpressionArguments(){
+		std::optional<std::vector<ricc::unique_ptr<Expression>>> parseCallExpressionArguments(){
 				//std::cout << "Parsing callExpression Arguments" << std::endl;
-				auto args = std::vector<std::unique_ptr<Expression>>();
+				auto args = std::vector<ricc::unique_ptr<Expression>>();
 
 				if (next_type_is(TokenType::RPARENT)){
 
@@ -205,15 +206,15 @@ private:
 				}
 				nextToken();
 
-				return std::optional<std::vector<std::unique_ptr<Expression>>>(std::move(args));
+				return std::optional<std::vector<ricc::unique_ptr<Expression>>>(std::move(args));
 		}
 
-		std::unique_ptr<Expression> parseCallEXpression(std::unique_ptr<Expression> function){
+		ricc::unique_ptr<Expression> parseCallEXpression(ricc::unique_ptr<Expression> function){
 				//std::cout << "Parsing call expression" << std::endl;
 				if (!function){
 						throw std::runtime_error("Expected a callee before '('");
 				}
-				auto declaration = std::make_unique<CallExpression>(curr_tok,std::move(function));
+				auto declaration = ricc::make_unique<CallExpression>(curr_tok,std::move(function));
 
 				declaration ->arguments = parseCallExpressionArguments();
 
@@ -225,7 +226,7 @@ private:
 				return declaration;
 		}
 
-		std::unique_ptr<Expression> ParseFloat(){
+		ricc::unique_ptr<Expression> ParseFloat(){
 
 				const char* begin = curr_tok.text.data();
 				const char* end = begin + curr_tok.text.size();
@@ -237,14 +238,14 @@ private:
 				if (result.ec != std::errc{} || result.ptr != end){
 						throw std::runtime_error("Invalid float literal");
 				}
-				return std::make_unique<FloatLiter>(curr_tok,value2);
+				return ricc::make_unique<FloatLiter>(curr_tok,value2);
 		}
 		
-		std::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
+		ricc::unique_ptr<Expression> ParseExpression(Precedence precedence = Precedence::LOWEST){
 
 				//std::cout << curr_tok.text << std::endl;
 
-				std::unique_ptr<Expression> left;
+				ricc::unique_ptr<Expression> left;
 
 				switch (curr_tok.tokentype){
 				
@@ -313,16 +314,16 @@ private:
 		}
 
 
-		std::unique_ptr<VariableDeclaration> parseVariableDeclaration(Token t){
+		ricc::unique_ptr<VariableDeclaration> parseVariableDeclaration(Token t){
 
-				auto declaration = std::make_unique<VariableDeclaration>(t);
+				auto declaration = ricc::make_unique<VariableDeclaration>(t);
 
 				if (!declaration){
 
 						throw std::runtime_error("Could not parse declaration in VariableDeclaration");
 				}
 
-				declaration->name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
+				declaration->name = ricc::make_unique<Identifier>(curr_tok,curr_tok.text);
 
 				if (!next_type_is(TokenType::EQUAL)){
 
@@ -357,7 +358,7 @@ private:
 		}
 
 
-		std::unique_ptr<Expression> parseInfix(std::unique_ptr<Expression> left){
+		ricc::unique_ptr<Expression> parseInfix(ricc::unique_ptr<Expression> left){
 
 				if (!left){
 						throw std::runtime_error("Expected left operand");
@@ -374,10 +375,10 @@ private:
 
 						throw std::runtime_error("Expected right operand");
 				}
-				return std::make_unique<InfixExpression>(std::move(op),std::move(left),std::move(right));
+				return ricc::make_unique<InfixExpression>(std::move(op),std::move(left),std::move(right));
 		}
 
-		std::unique_ptr<Expression> parsePrefix(){
+		ricc::unique_ptr<Expression> parsePrefix(){
 				//std::cout << curr_tok.text << std::endl;
 				Token op = curr_tok;
 				nextToken();
@@ -393,7 +394,7 @@ private:
 								static_cast<unsigned int>(std::numeric_limits<int>::max()) + 1U;
 						if (result.ec == std::errc{} && result.ptr == end && magnitude == minimum_magnitude){
 								Token literal{TokenType::INTEGER, op.text + curr_tok.text};
-								return std::make_unique<Integer_Liter>(std::move(literal), std::numeric_limits<int>::min());
+								return ricc::make_unique<Integer_Liter>(std::move(literal), std::numeric_limits<int>::min());
 						}
 				}
 				/*
@@ -405,13 +406,13 @@ private:
 						throw std::runtime_error("Could not find the right side of prefix");
 				}
 
-				return std::make_unique<PrefixExpression>(std::move(op),std::move(right));
+				return ricc::make_unique<PrefixExpression>(std::move(op),std::move(right));
 		}
 		
 
-		std::unique_ptr<Return> parseReturn(){
+		ricc::unique_ptr<Return> parseReturn(){
 
-				auto declaration = std::make_unique<Return>(curr_tok);
+				auto declaration = ricc::make_unique<Return>(curr_tok);
 				if (next_type_is(TokenType::SEMICOLON)){
 
 						throw std::runtime_error("Expected expression after 'return'");
@@ -430,11 +431,11 @@ private:
 				
 		}
 
-		std::unique_ptr<BlockStatements> parseBlockStatement(){
+		ricc::unique_ptr<BlockStatements> parseBlockStatement(){
 
 				//std::cout << "Entering Block Statement" << std::endl;
 
-				auto block_statement = std::make_unique<BlockStatements>();
+				auto block_statement = ricc::make_unique<BlockStatements>();
 
 
 				nextToken();
@@ -453,12 +454,12 @@ private:
 				}
 				return block_statement;
 		}
-		std::unique_ptr<IfStatement> parseIfStatement(){
+		ricc::unique_ptr<IfStatement> parseIfStatement(){
 
 				//std::cout << "Parsing If Statement" << std::endl;
 				//std::cout << curr_tok.text << std::endl;
 
-				auto declaration = std::make_unique<IfStatement>(curr_tok);
+				auto declaration = ricc::make_unique<IfStatement>(curr_tok);
 
 				if (!next_type_is(TokenType::LPARENT)){
 
@@ -509,16 +510,16 @@ private:
 		}
 
 		/*Might be empty parameter*/
-		std::optional<std::vector<std::unique_ptr<FunctionParameters>>> parseFunctionParameters(){
+		std::optional<std::vector<ricc::unique_ptr<FunctionParameters>>> parseFunctionParameters(){
 
 				
-				std::vector<std::unique_ptr<FunctionParameters>> parameters;
+				std::vector<ricc::unique_ptr<FunctionParameters>> parameters;
 
 				if (next_type_is(TokenType::RPARENT)){
 						nextToken();
 
 						//std::cout << "0 parameters" << std::endl;
-						return std::vector<std::unique_ptr<FunctionParameters>>{};
+						return std::vector<ricc::unique_ptr<FunctionParameters>>{};
 				}
 				
 				while (true){
@@ -537,9 +538,9 @@ private:
 								return std::nullopt;
 						}
 
-						auto name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
+						auto name = ricc::make_unique<Identifier>(curr_tok,curr_tok.text);
 
-						parameters.push_back(std::make_unique<FunctionParameters>(std::move(bindType),std::move(name)));
+						parameters.push_back(ricc::make_unique<FunctionParameters>(std::move(bindType),std::move(name)));
 
 						if (next_type_is(TokenType::RPARENT)){
 
@@ -555,17 +556,17 @@ private:
 						nextToken();
 				}
 
-				return std::optional<std::vector<std::unique_ptr<FunctionParameters>>>(std::move(parameters));
+				return std::optional<std::vector<ricc::unique_ptr<FunctionParameters>>>(std::move(parameters));
 
 		}
 
-		std::unique_ptr<Statement> parseFunctionLit(Token return_type){
+		ricc::unique_ptr<Statement> parseFunctionLit(Token return_type){
 
 				//std::cout << "Parsing function Lit" << std::endl;
 
-				auto declaration = std::make_unique<FunctionLiteral>(curr_tok);
+				auto declaration = ricc::make_unique<FunctionLiteral>(curr_tok);
 				//0std::cout << curr_tok.text << std::endl;
-				declaration->name = std::make_unique<Identifier>(curr_tok,curr_tok.text);
+				declaration->name = ricc::make_unique<Identifier>(curr_tok,curr_tok.text);
 				declaration->type = return_type.tokentype;
 
 				nextToken();
@@ -594,7 +595,7 @@ private:
 
 				
 //std::cout << curr_tok.text << std::endl;
-				declaration->FunctionBody = parseBlockStatement();
+				declaration->FunctionBody = std::shared_ptr<BlockStatements>(parseBlockStatement().release());
 
 				//std::cout << curr_tok.text << std::endl;
 
@@ -602,7 +603,7 @@ private:
 
 		}
 
-		std::unique_ptr<Statement> parseTypedStatement(){
+		ricc::unique_ptr<Statement> parseTypedStatement(){
 
 				Token type = curr_tok;
 				//std::cout << type.text << std::endl;
@@ -622,11 +623,11 @@ private:
 
 				}
 
-				std::unique_ptr<Statement> parseExpressionStatement(){
+				ricc::unique_ptr<Statement> parseExpressionStatement(){
 
 						//std::cout << "Parsing Expression Statement" << std::endl;
 
-						auto statement = std::make_unique<ExpressionStatement>(curr_tok);
+						auto statement = ricc::make_unique<ExpressionStatement>(curr_tok);
 
 						statement->expr = ParseExpression();
 						/*add(1,2);
@@ -647,7 +648,7 @@ private:
 						return statement;
 						
 				}
-				std::unique_ptr<Statement> parseStatement(){
+				ricc::unique_ptr<Statement> parseStatement(){
 
 						switch (curr_tok.tokentype){
 
@@ -671,9 +672,9 @@ private:
 				{
 
 				}
-				std::unique_ptr<Program> ParseProgram(){
+				ricc::unique_ptr<Program> ParseProgram(){
 
-						auto program = std::make_unique<Program>();
+						auto program = ricc::make_unique<Program>();
 
 						while (!current_type_is(TokenType::ENDOFFILE)){
 

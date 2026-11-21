@@ -1,3 +1,4 @@
+#include "unique_ptr.hpp"
 #include "evaluator.hpp"
 #include "object.hpp"
 #include "lexxer.hpp"
@@ -87,7 +88,7 @@ auto printToken(lexxer lex){
 }
 
 // change this later
-auto printVariableDeclaration(std::unique_ptr<Program> p){
+auto printVariableDeclaration(ricc::unique_ptr<Program> p){
 
 
 		for (std::size_t i{}; i < p->statements.size(); ++i){

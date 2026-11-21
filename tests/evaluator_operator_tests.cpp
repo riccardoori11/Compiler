@@ -6,6 +6,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include "unique_ptr.hpp"
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -101,52 +102,52 @@ public:
     }
 };
 
-std::unique_ptr<Expression> integer(int value) {
-    return std::make_unique<Integer_Liter>(Token{TokenType::INTEGER, ""}, value);
+ricc::unique_ptr<Expression> integer(int value) {
+    return ricc::make_unique<Integer_Liter>(Token{TokenType::INTEGER, ""}, value);
 }
 
-std::unique_ptr<Expression> floating(float value) {
-    return std::make_unique<FloatLiter>(Token{TokenType::FLOAT, ""}, value);
+ricc::unique_ptr<Expression> floating(float value) {
+    return ricc::make_unique<FloatLiter>(Token{TokenType::FLOAT, ""}, value);
 }
 
-std::unique_ptr<Expression> boolean(bool value) {
-    return std::make_unique<Boolean>(
+ricc::unique_ptr<Expression> boolean(bool value) {
+    return ricc::make_unique<Boolean>(
         Token{value ? TokenType::TRUE : TokenType::FALSE, ""}, value);
 }
 
-std::unique_ptr<Expression> prefix(TokenType op, std::unique_ptr<Expression> right) {
-    return std::make_unique<PrefixExpression>(Token{op, ""}, std::move(right));
+ricc::unique_ptr<Expression> prefix(TokenType op, ricc::unique_ptr<Expression> right) {
+    return ricc::make_unique<PrefixExpression>(Token{op, ""}, std::move(right));
 }
 
-std::unique_ptr<Expression> infix(TokenType op, std::unique_ptr<Expression> left,
-                                  std::unique_ptr<Expression> right) {
-    return std::make_unique<InfixExpression>(
+ricc::unique_ptr<Expression> infix(TokenType op, ricc::unique_ptr<Expression> left,
+                                  ricc::unique_ptr<Expression> right) {
+    return ricc::make_unique<InfixExpression>(
         Token{op, ""}, std::move(left), std::move(right));
 }
 
-std::unique_ptr<ExpressionStatement> statement(std::unique_ptr<Expression> expression) {
-    auto result = std::make_unique<ExpressionStatement>(Token{TokenType::SEMICOLON, ";"});
+ricc::unique_ptr<ExpressionStatement> statement(ricc::unique_ptr<Expression> expression) {
+    auto result = ricc::make_unique<ExpressionStatement>(Token{TokenType::SEMICOLON, ";"});
     result->expr = std::move(expression);
     return result;
 }
 
-std::unique_ptr<Return> return_statement(std::unique_ptr<Expression> expression) {
-    auto result = std::make_unique<Return>(Token{TokenType::RETURN, "return"});
+ricc::unique_ptr<Return> return_statement(ricc::unique_ptr<Expression> expression) {
+    auto result = ricc::make_unique<Return>(Token{TokenType::RETURN, "return"});
     result->Returnvalue = std::move(expression);
     return result;
 }
 
 template <typename... Statements>
-std::unique_ptr<BlockStatements> block(Statements... statements) {
-    auto result = std::make_unique<BlockStatements>();
+ricc::unique_ptr<BlockStatements> block(Statements... statements) {
+    auto result = ricc::make_unique<BlockStatements>();
     (result->Block_Statements.push_back(std::move(statements)), ...);
     return result;
 }
 
-std::unique_ptr<IfStatement> conditional(std::unique_ptr<Expression> condition,
-                                         std::unique_ptr<BlockStatements> consequence,
-                                         std::unique_ptr<BlockStatements> alternative = nullptr) {
-    auto result = std::make_unique<IfStatement>(Token{TokenType::IF, "if"});
+ricc::unique_ptr<IfStatement> conditional(ricc::unique_ptr<Expression> condition,
+                                         ricc::unique_ptr<BlockStatements> consequence,
+                                         ricc::unique_ptr<BlockStatements> alternative = nullptr) {
+    auto result = ricc::make_unique<IfStatement>(Token{TokenType::IF, "if"});
     result->condition = std::move(condition);
     result->Consequence = std::move(consequence);
     result->Alternative = std::move(alternative);
@@ -352,7 +353,7 @@ void check_if_else(Evaluator& evaluator, Environment& environment, Checks& check
     // expression-only cases. Selected blocks return their last expression.
     struct IfCase {
         const char* name;
-        std::unique_ptr<IfStatement> node;
+        ricc::unique_ptr<IfStatement> node;
         Value expected;
     };
     const IfCase cases[] = {
@@ -449,23 +450,23 @@ void check_if_else(Evaluator& evaluator, Environment& environment, Checks& check
     }, Value{99});
 }
 
-Value evaluate_returning_function(std::unique_ptr<BlockStatements> body,
+Value evaluate_returning_function(ricc::unique_ptr<BlockStatements> body,
                                   TokenType return_type,
-                                  std::unique_ptr<Statement> after_call = nullptr) {
+                                  ricc::unique_ptr<Statement> after_call = nullptr) {
     // Each case gets a fresh evaluator and environment so they do not retain
     // another case's function declaration. Return is only valid in a function.
     Evaluator evaluator;
     Environment environment;
     Program program;
     const Token name{TokenType::IDENTIFIER, "return_test"};
-    auto function = std::make_unique<FunctionLiteral>(name);
-    function->name = std::make_unique<Identifier>(name, name.text);
+    auto function = ricc::make_unique<FunctionLiteral>(name);
+    function->name = ricc::make_unique<Identifier>(name, name.text);
     function->type = return_type;
-    function->FunctionBody = std::move(body);
+    function->FunctionBody = std::shared_ptr<BlockStatements>(body.release());
     program.statements.push_back(std::move(function));
 
-    auto call = std::make_unique<CallExpression>(
-        Token{TokenType::LPARENT, "("}, std::make_unique<Identifier>(name, name.text));
+    auto call = ricc::make_unique<CallExpression>(
+        Token{TokenType::LPARENT, "("}, ricc::make_unique<Identifier>(name, name.text));
     call->arguments.emplace();
     program.statements.push_back(statement(std::move(call)));
     if (after_call) {
@@ -479,7 +480,7 @@ void check_returns(Checks& checks) {
     // through blocks/conditionals, and reject returns outside a function.
     struct ReturnCase {
         const char* name;
-        std::unique_ptr<BlockStatements> body;
+        ricc::unique_ptr<BlockStatements> body;
         TokenType return_type;
         Value expected;
     };
@@ -578,7 +579,7 @@ int main() {
     // Check literal types and recursive evaluation through the actual AST.
     struct AstCase {
         const char* name;
-        std::unique_ptr<Expression> expression;
+        ricc::unique_ptr<Expression> expression;
         Value expected;
     };
     const AstCase ast_cases[] = {
@@ -732,7 +733,7 @@ int main() {
     });
 
     Program program;
-    auto statement = std::make_unique<ExpressionStatement>(Token{TokenType::FLOAT, "1.25"});
+    auto statement = ricc::make_unique<ExpressionStatement>(Token{TokenType::FLOAT, "1.25"});
     statement->expr = floating(1.25f);
     program.statements.push_back(std::move(statement));
     checks.expect_value("program preserves a float result", [&] {

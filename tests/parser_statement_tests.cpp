@@ -2,6 +2,7 @@
 #include "parser.hpp"
 #include <iostream>
 #include <memory>
+#include "unique_ptr.hpp"
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -37,7 +38,7 @@ public:
     }
 };
 
-std::unique_ptr<Program> parse(std::string source) {
+ricc::unique_ptr<Program> parse(std::string source) {
     Parser parser(lexxer{std::move(source)});
     return parser.ParseProgram();
 }
