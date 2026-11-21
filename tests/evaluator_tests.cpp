@@ -2,6 +2,7 @@
 #include "Environment.hpp"
 #include <iostream>
 #include <memory>
+#include "unique_ptr.hpp"
 #include <stdexcept>
 #include <string>
 
@@ -29,23 +30,23 @@ Value evaluate_for_test(Evaluator& evaluator, const VectorStatement& statements,
     return result.value;
 }
 
-std::unique_ptr<Statement> make_integer_statement(int value) {
+ricc::unique_ptr<Statement> make_integer_statement(int value) {
     const Token token{TokenType::INTEGER, std::to_string(value)};
-    auto statement = std::make_unique<ExpressionStatement>(token);
-    statement->expr = std::make_unique<Integer_Liter>(token, value);
+    auto statement = ricc::make_unique<ExpressionStatement>(token);
+    statement->expr = ricc::make_unique<Integer_Liter>(token, value);
     return statement;
 }
 
-std::unique_ptr<Statement> make_boolean_statement(bool value) {
+ricc::unique_ptr<Statement> make_boolean_statement(bool value) {
     const Token token{TokenType::IDENTIFIER, value ? "true" : "false"};
-    auto statement = std::make_unique<ExpressionStatement>(token);
-    statement->expr = std::make_unique<Boolean>(token, value);
+    auto statement = ricc::make_unique<ExpressionStatement>(token);
+    statement->expr = ricc::make_unique<Boolean>(token, value);
     return statement;
 }
 
-std::unique_ptr<Statement> make_unsupported_statement() {
-    auto statement = std::make_unique<ExpressionStatement>(Token{TokenType::ILLEGAL, "unsupported"});
-    statement->expr = std::make_unique<UnsupportedExpression>();
+ricc::unique_ptr<Statement> make_unsupported_statement() {
+    auto statement = ricc::make_unique<ExpressionStatement>(Token{TokenType::ILLEGAL, "unsupported"});
+    statement->expr = ricc::make_unique<UnsupportedExpression>();
     return statement;
 }
 
@@ -102,18 +103,18 @@ int main() {
     expect_value("false remains a boolean", false_literal, Value{false});
 
     ExpressionStatement integer_statement{Token{TokenType::INTEGER, "8"}};
-    integer_statement.expr = std::make_unique<Integer_Liter>(Token{TokenType::INTEGER, "8"}, 8);
+    integer_statement.expr = ricc::make_unique<Integer_Liter>(Token{TokenType::INTEGER, "8"}, 8);
     expect_value("expression statement returns its integer value", integer_statement, Value{8});
 
     ExpressionStatement boolean_statement{Token{TokenType::IDENTIFIER, "false"}};
-    boolean_statement.expr = std::make_unique<Boolean>(Token{TokenType::IDENTIFIER, "false"}, false);
+    boolean_statement.expr = ricc::make_unique<Boolean>(Token{TokenType::IDENTIFIER, "false"}, false);
     expect_value("expression statement preserves boolean type", boolean_statement, Value{false});
 
     const UnsupportedExpression unsupported;
     expect_runtime_error("unsupported AST node is rejected", unsupported);
 
     ExpressionStatement unsupported_statement{Token{TokenType::ILLEGAL, "unsupported"}};
-    unsupported_statement.expr = std::make_unique<UnsupportedExpression>();
+    unsupported_statement.expr = ricc::make_unique<UnsupportedExpression>();
     expect_runtime_error("expression statement propagates evaluation errors", unsupported_statement);
 
     // These checks call evalStatement directly with its actual container type.

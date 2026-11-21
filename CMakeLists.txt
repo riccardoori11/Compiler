@@ -48,3 +48,28 @@ if(BUILD_TESTING)
 
     include(tests/error_regressions.cmake)
 endif()
+
+# ---------------------------------------------------------------------------
+# ricc: my own standard-library implementations (header-only), used in place
+# of std::unique_ptr etc. Pinned to a commit so the compiler doesn't change
+# underneath me.
+#
+# To build against a local checkout instead of GitHub (no push needed):
+#   cmake -S . -B build -DFETCHCONTENT_SOURCE_DIR_RICC=$HOME/various_implementations
+# ---------------------------------------------------------------------------
+include(FetchContent)
+FetchContent_Declare(ricc
+    GIT_REPOSITORY https://github.com/riccardoori11/Various-Implementations.git
+    GIT_TAG        2e1d3cd9a8a26ec17da63331aaa00b3f21d4eede # master after PR #6
+)
+FetchContent_MakeAvailable(ricc)
+
+foreach(target
+        lexer
+        evaluator_tests evaluator_operator_tests evaluator_lifetime_tests
+        parser_statement_tests
+        error_regression_tests error_type_link_probe error_extended_tests)
+    if(TARGET ${target})
+        target_link_libraries(${target} PRIVATE ricc::implementation)
+    endif()
+endforeach()

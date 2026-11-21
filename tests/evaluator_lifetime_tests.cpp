@@ -2,6 +2,7 @@
 #include "parser.hpp"
 #include <iostream>
 #include <memory>
+#include "unique_ptr.hpp"
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -37,7 +38,7 @@ public:
     }
 };
 
-std::unique_ptr<Program> parse(std::string source) {
+ricc::unique_ptr<Program> parse(std::string source) {
     Parser parser(lexxer{std::move(source)});
     return parser.ParseProgram();
 }
@@ -187,11 +188,11 @@ int main() {
     });
 
     checks.run("child environment retains a destroyed parent wrapper's bindings", [] {
-        std::unique_ptr<Environment> child;
+        ricc::unique_ptr<Environment> child;
         {
             Environment parent;
             parent.define("x", Binding{TokenType::INT, Value{9}});
-            child = std::make_unique<Environment>(&parent);
+            child = ricc::make_unique<Environment>(&parent);
         }
         expect_integer(get_value(*child, "x"), 9);
     });
