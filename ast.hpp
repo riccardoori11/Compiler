@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "unique_ptr.hpp"
+#include "vector.hpp"
 #include <iostream>
 #include <optional>
 #include "token.hpp"
@@ -37,7 +38,7 @@ class Program: public Node{
 
 public:
 
-		std::vector<ricc::unique_ptr<Statement>> statements;
+		ricc::Vector<ricc::unique_ptr<Statement>> statements;
 
 		std::string TokenLiteral()const override{
 
@@ -239,7 +240,7 @@ class BlockStatements: public Statement{
 
 public:
 
-		std::vector<ricc::unique_ptr<Statement>> Block_Statements;
+		ricc::Vector<ricc::unique_ptr<Statement>> Block_Statements;
 
 
 		std::string TokenLiteral() const override{
@@ -296,7 +297,7 @@ public:
 
 		Token token;
 		ricc::unique_ptr<Identifier> name;
-		std::vector<ricc::unique_ptr<FunctionParameters>> Parameters;
+		ricc::Vector<ricc::unique_ptr<FunctionParameters>> Parameters;
 		std::shared_ptr<BlockStatements> FunctionBody;
 			TokenType type{TokenType::ILLEGAL};
 
@@ -318,7 +319,7 @@ public:
 
 		Token token;
 		ricc::unique_ptr<Expression> function_name;
-		std::optional<std::vector<ricc::unique_ptr<Expression>>> arguments;
+		std::optional<ricc::Vector<ricc::unique_ptr<Expression>>> arguments;
 
 		CallExpression(Token token, ricc::unique_ptr<Expression> function):token(token),function_name(std::move(function))
 		{}

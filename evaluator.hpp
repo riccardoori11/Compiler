@@ -6,6 +6,7 @@
 #include <limits>
 #include <memory>
 #include "unique_ptr.hpp"
+#include "vector.hpp"
 #include <stdexcept>
 #include <type_traits>
 #include <unordered_map>
@@ -13,7 +14,7 @@
 #include <variant>
 #include <vector>
 
-using VectorStatement = std::vector<ricc::unique_ptr<Statement>>;
+using VectorStatement = ricc::Vector<ricc::unique_ptr<Statement>>;
 template<typename T>
 constexpr bool is_numeric = std::is_arithmetic_v<T> && !std::is_same_v<T, bool>;
 

@@ -1,4 +1,5 @@
 #include "unique_ptr.hpp"
+#include "vector.hpp"
 #include "evaluator.hpp"
 #include "object.hpp"
 #include "lexxer.hpp"
@@ -974,7 +975,7 @@ int main(){
 		// without producing illegal tokens, extra statements, or an extra token at EOF.
 		{
 				bool all_whitespace_correct = true;
-				auto test_tokens = [&](const char* name, const char* input, const std::vector<Token>& expected){
+				auto test_tokens = [&](const char* name, const char* input, const ricc::Vector<Token>& expected){
 						lexxer lexer{input};
 						for (std::size_t i = 0; i < expected.size(); ++i){
 								auto actual = lexer.nextToken();
@@ -1026,7 +1027,7 @@ int main(){
 						{"single space only", " "},
 						{"multiple spaces only", "   "}
 				};
-				const std::vector<Token> eof_tokens{{TokenType::ENDOFFILE, ""}};
+				const ricc::Vector<Token> eof_tokens{{TokenType::ENDOFFILE, ""}};
 				for (const auto& test_case : empty_inputs){
 						test_tokens(test_case.name, test_case.input, eof_tokens);
 						test_program(test_case.name, test_case.input, [](const Program& program){
@@ -1039,7 +1040,7 @@ int main(){
 						{"single trailing space", "int x = 1; "},
 						{"multiple trailing spaces", "int x = 1;   "}
 				};
-				const std::vector<Token> declaration_tokens{
+				const ricc::Vector<Token> declaration_tokens{
 						{TokenType::INT, "int"}, {TokenType::IDENTIFIER, "x"}, {TokenType::EQUAL, "="},
 						{TokenType::INTEGER, "1"}, {TokenType::SEMICOLON, ";"}, {TokenType::ENDOFFILE, ""}
 				};
@@ -1053,7 +1054,7 @@ int main(){
 				const WhitespaceCase whitespace_sequences[] = {
 						{"space", " "}
 				};
-				const std::vector<Token> tokens_at_eof{
+				const ricc::Vector<Token> tokens_at_eof{
 						{TokenType::INT, "int"}, {TokenType::IDENTIFIER, "alpha123"},
 						{TokenType::INTEGER, "123"}, {TokenType::EQUAL, "="},
 						{TokenType::COMPARE, "=="}, {TokenType::SEMICOLON, ";"}

@@ -11,6 +11,7 @@
 #include <string_view>
 #include <iostream>
 #include <vector>
+#include "vector.hpp"
 
 /*
  * std::monostate represents a Null state
@@ -25,7 +26,7 @@ struct Parameter{
 };
 
 struct FunctionObj{
-		std::vector<Parameter> parameters;
+		ricc::Vector<Parameter> parameters;
 		TokenType function_type{TokenType::ILLEGAL};
 		std::shared_ptr<BlockStatements> block;
 		std::weak_ptr<EnvironmentFrame> env;

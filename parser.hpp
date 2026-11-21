@@ -11,6 +11,7 @@
 #include <limits>
 #include <memory>
 #include "unique_ptr.hpp"
+#include "vector.hpp"
 #include <optional>
 #include <stdexcept>
 #include <unordered_map>
@@ -162,9 +163,9 @@ private:
 				
 		}
 
-		std::optional<std::vector<ricc::unique_ptr<Expression>>> parseCallExpressionArguments(){
+		std::optional<ricc::Vector<ricc::unique_ptr<Expression>>> parseCallExpressionArguments(){
 				//std::cout << "Parsing callExpression Arguments" << std::endl;
-				auto args = std::vector<ricc::unique_ptr<Expression>>();
+				auto args = ricc::Vector<ricc::unique_ptr<Expression>>();
 
 				if (next_type_is(TokenType::RPARENT)){
 
@@ -206,7 +207,7 @@ private:
 				}
 				nextToken();
 
-				return std::optional<std::vector<ricc::unique_ptr<Expression>>>(std::move(args));
+				return std::optional<ricc::Vector<ricc::unique_ptr<Expression>>>(std::move(args));
 		}
 
 		ricc::unique_ptr<Expression> parseCallEXpression(ricc::unique_ptr<Expression> function){
@@ -510,16 +511,16 @@ private:
 		}
 
 		/*Might be empty parameter*/
-		std::optional<std::vector<ricc::unique_ptr<FunctionParameters>>> parseFunctionParameters(){
+		std::optional<ricc::Vector<ricc::unique_ptr<FunctionParameters>>> parseFunctionParameters(){
 
 				
-				std::vector<ricc::unique_ptr<FunctionParameters>> parameters;
+				ricc::Vector<ricc::unique_ptr<FunctionParameters>> parameters;
 
 				if (next_type_is(TokenType::RPARENT)){
 						nextToken();
 
 						//std::cout << "0 parameters" << std::endl;
-						return std::vector<ricc::unique_ptr<FunctionParameters>>{};
+						return ricc::Vector<ricc::unique_ptr<FunctionParameters>>{};
 				}
 				
 				while (true){
@@ -556,7 +557,7 @@ private:
 						nextToken();
 				}
 
-				return std::optional<std::vector<ricc::unique_ptr<FunctionParameters>>>(std::move(parameters));
+				return std::optional<ricc::Vector<ricc::unique_ptr<FunctionParameters>>>(std::move(parameters));
 
 		}
 
