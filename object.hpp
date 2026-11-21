@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include "vector.hpp"
+#include "optional.hpp"
 
 /*
  * std::monostate represents a Null state
@@ -44,7 +45,7 @@ struct ExecutionResult{
 struct Binding{
 
 		TokenType type;
-		std::optional<Value> value;
+		ricc::optional<Value> value;
 
 };
 

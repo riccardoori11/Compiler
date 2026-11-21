@@ -4,6 +4,7 @@
 #include "token.hpp"
 #include <memory>
 #include <optional>
+#include "optional.hpp"
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -30,14 +31,14 @@ public:
     Environment(Environment* parent = nullptr)
         : Environment(parent ? parent->frame : nullptr) {}
 
-    std::optional<Binding> Get(const std::string& name) const {
+    ricc::optional<Binding> Get(const std::string& name) const {
         for (auto scope = frame; scope; scope = scope->parent) {
             const auto it = scope->bindings.find(name);
             if (it != scope->bindings.end()) {
                 return it->second;
             }
         }
-        return std::nullopt;
+        return ricc::nullopt;
     }
 
     void define(const std::string& name, const Binding& binding) {
