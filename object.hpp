@@ -22,7 +22,7 @@
 struct EnvironmentFrame;
 
 struct Parameter{
-		std::string name;
+		ricc::String name;
 		TokenType parameter_type;
 };
 
