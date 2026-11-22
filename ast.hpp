@@ -15,7 +15,7 @@ class Node{
 public:
 
 		virtual ~Node() = default;
-		virtual std::string TokenLiteral() const = 0;
+		virtual ricc::String TokenLiteral() const = 0;
 		virtual void print() const = 0;
 
 };
@@ -41,7 +41,7 @@ public:
 
 		ricc::Vector<ricc::unique_ptr<Statement>> statements;
 
-		std::string TokenLiteral()const override{
+		ricc::String TokenLiteral()const override{
 
 				if (statements.empty()){
 
@@ -60,13 +60,13 @@ class Identifier: public Expression{
 
 		public:
 				Token token;
-				std::string value;
+				ricc::String value;
 
-		Identifier(Token token, std::string value):token(std::move(token)),value(std::move(value))
+		Identifier(Token token, ricc::String value):token(std::move(token)),value(std::move(value))
 		{
 		}
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 				return token.text;
 		}
 
@@ -90,7 +90,7 @@ class VariableDeclaration: public Statement{
 
 		}
 				
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 				return token.text;
 		};
@@ -114,7 +114,7 @@ class Integer_Liter: public Expression{
 
 				Integer_Liter(Token token,int value):token(token),value(value){};
 
-				std::string TokenLiteral() const override{
+				ricc::String TokenLiteral() const override{
 
 						return token.text;
 				}
@@ -133,7 +133,7 @@ class FloatLiter: public Expression{
 
 				FloatLiter(Token token,float value):token(token),value(value){};
 
-				std::string TokenLiteral() const override{
+				ricc::String TokenLiteral() const override{
 
 						return token.text;
 				}
@@ -152,7 +152,7 @@ public:
 
 		Boolean(Token token,bool value):token(token),value(value){};
 
-		std::string TokenLiteral()const override{
+		ricc::String TokenLiteral()const override{
 
 				return token.text;
 		}
@@ -171,7 +171,7 @@ class Return: public Statement{
 
 				Return(Token token):token(std::move(token)){}
 
-				std::string TokenLiteral() const override{
+				ricc::String TokenLiteral() const override{
 
 						return token.text;
 				}
@@ -197,7 +197,7 @@ public:
 		{
 		}
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 						return token.text;
 				}
@@ -222,7 +222,7 @@ public:
 		{
 		};
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 				return token.text;
 		}
@@ -244,7 +244,7 @@ public:
 		ricc::Vector<ricc::unique_ptr<Statement>> Block_Statements;
 
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 				if (Block_Statements.empty()){
 
@@ -269,7 +269,7 @@ public:
 
 		IfStatement(Token token): token(std::move(token)){};
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 				return token.text;
 		}
@@ -284,7 +284,7 @@ class FunctionParameters: public Node{
 
 		FunctionParameters(Token token,ricc::unique_ptr<Identifier> name):binding_type(std::move(token)),name(std::move(name)){};
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 				return binding_type.text;
 		};
@@ -306,7 +306,7 @@ public:
 		{
 		};
 
-		std::string TokenLiteral() const override {
+		ricc::String TokenLiteral() const override {
 
 				return token.text;
 		}
@@ -325,7 +325,7 @@ public:
 		CallExpression(Token token, ricc::unique_ptr<Expression> function):token(token),function_name(std::move(function))
 		{}
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 				return token.text;
 		}
@@ -343,7 +343,7 @@ public:
 		ExpressionStatement(Token token):token(std::move(token)) {
 		}
 
-		std::string TokenLiteral() const override{
+		ricc::String TokenLiteral() const override{
 
 				return expr ? expr->TokenLiteral() : "";
 		}

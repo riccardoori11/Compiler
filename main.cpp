@@ -1062,8 +1062,8 @@ int main(){
 				for (const auto& whitespace : whitespace_sequences){
 						// Exercise identifier/integer readers and punctuation immediately before EOF.
 						for (const auto& token : tokens_at_eof){
-								const std::string name = token.text + " followed by trailing " + whitespace.name;
-								const std::string input = token.text + whitespace.input;
+								const ricc::String name = token.text + " followed by trailing " + whitespace.name;
+								const ricc::String input = token.text + whitespace.input;
 								test_tokens(name.c_str(), input.c_str(), {token, {TokenType::ENDOFFILE, ""}});
 						}
 

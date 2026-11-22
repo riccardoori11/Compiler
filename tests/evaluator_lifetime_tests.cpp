@@ -54,7 +54,7 @@ std::shared_ptr<FunctionObj> function(const Value& value) {
     return *result;
 }
 
-Value get_value(const Environment& environment, const std::string& name) {
+Value get_value(const Environment& environment, const ricc::String& name) {
     const auto binding = environment.Get(name);
     require(binding && binding->value, "missing binding value");
     return *binding->value;
