@@ -26,7 +26,7 @@ Value evaluate(std::string source) {
 
 void expect_integer(std::string source, int expected) {
     const auto result = evaluate(std::move(source));
-    const auto* value = std::get_if<int>(&result);
+    const auto* value = ricc::get_if<int>(&result);
     require(value && *value == expected, "unexpected value or runtime type");
 }
 

@@ -49,7 +49,7 @@ Value evaluate(Evaluator& evaluator, Environment& environment, std::string sourc
 }
 
 std::shared_ptr<FunctionObj> function(const Value& value) {
-    const auto* result = std::get_if<std::shared_ptr<FunctionObj>>(&value);
+    const auto* result = ricc::get_if<std::shared_ptr<FunctionObj>>(&value);
     require(result && *result, "expected a function value");
     return *result;
 }
@@ -71,7 +71,7 @@ Value call(Evaluator& evaluator, const Value& value, std::string arguments = {})
 }
 
 void expect_integer(const Value& value, int expected) {
-    const auto* actual = std::get_if<int>(&value);
+    const auto* actual = ricc::get_if<int>(&value);
     require(actual && *actual == expected, "unexpected result or runtime type");
 }
 

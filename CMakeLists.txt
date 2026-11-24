@@ -60,7 +60,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(ricc
     GIT_REPOSITORY https://github.com/riccardoori11/Various-Implementations.git
-    GIT_TAG        43100f328599acea75268fae6ab338efa9e66e29 # master after PR #10 (ricc::String)
+    GIT_TAG        c3054a04a6da68ba63413e20b7637dcb8955fb4f # master after PR #12 (ricc::variant operator==)
 )
 FetchContent_MakeAvailable(ricc)
 

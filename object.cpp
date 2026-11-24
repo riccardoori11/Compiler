@@ -9,7 +9,7 @@
 
 std::string Inspect(const Value& value){
 
-		return std::visit([](const auto& item) -> std::string{
+		return ricc::visit([](const auto& item) -> std::string{
 
 						using T = std::remove_cvref_t<decltype(item)>;
 
@@ -29,7 +29,7 @@ std::string Inspect(const Value& value){
 
 std::string_view type(const Value& value){
 
-		return std::visit([](const auto& item) -> std::string_view{
+		return ricc::visit([](const auto& item) -> std::string_view{
 						using TYPE_NORM = std::remove_cvref_t<decltype(item)>;
 				if constexpr (std::is_same_v<TYPE_NORM, int>){
 						return "int";
