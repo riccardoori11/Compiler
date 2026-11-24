@@ -12,7 +12,7 @@ namespace {
 // that may be implemented later.
 class UnsupportedExpression final : public Expression {
 public:
-    std::string TokenLiteral() const override { return "unsupported"; }
+    ricc::String TokenLiteral() const override { return "unsupported"; }
     void print() const override {}
 };
 
@@ -31,7 +31,7 @@ Value evaluate_for_test(Evaluator& evaluator, const VectorStatement& statements,
 }
 
 ricc::unique_ptr<Statement> make_integer_statement(int value) {
-    const Token token{TokenType::INTEGER, std::to_string(value)};
+    const Token token{TokenType::INTEGER, std::to_string(value).c_str()};
     auto statement = ricc::make_unique<ExpressionStatement>(token);
     statement->expr = ricc::make_unique<Integer_Liter>(token, value);
     return statement;

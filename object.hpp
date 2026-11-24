@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include "vector.hpp"
+#include "variant.hpp"
 #include "optional.hpp"
 
 /*
@@ -22,7 +23,7 @@
 struct EnvironmentFrame;
 
 struct Parameter{
-		std::string name;
+		ricc::String name;
 		TokenType parameter_type;
 };
 
@@ -34,7 +35,7 @@ struct FunctionObj{
 
 };
 
-using Value = std::variant<std::monostate,int,float,double,bool,std::shared_ptr<FunctionObj>>;
+using Value = ricc::variant<std::monostate,int,float,double,bool,std::shared_ptr<FunctionObj>>;
 struct ExecutionResult{
 
 		Value value{std::monostate{}};

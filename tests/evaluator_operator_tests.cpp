@@ -16,9 +16,9 @@
 namespace {
 
 bool same_value(const Value& actual, const Value& expected) {
-    return std::visit([&](auto expected_value) {
+    return ricc::visit([&](auto expected_value) {
         using T = decltype(expected_value);
-        const auto* actual_value = std::get_if<T>(&actual);
+        const auto* actual_value = ricc::get_if<T>(&actual);
         if (!actual_value) {
             return false;
         }
@@ -34,7 +34,7 @@ bool same_value(const Value& actual, const Value& expected) {
 }
 
 std::string describe(const Value& value) {
-    return std::visit([](auto item) -> std::string {
+    return ricc::visit([](auto item) -> std::string {
         using T = decltype(item);
         if constexpr (std::is_same_v<T, std::monostate>) {
             return "null";
