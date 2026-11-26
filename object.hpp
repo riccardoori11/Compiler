@@ -3,6 +3,7 @@
 #include "ast.hpp"
 #include "token.hpp"
 #include <memory>
+#include "shared_ptr.hpp"
 #include <optional>
 #include <unordered_map>
 #include <variant>
@@ -12,6 +13,7 @@
 #include <iostream>
 #include <vector>
 #include "vector.hpp"
+#include "variant.hpp"
 #include "optional.hpp"
 
 /*
@@ -22,19 +24,19 @@
 struct EnvironmentFrame;
 
 struct Parameter{
-		std::string name;
+		ricc::String name;
 		TokenType parameter_type;
 };
 
 struct FunctionObj{
 		ricc::Vector<Parameter> parameters;
 		TokenType function_type{TokenType::ILLEGAL};
-		std::shared_ptr<BlockStatements> block;
-		std::weak_ptr<EnvironmentFrame> env;
+		ricc::shared_ptr<BlockStatements> block;
+		ricc::weak_ptr<EnvironmentFrame> env;
 
 };
 
-using Value = std::variant<std::monostate,int,float,double,bool,std::shared_ptr<FunctionObj>>;
+using Value = ricc::variant<std::monostate,int,float,double,bool,ricc::shared_ptr<FunctionObj>>;
 struct ExecutionResult{
 
 		Value value{std::monostate{}};

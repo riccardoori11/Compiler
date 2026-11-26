@@ -4,16 +4,17 @@
 #include <iostream>
 #include "token.hpp"
 #include <unordered_map>
+#include <string_view>
 #pragma once
 
 class lexxer{
 
 private:
 
-		std::string input = "";
+		ricc::String input = "";
 		std::size_t pos{};
 
-		inline static const std::unordered_map<std::string, TokenType> keywords{
+		inline static const std::unordered_map<ricc::String, TokenType> keywords{
 				{"int", TokenType::INT},
 				{"bool", TokenType::BOOL},
 				{"double", TokenType::DOUBLE},
@@ -54,7 +55,7 @@ private:
 						++pos;
 				}
 				
-				std::string id{input.substr(start,pos-start)};
+				ricc::String id{input.substr(start,pos-start)};
 
 				auto it = keywords.find(id);
 				if (it != keywords.end()){
@@ -88,7 +89,7 @@ public:
 
 lexxer() = default;
 
-lexxer(std::string input):input(std::move(input)){}
+lexxer(std::string_view input):input(input.data(), input.size()){}
 
 Token nextToken(){
 				

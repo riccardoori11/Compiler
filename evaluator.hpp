@@ -25,7 +25,7 @@ class Evaluator{
 
 private:
 
-		std::unordered_set<std::shared_ptr<EnvironmentFrame>> captured_environments;
+		std::unordered_set<ricc::shared_ptr<EnvironmentFrame>> captured_environments;
 
     static void validateIntegerInfix(TokenType op, int a, int b){
         constexpr int minimum = std::numeric_limits<int>::min();
@@ -143,7 +143,7 @@ ExecutionResult execute(const Statement& node, Environment& env){
 
 				Binding binding{
 						TokenType::FUNCTION,
-						Value(std::make_shared<FunctionObj>(std::move(func)))
+						Value(ricc::make_shared<FunctionObj>(std::move(func)))
 				};
 
 				env.define(ptr->name->value, binding);
@@ -195,7 +195,7 @@ ExecutionResult execute(const Statement& node, Environment& env){
 
 Value evalInfixExpression(const Token& op, const Value& left, const Value& right){
 
-		return std::visit([&](const auto& a, const auto& b) -> Value{
+		return ricc::visit([&](const auto& a, const auto& b) -> Value{
 
 				using A = std::remove_cvref_t<decltype(a)>; 
 				using B = std::remove_cvref_t<decltype(b)>;
@@ -251,12 +251,12 @@ Value evalPrefixExpression(const Token& op, const Value& right){
 		switch (op.tokentype){
 
 				case TokenType::MINUS:
-				 {if (!std::holds_alternative<int>(right)){
+				 {if (!ricc::holds_alternative<int>(right)){
 
 								throw std::runtime_error("Invalid right expression for MINUS");
 						}
 
-						int val = std::get<int>(right);
+						int val = ricc::get<int>(right);
 						if (val == std::numeric_limits<int>::min()){
 								throw std::runtime_error("Integer overflow");
 						}
@@ -265,11 +265,11 @@ Value evalPrefixExpression(const Token& op, const Value& right){
 				 }
 
 				case TokenType::NOT:
-				 {if (!std::holds_alternative<bool>(right)){
+				 {if (!ricc::holds_alternative<bool>(right)){
 								throw std::runtime_error("Invalid right expression for NOT");
 						}
 						
-						bool val = std::get<bool>(right);
+						bool val = ricc::get<bool>(right);
 
 						return Value(!val);
 
@@ -282,11 +282,11 @@ Value evalPrefixExpression(const Token& op, const Value& right){
 
 bool isTruthy(const Value& value){
 
-		if (!std::holds_alternative<bool>(value)){
+		if (!ricc::holds_alternative<bool>(value)){
 				throw std::runtime_error("Condition of If/Else statement must be able to be evaluated to a boolean");
 		}
 
-		return std::get<bool>(value);
+		return ricc::get<bool>(value);
 
 }
 
@@ -321,7 +321,7 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 		}
 		Value callee = eval(*node->function_name,env);
 
-		const auto* callable = std::get_if<std::shared_ptr<FunctionObj>>(&callee);
+		const auto* callable = ricc::get_if<ricc::shared_ptr<FunctionObj>>(&callee);
 		if (!callable){
 				throw std::runtime_error("Value is not callable");
 		}
@@ -364,8 +364,6 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 								);
 		}
 
-		// The outer function body shares the parameter scope. Nested lexical
-		// blocks still create child scopes through execute().
 		ExecutionResult res{};
 		if (!function->block->Block_Statements.empty()){
 				res = evalStatement(function->block->Block_Statements,call_env);

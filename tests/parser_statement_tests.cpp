@@ -61,7 +61,7 @@ Value evaluate(Evaluator& evaluator, Environment& environment, std::string sourc
 }
 
 void expect_integer(const Value& value, int expected) {
-    const auto* actual = std::get_if<int>(&value);
+    const auto* actual = ricc::get_if<int>(&value);
     require(actual && *actual == expected, "unexpected result or runtime type");
 }
 

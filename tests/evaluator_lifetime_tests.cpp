@@ -48,13 +48,13 @@ Value evaluate(Evaluator& evaluator, Environment& environment, std::string sourc
     return evaluator.eval(*program, environment);
 }
 
-std::shared_ptr<FunctionObj> function(const Value& value) {
-    const auto* result = std::get_if<std::shared_ptr<FunctionObj>>(&value);
+ricc::shared_ptr<FunctionObj> function(const Value& value) {
+    const auto* result = ricc::get_if<ricc::shared_ptr<FunctionObj>>(&value);
     require(result && *result, "expected a function value");
     return *result;
 }
 
-Value get_value(const Environment& environment, const std::string& name) {
+Value get_value(const Environment& environment, const ricc::String& name) {
     const auto binding = environment.Get(name);
     require(binding && binding->value, "missing binding value");
     return *binding->value;
@@ -71,7 +71,7 @@ Value call(Evaluator& evaluator, const Value& value, std::string arguments = {})
 }
 
 void expect_integer(const Value& value, int expected) {
-    const auto* actual = std::get_if<int>(&value);
+    const auto* actual = ricc::get_if<int>(&value);
     require(actual && *actual == expected, "unexpected result or runtime type");
 }
 
@@ -208,8 +208,8 @@ int main() {
     });
 
     checks.run("runtime teardown releases captured scopes and recursive bodies", [] {
-        std::weak_ptr<EnvironmentFrame> scope;
-        std::weak_ptr<BlockStatements> body;
+        ricc::weak_ptr<EnvironmentFrame> scope;
+        ricc::weak_ptr<BlockStatements> body;
         {
             Evaluator evaluator;
             {

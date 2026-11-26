@@ -26,7 +26,7 @@ Value evaluate(std::string source) {
 
 void expect_integer(std::string source, int expected) {
     const auto result = evaluate(std::move(source));
-    const auto* value = std::get_if<int>(&result);
+    const auto* value = ricc::get_if<int>(&result);
     require(value && *value == expected, "unexpected value or runtime type");
 }
 
@@ -111,7 +111,7 @@ int main() {
             require(type(Value{1.0}) == "double", "wrong double type");
             require(type(Value{true}) == "bool", "wrong bool type");
             require(type(Value{}) == "NULL", "wrong null type");
-            require(type(Value{std::make_shared<FunctionObj>()}) == "function", "wrong function type");
+            require(type(Value{ricc::make_shared<FunctionObj>()}) == "function", "wrong function type");
         }},
     };
     int failures = 0;

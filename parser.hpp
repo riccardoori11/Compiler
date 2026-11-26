@@ -137,7 +137,7 @@ private:
 
 		ricc::unique_ptr<Expression> parseIdentifier(){
 
-				std::string value = curr_tok.text;
+				ricc::String value = curr_tok.text;
 
 
 				return ricc::make_unique<Identifier>(curr_tok,value);
@@ -597,7 +597,7 @@ private:
 
 				
 //std::cout << curr_tok.text << std::endl;
-				declaration->FunctionBody = std::shared_ptr<BlockStatements>(parseBlockStatement().release());
+				declaration->FunctionBody = ricc::shared_ptr<BlockStatements>(parseBlockStatement().release());
 
 				//std::cout << curr_tok.text << std::endl;
 

@@ -5,9 +5,9 @@
 #include <ostream>
 #include <string>
 #include <string_view>
-#include <variant>
 #include <vector>
 #include "vector.hpp"
+#include "variant.hpp"
 
 // Behavioral tests for todo.md section 1. The interpreter adapter runs each
 // source in a fresh environment and returns its last expression's value.
@@ -22,7 +22,7 @@ enum class Error {
     duplicate_declaration,
 };
 
-using Outcome = std::variant<int, bool, Error>;
+using Outcome = ricc::variant<int, bool, Error>;
 
 struct TestCase {
     const char* name;
@@ -109,14 +109,14 @@ inline ricc::Vector<TestCase> cases() {
 }
 
 inline std::string describe(const Outcome& outcome) {
-    if (const auto* integer = std::get_if<int>(&outcome)) {
+    if (const auto* integer = ricc::get_if<int>(&outcome)) {
         return "int(" + std::to_string(*integer) + ")";
     }
-    if (const auto* boolean = std::get_if<bool>(&outcome)) {
+    if (const auto* boolean = ricc::get_if<bool>(&outcome)) {
         return *boolean ? "bool(true)" : "bool(false)";
     }
 
-    switch (std::get<Error>(outcome)) {
+    switch (ricc::get<Error>(outcome)) {
         case Error::unsupported_type: return "unsupported type error";
         case Error::type_mismatch: return "type mismatch error";
         case Error::division_by_zero: return "division by zero error";

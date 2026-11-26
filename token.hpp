@@ -1,4 +1,5 @@
 #include <string>
+#include "string.hpp"
 
 #pragma once
 
@@ -40,9 +41,9 @@ enum class TokenType{
 struct Token{
 
 		TokenType tokentype;
-		std::string text;
+		ricc::String text;
 		
-		Token(TokenType tokentype, std::string text):tokentype(tokentype),text(std::move(text)){};
+		Token(TokenType tokentype, ricc::String text):tokentype(tokentype),text(std::move(text)){};
 
 };
 
