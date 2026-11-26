@@ -462,7 +462,7 @@ Value evaluate_returning_function(ricc::unique_ptr<BlockStatements> body,
     auto function = ricc::make_unique<FunctionLiteral>(name);
     function->name = ricc::make_unique<Identifier>(name, name.text);
     function->type = return_type;
-    function->FunctionBody = std::shared_ptr<BlockStatements>(body.release());
+    function->FunctionBody = ricc::shared_ptr<BlockStatements>(body.release());
     program.statements.push_back(std::move(function));
 
     auto call = ricc::make_unique<CallExpression>(

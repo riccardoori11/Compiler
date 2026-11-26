@@ -18,7 +18,7 @@ std::string Inspect(const Value& value){
 								return "null";
 						}
 
-						else if constexpr (std::is_same_v<T, std::shared_ptr<FunctionObj>>) {
+						else if constexpr (std::is_same_v<T, ricc::shared_ptr<FunctionObj>>) {
 								return "function";
 						}
 						else{
@@ -43,7 +43,7 @@ std::string_view type(const Value& value){
 				else if constexpr (std::is_same_v<TYPE_NORM, double>) {
 						return "double";
 				}
-				else if constexpr (std::is_same_v<TYPE_NORM, std::shared_ptr<FunctionObj>>) {
+				else if constexpr (std::is_same_v<TYPE_NORM, ricc::shared_ptr<FunctionObj>>) {
 						return "function";
 				}
 				else{

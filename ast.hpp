@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "unique_ptr.hpp"
+#include "shared_ptr.hpp"
 #include "vector.hpp"
 #include "optional.hpp"
 #include <iostream>
@@ -299,7 +300,7 @@ public:
 		Token token;
 		ricc::unique_ptr<Identifier> name;
 		ricc::Vector<ricc::unique_ptr<FunctionParameters>> Parameters;
-		std::shared_ptr<BlockStatements> FunctionBody;
+		ricc::shared_ptr<BlockStatements> FunctionBody;
 			TokenType type{TokenType::ILLEGAL};
 
 		FunctionLiteral(Token token):token(std::move(token))

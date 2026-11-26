@@ -3,6 +3,7 @@
 #include "object.hpp"
 #include "token.hpp"
 #include <memory>
+#include "shared_ptr.hpp"
 #include <optional>
 #include "optional.hpp"
 #include <stdexcept>
@@ -12,9 +13,9 @@
 
 struct EnvironmentFrame {
     std::unordered_map<ricc::String, Binding> bindings;
-    const std::shared_ptr<EnvironmentFrame> parent;
+    const ricc::shared_ptr<EnvironmentFrame> parent;
 
-    explicit EnvironmentFrame(std::shared_ptr<EnvironmentFrame> parent = nullptr)
+    explicit EnvironmentFrame(ricc::shared_ptr<EnvironmentFrame> parent = nullptr)
         : parent(std::move(parent)) {}
 };
 
@@ -22,10 +23,10 @@ class Environment {
     friend class Evaluator;
 
     // Environment is a handle: copies refer to the same lexical scope.
-    std::shared_ptr<EnvironmentFrame> frame;
+    ricc::shared_ptr<EnvironmentFrame> frame;
 
-    explicit Environment(std::shared_ptr<EnvironmentFrame> parent)
-        : frame(std::make_shared<EnvironmentFrame>(std::move(parent))) {}
+    explicit Environment(ricc::shared_ptr<EnvironmentFrame> parent)
+        : frame(ricc::make_shared<EnvironmentFrame>(std::move(parent))) {}
 
 public:
     Environment(Environment* parent = nullptr)

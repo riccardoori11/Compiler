@@ -25,7 +25,7 @@ class Evaluator{
 
 private:
 
-		std::unordered_set<std::shared_ptr<EnvironmentFrame>> captured_environments;
+		std::unordered_set<ricc::shared_ptr<EnvironmentFrame>> captured_environments;
 
     static void validateIntegerInfix(TokenType op, int a, int b){
         constexpr int minimum = std::numeric_limits<int>::min();
@@ -143,7 +143,7 @@ ExecutionResult execute(const Statement& node, Environment& env){
 
 				Binding binding{
 						TokenType::FUNCTION,
-						Value(std::make_shared<FunctionObj>(std::move(func)))
+						Value(ricc::make_shared<FunctionObj>(std::move(func)))
 				};
 
 				env.define(ptr->name->value, binding);
@@ -321,7 +321,7 @@ Value evalCallExpression(const CallExpression* node, Environment& env){
 		}
 		Value callee = eval(*node->function_name,env);
 
-		const auto* callable = ricc::get_if<std::shared_ptr<FunctionObj>>(&callee);
+		const auto* callable = ricc::get_if<ricc::shared_ptr<FunctionObj>>(&callee);
 		if (!callable){
 				throw std::runtime_error("Value is not callable");
 		}

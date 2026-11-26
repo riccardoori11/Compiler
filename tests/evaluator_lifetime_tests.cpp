@@ -48,8 +48,8 @@ Value evaluate(Evaluator& evaluator, Environment& environment, std::string sourc
     return evaluator.eval(*program, environment);
 }
 
-std::shared_ptr<FunctionObj> function(const Value& value) {
-    const auto* result = ricc::get_if<std::shared_ptr<FunctionObj>>(&value);
+ricc::shared_ptr<FunctionObj> function(const Value& value) {
+    const auto* result = ricc::get_if<ricc::shared_ptr<FunctionObj>>(&value);
     require(result && *result, "expected a function value");
     return *result;
 }
@@ -208,8 +208,8 @@ int main() {
     });
 
     checks.run("runtime teardown releases captured scopes and recursive bodies", [] {
-        std::weak_ptr<EnvironmentFrame> scope;
-        std::weak_ptr<BlockStatements> body;
+        ricc::weak_ptr<EnvironmentFrame> scope;
+        ricc::weak_ptr<BlockStatements> body;
         {
             Evaluator evaluator;
             {

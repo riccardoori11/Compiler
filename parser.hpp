@@ -597,7 +597,7 @@ private:
 
 				
 //std::cout << curr_tok.text << std::endl;
-				declaration->FunctionBody = std::shared_ptr<BlockStatements>(parseBlockStatement().release());
+				declaration->FunctionBody = ricc::shared_ptr<BlockStatements>(parseBlockStatement().release());
 
 				//std::cout << curr_tok.text << std::endl;
 
